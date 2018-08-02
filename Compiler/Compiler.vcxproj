@@ -20,16 +20,16 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{22BA5A34-234F-4B0F-A840-F32BB4716E0E}</ProjectGuid>
-    <RootNamespace>InstallShieldDecompiler</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <ProjectGuid>{2BE262E8-2F85-4B97-9E11-C087D9D08106}</ProjectGuid>
+    <RootNamespace>Compiler</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -69,9 +69,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>$(ProjectName)</TargetName>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -117,111 +115,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AbortAction.h" />
-    <ClInclude Include="Action.h" />
-    <ClInclude Include="ActionFile.h" />
-    <ClInclude Include="AddressOfAction.h" />
-    <ClInclude Include="AddressOfWideAction.h" />
-    <ClInclude Include="BasicBlock.h" />
-    <ClInclude Include="BinaryAction.h" />
-    <ClInclude Include="ActionWithArgs.h" />
-    <ClInclude Include="AssignAction.h" />
-    <ClInclude Include="BinaryExpression.h" />
-    <ClInclude Include="BindVariableAction.h" />
-    <ClInclude Include="DLLFuncCallAction.h" />
-    <ClInclude Include="EndCatchAction.h" />
-    <ClInclude Include="EndFuncAction.h" />
-    <ClInclude Include="Expression.h" />
-    <ClInclude Include="FunctionCall.h" />
-    <ClInclude Include="Literal.h" />
-    <ClInclude Include="Statement.h" />
-    <ClInclude Include="Function.h" />
-    <ClInclude Include="IScript.h" />
-    <ClInclude Include="EndTryAction.h" />
-    <ClInclude Include="ExitAction.h" />
-    <ClInclude Include="GetByteAction.h" />
-    <ClInclude Include="NOPAction.h" />
-    <ClInclude Include="Optimizer.h" />
-    <ClInclude Include="PropGetAction.h" />
-    <ClInclude Include="PropPutAction.h" />
-    <ClInclude Include="PropPutRefAction.h" />
-    <ClInclude Include="ReturnAction.h" />
-    <ClInclude Include="DLLPrototype.h" />
-    <ClInclude Include="InternalPrototype.h" />
-    <ClInclude Include="LibFile.h" />
-    <ClInclude Include="SetByteAction.h" />
-    <ClInclude Include="Struct.h" />
-    <ClInclude Include="FuncCallAction.h" />
-    <ClInclude Include="CNumConst.h" />
-    <ClInclude Include="CStrConst.h" />
-    <ClInclude Include="FuncPrologAction.h" />
-    <ClInclude Include="GotoAction.h" />
-    <ClInclude Include="IArgument.h" />
-    <ClInclude Include="IfAction.h" />
-    <ClInclude Include="InternalFuncCallAction.h" />
-    <ClInclude Include="Prototype.h" />
-    <ClInclude Include="StreamPtr.h" />
-    <ClInclude Include="TryAction.h" />
-    <ClInclude Include="Type.h" />
-    <ClInclude Include="UnaryAction.h" />
-    <ClInclude Include="UnUseDLLAction.h" />
-    <ClInclude Include="UseDLLAction.h" />
-    <ClInclude Include="vararg.h" />
-    <ClInclude Include="Variable.h" />
+    <ClCompile Include="..\InstallShieldDecompiler\compile.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\InstallShieldDecompiler\CompilerDLL.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AbortAction.cpp" />
-    <ClCompile Include="Action.cpp" />
-    <ClCompile Include="ActionFile.cpp" />
-    <ClCompile Include="ActionWithArgs.cpp" />
-    <ClCompile Include="AddressOfAction.cpp" />
-    <ClCompile Include="AddressOfWideAction.cpp" />
-    <ClCompile Include="AssignAction.cpp" />
-    <ClCompile Include="BasicBlock.cpp" />
-    <ClCompile Include="BinaryAction.cpp" />
-    <ClCompile Include="BinaryExpression.cpp" />
-    <ClCompile Include="BindVariableAction.cpp" />
-    <ClCompile Include="DLLFuncCallAction.cpp" />
-    <ClCompile Include="EndCatchAction.cpp" />
-    <ClCompile Include="EndFuncAction.cpp" />
-    <ClCompile Include="Expression.cpp" />
-    <ClCompile Include="FunctionCall.cpp" />
-    <ClCompile Include="Statement.cpp" />
-    <ClCompile Include="Function.cpp" />
-    <ClCompile Include="IScript.cpp" />
-    <ClCompile Include="CNumConst.cpp" />
-    <ClCompile Include="EndTryAction.cpp" />
-    <ClCompile Include="ExitAction.cpp" />
-    <ClCompile Include="GetByteAction.cpp" />
-    <ClCompile Include="GotoAction.cpp" />
-    <ClCompile Include="IfAction.cpp" />
-    <ClCompile Include="NOPAction.cpp" />
-    <ClCompile Include="Optimizer.cpp" />
-    <ClCompile Include="PropGetAction.cpp" />
-    <ClCompile Include="PropPutAction.cpp" />
-    <ClCompile Include="PropPutRefAction.cpp" />
-    <ClCompile Include="ReturnAction.cpp" />
-    <ClCompile Include="CStrConst.cpp" />
-    <ClCompile Include="DLLPrototype.cpp" />
-    <ClCompile Include="FuncPrologAction.cpp" />
-    <ClCompile Include="IArgument.cpp" />
-    <ClCompile Include="InternalPrototype.cpp" />
-    <ClCompile Include="LibFile.cpp" />
-    <ClCompile Include="SetByteAction.cpp" />
-    <ClCompile Include="Struct.cpp" />
-    <ClCompile Include="FuncCallAction.cpp" />
-    <ClCompile Include="InternalFuncCallAction.cpp" />
-    <ClCompile Include="main.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Prototype.cpp" />
-    <ClCompile Include="TryAction.cpp" />
-    <ClCompile Include="Type.cpp" />
-    <ClCompile Include="UnaryAction.cpp" />
-    <ClCompile Include="UnUseDLLAction.cpp" />
-    <ClCompile Include="UseDLLAction.cpp" />
-    <ClCompile Include="vararg.cpp" />
-    <ClCompile Include="Variable.cpp" />
+    <ClInclude Include="..\InstallShieldDecompiler\CompilerDLL.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
