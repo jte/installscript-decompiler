@@ -12,7 +12,7 @@ void CExitAction::print(std::ostream& os) const
 	os << "EXIT";
 }
 
-CStatement CExitAction::ToStatement() const
+std::shared_ptr<CStatement> CExitAction::ToStatement() const
 {
-	return CStatement(StatementType::Exit);
+	return std::make_shared<CStatement>(StatementType::Exit);
 }

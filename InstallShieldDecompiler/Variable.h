@@ -13,9 +13,10 @@ private:
 	std::string m_name;
 	ArgType m_concreteType; // always present
 	ScriptType m_scriptType; // must be inferred for local variables
+	bool m_isArgument;
 public:
 	bool operator==(const CVariable& rhs);
-	CVariable(ArgType type, int32_t address);
+	CVariable(ArgType type, int32_t address, bool isArgument);
 	int32_t GetAddress() const;
 	ArgType GetConcreteType() const;
 	void SetName(const std::string& name);

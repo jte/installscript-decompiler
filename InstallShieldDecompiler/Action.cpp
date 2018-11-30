@@ -27,8 +27,9 @@
 #include "BindVariableAction.h"
 #include "AddressOfWideAction.h"
 
+
 CAction::CAction(CIScript* script) :
-	m_script(script), m_labelId(script->GetLastLabelId())
+	m_script(script)
 {
 
 }
@@ -55,25 +56,25 @@ CAction* CAction::FindFactory(size_t id, CIScript* script, StreamPtr& fileptr)
 	case 4: return new CIfAction(script, fileptr);
 	case 5: return new CGotoAction(script, fileptr);
 	case 6: return new CAssignAction(script, fileptr);
-	case 7: return new CBinaryAction<'+'>(script, fileptr);
-	case 8: return new CBinaryAction<'%'>(script, fileptr);
-	case 9: return new CBinaryAction<'<'>(script, fileptr);
-	case 10: return new CBinaryAction<'>'>(script, fileptr);
-	case 11: return new CBinaryAction<'<='>(script, fileptr);
-	case 12: return new CBinaryAction<'>='>(script, fileptr);
-	case 13: return new CBinaryAction<'=='>(script, fileptr);
-	case 14: return new CBinaryAction<'!='>(script, fileptr);
-	case 15: return new CBinaryAction<'-'>(script, fileptr);
-	case 16: return new CBinaryAction<'*'>(script, fileptr);
-	case 17: return new CBinaryAction<'/'>(script, fileptr);
-	case 18: return new CBinaryAction<'&'>(script, fileptr);
-	case 19: return new CBinaryAction<'|'>(script, fileptr);
-	case 20: return new CBinaryAction<'^'>(script, fileptr);
+	case 7: return new CBinaryAction<BinaryExprType::BinAdd>(script, fileptr);
+	case 8: return new CBinaryAction<BinaryExprType::BinMod>(script, fileptr);
+	case 9: return new CBinaryAction<BinaryExprType::BinLT>(script, fileptr);
+	case 10: return new CBinaryAction<BinaryExprType::BinGT>(script, fileptr);
+	case 11: return new CBinaryAction<BinaryExprType::BinLTE>(script, fileptr);
+	case 12: return new CBinaryAction<BinaryExprType::BinGTE>(script, fileptr);
+	case 13: return new CBinaryAction<BinaryExprType::BinEq>(script, fileptr);
+	case 14: return new CBinaryAction<BinaryExprType::BinNEq>(script, fileptr);
+	case 15: return new CBinaryAction<BinaryExprType::BinSub>(script, fileptr);
+	case 16: return new CBinaryAction<BinaryExprType::BinMul>(script, fileptr);
+	case 17: return new CBinaryAction<BinaryExprType::BinDiv>(script, fileptr);
+	case 18: return new CBinaryAction<BinaryExprType::BitAnd>(script, fileptr);
+	case 19: return new CBinaryAction<BinaryExprType::BitOr>(script, fileptr);
+	case 20: return new CBinaryAction<BinaryExprType::BitXor>(script, fileptr);
 	case 21: return new CUnaryAction<'~'>(script, fileptr);
-	case 22: return new CBinaryAction<'<<'>(script, fileptr);
-	case 23: return new CBinaryAction<'>>'>(script, fileptr);
-	case 24: return new CBinaryAction<'&&'>(script, fileptr);
-	case 25: return new CBinaryAction<'||'>(script, fileptr);
+	case 22: return new CBinaryAction<BinaryExprType::BitShl>(script, fileptr);
+	case 23: return new CBinaryAction<BinaryExprType::BitShr>(script, fileptr);
+	case 24: return new CBinaryAction<BinaryExprType::LogAnd>(script, fileptr);
+	case 25: return new CBinaryAction<BinaryExprType::LogOr>(script, fileptr);
 	case 26: return new CAddressOfAction(script, fileptr);
 	case 27: return new CUnaryAction<'*'>(script, fileptr);
 	case 28: return new CUnaryAction<'.'>(script, fileptr);
@@ -112,9 +113,4 @@ CAction* CAction::FindFactory(size_t id, CIScript* script, StreamPtr& fileptr)
 	default: break;
 	}
 	throw std::runtime_error(std::string("No handler for action id ") + std::to_string(id) + std::string(" found"));
-}
-
-size_t CAction::GetLabelId() const
-{
-	return m_labelId;
 }

@@ -6,7 +6,7 @@ class CAddressOfAction : public CActionWithArgs
 {
 protected:
 	void print(std::ostream& os) const;
-	CStatement ToStatement() const;
+	std::shared_ptr<CStatement> ToStatement() const;
 public:
 	CAddressOfAction(CIScript* script, StreamPtr& filePtr);
 };

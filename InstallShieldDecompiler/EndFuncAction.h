@@ -10,5 +10,5 @@ protected:
 public:
 	CEndFuncAction(CIScript* script, StreamPtr& filePtr);
 	//void Parse(StreamPtr& filePtr);
-	CStatement ToStatement() const;
+	std::shared_ptr<CStatement> ToStatement() const;
 };

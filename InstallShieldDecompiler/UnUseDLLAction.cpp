@@ -8,7 +8,7 @@ void CUnUseDLLAction::print(std::ostream& os) const
 	os << *(m_arguments[0]) << " = " << *(m_arguments[1]);
 }
 
-CStatement CUnUseDLLAction::ToStatement() const
+std::shared_ptr<CStatement> CUnUseDLLAction::ToStatement() const
 {
-	return CStatement(StatementType::UnUseDLL, CExpression::FromScript(m_arguments));
+	return std::make_shared<CStatement>(StatementType::UnUseDLL, CExpression::FromScript(m_arguments));
 }

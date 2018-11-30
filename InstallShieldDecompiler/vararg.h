@@ -19,7 +19,7 @@ protected:
 public:
 	CExpression * ToExpression() const
 	{
-		return new CVariable(m_type, m_address);
+		return new CVariable(m_type, m_address, parameter);
 	}
 	vararg(StreamPtr& filePtr)
 	{

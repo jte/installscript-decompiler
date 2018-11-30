@@ -11,7 +11,7 @@ void CReturnAction::print(std::ostream& os) const
 		os << *(m_arguments[0]);
 }
 
-CStatement CReturnAction::ToStatement() const
+std::shared_ptr<CStatement> CReturnAction::ToStatement() const
 {
-	return CStatement(StatementType::Return, CExpression::FromScript(m_arguments));
+	return std::make_shared<CStatement>(StatementType::Return, CExpression::FromScript(m_arguments));
 }

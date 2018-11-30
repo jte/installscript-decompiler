@@ -9,9 +9,9 @@ void CAssignAction::print(std::ostream& os) const
 	os << *(m_arguments[0]) << " = " << *(m_arguments[1]);
 }
 
-CStatement CAssignAction::ToStatement() const
+std::shared_ptr<CStatement> CAssignAction::ToStatement() const
 {
-	return CStatement(StatementType::Assign, CVariable::FromScript(m_arguments));
+	return std::make_shared<CStatement>(StatementType::Assign, CVariable::FromScript(m_arguments));
 }
 
 CAssignAction::CAssignAction(CIScript* script, StreamPtr& filePtr) :

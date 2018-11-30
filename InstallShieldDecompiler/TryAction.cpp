@@ -8,7 +8,7 @@ void CTryAction::print(std::ostream& os) const
 	os << *(m_arguments[0]) << " = " << *(m_arguments[1]);
 }
 
-CStatement CTryAction::ToStatement() const
+std::shared_ptr<CStatement> CTryAction::ToStatement() const
 {
-	return CStatement(StatementType::Try, CExpression::FromScript(m_arguments));
+	return std::make_shared<CStatement>(StatementType::Try, CExpression::FromScript(m_arguments));
 }

@@ -17,12 +17,8 @@ enum class StatementType : uint32_t
 	UnaryComplement = '~',
 	UnaryIndirection = '*',
 	UnaryMember = '.',
-	AddressOf = 65536,
-	SetByte,
-	GetByte,
 	FuncProlog,
 	FuncEpilog,
-	PropPut,
 	PropPutRef,
 	PropGet,
 	Try,
@@ -31,7 +27,6 @@ enum class StatementType : uint32_t
 	UseDLL,
 	UnUseDLL,
 	BindVariable,
-	AddressOfWide,
 	DLLFuncCall
 };
 
@@ -44,6 +39,7 @@ private:
 	std::vector<CExpression*> m_exprs;
 	class CBasicBlock* m_owner;
 public:
+	CStatement() {}
 	CStatement(StatementType type);// actions without args
 	CStatement(StatementType type, std::vector<CExpression*> exprs);
 	StatementType GetType() const

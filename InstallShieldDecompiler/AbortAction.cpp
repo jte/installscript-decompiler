@@ -12,7 +12,7 @@ void CAbortAction::print(std::ostream& os) const
 	os << "NOP";
 }
 
-CStatement CAbortAction::ToStatement() const
+std::shared_ptr<CStatement> CAbortAction::ToStatement() const
 {
-	return CStatement(StatementType::Abort);
+	return std::make_shared<CStatement>(StatementType::Abort);
 }

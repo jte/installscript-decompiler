@@ -7,13 +7,8 @@
 class CBasicBlock
 {
 public:
-	CBasicBlock(uint32_t address) :
-		m_address(address)
+	CBasicBlock()
 	{}
-	uint32_t GetAddress() const
-	{
-		return m_address;
-	}
 	void AddStatement(CStatement expr)
 	{
 		expr.SetOwner(this);
@@ -26,5 +21,4 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, const CBasicBlock& o);
 private:
 	std::vector<CStatement> m_statements;
-	uint32_t m_address;
 };

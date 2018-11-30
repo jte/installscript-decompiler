@@ -15,12 +15,6 @@ void CActionWithArgs::Parse(StreamPtr& filePtr)
 	m_arguments.resize(m_numOperands);
 	ParseArguments(filePtr);
 }
-/**
-.rdata:100D50F4     apArgs          dd offset vararg_CStrArg__constructor
-.rdata : 100D50F8                     dd offset vararg_CNumArg__constructor
-.rdata : 100D50FC                     dd offset CStrConst__new
-.rdata : 100D5100                     dd offset CNumConst__new
-.rdata : 100D5104                     dd offset vararg_CVariantArg__constructor*/
 
 IArgument* CActionWithArgs::ParseArgument(StreamPtr& filePtr)
 {
@@ -46,10 +40,8 @@ IArgument* CActionWithArgs::ParseArgument(StreamPtr& filePtr)
 		return new vararg<ArgType::VariantArg, false>(filePtr);
 		break;
 	default:
-		return nullptr;
+		throw std::runtime_error("Invalid argument type " + std::to_string(argId));
 	}
-
-	//return apArgs[(argId - 4) % _countof(apArgs)](filePtr);
 }
 
 void CActionWithArgs::ParseArguments(StreamPtr& filePtr)

@@ -8,7 +8,7 @@ void CEndTryAction::print(std::ostream& os) const
 	os << *(m_arguments[0]) << " = " << *(m_arguments[1]);
 }
 
-CStatement CEndTryAction::ToStatement() const
+std::shared_ptr<CStatement> CEndTryAction::ToStatement() const
 {
-	return CStatement(StatementType::EndTry, CExpression::FromScript(m_arguments));
+	return std::make_shared<CStatement>(StatementType::EndTry, CExpression::FromScript(m_arguments));
 }

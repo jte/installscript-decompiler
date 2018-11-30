@@ -6,31 +6,13 @@
 #include "Action.h"
 #include "FuncCallAction.h"
 #include "FuncPrologAction.h"
+#include "EndFuncAction.h"
 #include <iostream>
 
 CIScript::CIScript(const std::vector<uint8_t>& script) :
 	m_script(script), m_streamPtr(m_script), m_functionId(-1)
 {
 	Read();
-}
-
-void CIScript::ReadVariablesTable(const StreamPtr& filePtr)
-{
-	StreamPtr table(filePtr);
-	//table.JumpTo(table.GetOffset() + m_tableOffset);
-	// table
-	uint16_t table1Info = 0;
-	table.Read(table1Info);
-	uint16_t table1Size = 0;
-	table.Read(table1Size);
-	std::vector<int> table1;
-	table.ReadArray(table1, table1Size);
-	uint16_t table2Info = 0;
-	table.Read(table2Info);
-	uint16_t table2Size = 0;
-	table.Read(table2Size);
-	std::vector<int> table2;
-	table.ReadArray(table2, table2Size);
 }
 
 void CIScript::ReadHeader()
@@ -62,9 +44,9 @@ void CIScript::DecryptBuffer(uint32_t* seed, std::vector<uint8_t> buffer, char k
 
 void CIScript::PrintPrototypes()
 {
-	for (const auto& p : m_prototypes)
+	for (const auto& p : m_fns)
 	{
-		std::cout << *p;
+		std::cout << *(p.prototype);
 	}
 }
 
@@ -80,12 +62,12 @@ void CIScript::ReadPrototypes(uint32_t tableOffset)
 		ptr.Read(flags, false);
 		if ((flags & 4) == 4)
 		{
-			m_prototypes.push_back(new CPrototype(ptr));
+			m_fns.push_back(Function(new CPrototype(ptr)));
 		}
 		else
 		{
 			CPrototype::MakeFn fn = CPrototype::FindFactory(flags);
-			m_prototypes.push_back((*fn)(ptr));
+			m_fns.push_back(Function((*fn)(ptr)));
 		}
 	}
 }
@@ -107,32 +89,45 @@ void CIScript::ReadStructs(uint32_t tableOffset)
 void CIScript::ReadBBs(uint32_t tableOffset)
 {
 	StreamPtr ptr(m_script, tableOffset);
-
+	Function* fn = nullptr;
+	std::vector<CAction*> acts;
 	for (size_t i = 0; i < m_header.numBBs; ++i)
 	{
+		// Read BB addrs from table
 		uint32_t bbAddr = 0;
 		ptr.Read(bbAddr);
 
+		// Read actions at BB addr
 		StreamPtr aptr(m_script, bbAddr);
 		uint16_t numActions = 0;
 		aptr.Read(numActions);
 		
-		std::vector<CAction*> acts;
-
 		for (size_t j = 0; j < numActions; ++j)
 		{
 			uint16_t actionId = 0;
 			aptr.Read(actionId, false);
-			CAction* newAct = CAction::FindFactory(actionId, this, aptr);
-			if (dynamic_cast<CFuncPrologAction*>(newAct))
+			auto newAct = CAction::FindFactory(actionId, this, aptr);
+			if (CFuncPrologAction* funcProlog = dynamic_cast<CFuncPrologAction*>(newAct))
 			{
-				m_functionId = m_bbs.size();
+				fn = &GetFnByBBId(i);
+				fn->dataDeclList = funcProlog->GetDataDeclList();
 			}
-			acts.push_back(newAct);
+			else if (dynamic_cast<CEndFuncAction*>(newAct))
+			{
+				fn->bbs.push_back(acts);
+				acts.clear();
+				fn = nullptr;
+			}
+			else
+			{
+				acts.push_back(newAct);
+			}
 		}
-
-		//m_bbSizes.push_back(acts.size());
-		m_bbs.push_back(acts);
+		if (fn) 
+		{
+			fn->bbs.push_back(acts);
+			acts.clear();
+		}
 	}
 }
 
@@ -160,6 +155,7 @@ void CIScript::ReadExternTable(uint32_t tableOffset)
 
 void CIScript::ReadVariantTable(StreamPtr& table)
 {
+	// use datadecllist
 	uint16_t count = 0;
 	table.Read(count);
 	std::cout << "variant table " << std::endl;
@@ -176,6 +172,7 @@ void CIScript::ReadVariantTable(StreamPtr& table)
 
 void CIScript::ReadSymFlagTable(StreamPtr& table)
 {
+	// use datadecllist
 	uint16_t count = 0;
 	table.Read(count);
 	uint16_t unknown = 0;
@@ -211,29 +208,17 @@ void CIScript::Read()
 std::ostream& operator<<(std::ostream& out, const CIScript& o)
 {
 	size_t i = 0;
-	for (const auto& bbx : o.m_bbs)
+	for (const auto& fn : o.m_fns)
 	{
-		out << "label_" << std::dec << i << std::hex << ":\n";
-		++i;
-		for (const auto& bb : bbx)
+		out << *(fn.prototype);
+		for (const auto& bbx : fn.bbs)
 		{
-			out << *bb << '\n';
+			out << "label_" << std::dec << i << std::hex << ":\n";
+			++i;
+			for (const auto& bb : bbx)
+				out << *bb << '\n';
 		}
+		out << "\n\n" << std::endl;
 	}
 	return out;
-}
-
-const CPrototype* CIScript::GetPrototype(size_t id) const
-{
-	return m_prototypes.at(id);
-}
-
-size_t CIScript::GetLastLabelId() const
-{
-	return m_bbs.size();
-}
-
-int32_t CIScript::GetCurrentFunctionId() const
-{
-	return m_functionId;
 }

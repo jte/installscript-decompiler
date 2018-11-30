@@ -11,7 +11,7 @@ CDLLFuncCallAction::CDLLFuncCallAction(CIScript* script, StreamPtr& filePtr) :
 
 void CDLLFuncCallAction::print(std::ostream& os) const
 {
-	const CDLLPrototype* p = dynamic_cast<const CDLLPrototype*>(m_script->GetPrototype(m_functionId));
+	const CDLLPrototype* p = dynamic_cast<const CDLLPrototype*>(m_script->GetFnByBBId(m_functionId).prototype);
 	assert(p);
 	auto name = p->GetName();
 	auto flags = p->GetFlags();
@@ -28,8 +28,10 @@ void CDLLFuncCallAction::print(std::ostream& os) const
 	os << ")";
 }
 
-CStatement CDLLFuncCallAction::ToStatement() const
+std::shared_ptr<CStatement> CDLLFuncCallAction::ToStatement() const
 {
-	return CStatement(StatementType::DLLFuncCall, 
-		{ new CFunctionCallExpression(m_script->GetPrototype(m_functionId), CVariable::FromScript(m_arguments)) });
+	std::vector<CExpression*> exprs;
+	auto fnCall = new CFunctionCallExpression(m_script->GetFnById(m_functionId).prototype, CVariable::FromScript(m_arguments));
+	exprs.push_back(fnCall);
+	return std::make_shared<CStatement>(StatementType::DLLFuncCall, exprs);
 }

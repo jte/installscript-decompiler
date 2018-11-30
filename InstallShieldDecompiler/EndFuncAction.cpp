@@ -19,7 +19,7 @@ void CEndFuncAction::print(std::ostream& os) const
 	os << "EndFuncAction";
 }
 
-CStatement CEndFuncAction::ToStatement() const
+std::shared_ptr<CStatement> CEndFuncAction::ToStatement() const
 {
-	return CStatement(StatementType::FuncEpilog);
+	return std::make_shared<CStatement>(StatementType::FuncEpilog);
 }

@@ -8,7 +8,7 @@ void CEndCatchAction::print(std::ostream& os) const
 	os << *(m_arguments[0]) << " = " << *(m_arguments[1]);
 }
 
-CStatement CEndCatchAction::ToStatement() const
+std::shared_ptr<CStatement> CEndCatchAction::ToStatement() const
 {
-	return CStatement(StatementType::Return, CExpression::FromScript(m_arguments));
+	return std::make_shared<CStatement>(StatementType::Return, CExpression::FromScript(m_arguments));
 }

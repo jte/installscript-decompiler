@@ -1,22 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="InstallShield">
       <UniqueIdentifier>{6c81e2b4-2902-4fcf-a776-a701fddc5cb6}</UniqueIdentifier>
     </Filter>
     <Filter Include="InstallShield\ActionFile">
       <UniqueIdentifier>{2da2492c-717d-4c21-b6fa-611a03dc3f31}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Action">
-      <UniqueIdentifier>{5c123b73-4f41-4f2e-b647-64f8eb3817c6}</UniqueIdentifier>
     </Filter>
     <Filter Include="InstallShield\Struct">
       <UniqueIdentifier>{5884adbf-dcf4-445f-a0c8-8a0ce00d8b69}</UniqueIdentifier>
@@ -27,11 +16,21 @@
     <Filter Include="InstallShield\Wrapper">
       <UniqueIdentifier>{20764d66-e8b0-4482-a4eb-ccb588c000f9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Optimizer">
+    <Filter Include="Backend">
       <UniqueIdentifier>{f1abe4c2-2f19-4842-ae3f-c09efe06495f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Optimizer\Expression">
+    <Filter Include="Backend\Expression">
       <UniqueIdentifier>{5ac2010f-0f44-4191-b093-2ba21089ae3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend\Statement">
+      <UniqueIdentifier>{e354baf9-9002-4b69-ac38-58c6741ad05d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frontend">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Frontend\Action">
+      <UniqueIdentifier>{5c123b73-4f41-4f2e-b647-64f8eb3817c6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -39,43 +38,43 @@
       <Filter>InstallShield\ActionFile</Filter>
     </ClInclude>
     <ClInclude Include="Action.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="StreamPtr.h">
-      <Filter>Source Files</Filter>
+      <Filter>Frontend</Filter>
     </ClInclude>
     <ClInclude Include="ActionWithArgs.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="CNumConst.h">
-      <Filter>Source Files</Filter>
+      <Filter>Frontend</Filter>
     </ClInclude>
     <ClInclude Include="CStrConst.h">
-      <Filter>Source Files</Filter>
+      <Filter>Frontend</Filter>
     </ClInclude>
     <ClInclude Include="IArgument.h">
-      <Filter>Source Files</Filter>
+      <Filter>Frontend</Filter>
     </ClInclude>
     <ClInclude Include="vararg.h">
-      <Filter>Source Files</Filter>
+      <Filter>Frontend</Filter>
     </ClInclude>
     <ClInclude Include="AssignAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="InternalFuncCallAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="FuncCallAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="FuncPrologAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="IfAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="GotoAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="Prototype.h">
       <Filter>InstallShield\Prototype</Filter>
@@ -96,97 +95,115 @@
       <Filter>InstallShield\Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="EndFuncAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="ReturnAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="PropPutAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="NOPAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="PropGetAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="ExitAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="BinaryAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="UnaryAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="AddressOfAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="AbortAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="SetByteAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="GetByteAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="DLLFuncCallAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="PropPutRefAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="TryAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="EndTryAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="EndCatchAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="UseDLLAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="UnUseDLLAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="BindVariableAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="AddressOfWideAction.h">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClInclude>
     <ClInclude Include="IScript.h">
       <Filter>InstallShield</Filter>
     </ClInclude>
-    <ClInclude Include="Optimizer.h">
-      <Filter>Optimizer</Filter>
-    </ClInclude>
     <ClInclude Include="Function.h">
-      <Filter>Optimizer</Filter>
+      <Filter>Backend</Filter>
     </ClInclude>
     <ClInclude Include="BasicBlock.h">
-      <Filter>Optimizer</Filter>
-    </ClInclude>
-    <ClInclude Include="Statement.h">
-      <Filter>Optimizer</Filter>
+      <Filter>Backend</Filter>
     </ClInclude>
     <ClInclude Include="Expression.h">
-      <Filter>Optimizer\Expression</Filter>
+      <Filter>Backend\Expression</Filter>
     </ClInclude>
     <ClInclude Include="FunctionCall.h">
-      <Filter>Optimizer\Expression</Filter>
+      <Filter>Backend\Expression</Filter>
     </ClInclude>
     <ClInclude Include="Literal.h">
-      <Filter>Optimizer\Expression</Filter>
+      <Filter>Backend\Expression</Filter>
     </ClInclude>
     <ClInclude Include="Variable.h">
-      <Filter>Optimizer\Expression</Filter>
+      <Filter>Backend\Expression</Filter>
     </ClInclude>
     <ClInclude Include="BinaryExpression.h">
-      <Filter>Optimizer\Expression</Filter>
+      <Filter>Backend\Expression</Filter>
+    </ClInclude>
+    <ClInclude Include="MemberAccessExpression.h">
+      <Filter>Backend\Expression</Filter>
+    </ClInclude>
+    <ClInclude Include="ArrayAccessExpression.h">
+      <Filter>Backend\Expression</Filter>
+    </ClInclude>
+    <ClInclude Include="AddressOfExpression.h">
+      <Filter>Backend\Expression</Filter>
+    </ClInclude>
+    <ClInclude Include="Statement.h">
+      <Filter>Backend\Statement</Filter>
+    </ClInclude>
+    <ClInclude Include="LabelStatement.h">
+      <Filter>Backend\Statement</Filter>
+    </ClInclude>
+    <ClInclude Include="DataDeclList.h">
+      <Filter>Frontend</Filter>
+    </ClInclude>
+    <ClInclude Include="Decompiler.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="IfStatement.h">
+      <Filter>Backend\Statement</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -194,25 +211,25 @@
       <Filter>InstallShield\ActionFile</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Frontend</Filter>
     </ClCompile>
     <ClCompile Include="Action.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="ActionWithArgs.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="CNumConst.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Frontend</Filter>
     </ClCompile>
     <ClCompile Include="CStrConst.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Frontend</Filter>
     </ClCompile>
     <ClCompile Include="FuncCallAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="InternalFuncCallAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="Prototype.cpp">
       <Filter>InstallShield\Prototype</Filter>
@@ -230,115 +247,133 @@
       <Filter>InstallShield</Filter>
     </ClCompile>
     <ClCompile Include="AssignAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="IArgument.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Frontend</Filter>
     </ClCompile>
     <ClCompile Include="vararg.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Frontend</Filter>
     </ClCompile>
     <ClCompile Include="LibFile.cpp">
       <Filter>InstallShield\Wrapper</Filter>
     </ClCompile>
     <ClCompile Include="FuncPrologAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="EndFuncAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="ReturnAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="GotoAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="IfAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="PropPutAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="NOPAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="PropGetAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="ExitAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="BinaryAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="UnaryAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="AddressOfAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="AbortAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="SetByteAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="GetByteAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="DLLFuncCallAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="PropPutRefAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="EndCatchAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="TryAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="EndTryAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="UseDLLAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="UnUseDLLAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="BindVariableAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="AddressOfWideAction.cpp">
-      <Filter>Source Files\Action</Filter>
+      <Filter>Frontend\Action</Filter>
     </ClCompile>
     <ClCompile Include="IScript.cpp">
       <Filter>InstallShield</Filter>
     </ClCompile>
-    <ClCompile Include="Optimizer.cpp">
-      <Filter>Optimizer</Filter>
-    </ClCompile>
     <ClCompile Include="Function.cpp">
-      <Filter>Optimizer</Filter>
+      <Filter>Backend</Filter>
     </ClCompile>
     <ClCompile Include="BasicBlock.cpp">
-      <Filter>Optimizer</Filter>
-    </ClCompile>
-    <ClCompile Include="Statement.cpp">
-      <Filter>Optimizer</Filter>
+      <Filter>Backend</Filter>
     </ClCompile>
     <ClCompile Include="Expression.cpp">
-      <Filter>Optimizer\Expression</Filter>
+      <Filter>Backend\Expression</Filter>
     </ClCompile>
     <ClCompile Include="FunctionCall.cpp">
-      <Filter>Optimizer\Expression</Filter>
+      <Filter>Backend\Expression</Filter>
     </ClCompile>
     <ClCompile Include="Variable.cpp">
-      <Filter>Optimizer\Expression</Filter>
+      <Filter>Backend\Expression</Filter>
     </ClCompile>
     <ClCompile Include="BinaryExpression.cpp">
-      <Filter>Optimizer\Expression</Filter>
+      <Filter>Backend\Expression</Filter>
+    </ClCompile>
+    <ClCompile Include="MemberAccessExpression.cpp">
+      <Filter>Backend\Expression</Filter>
+    </ClCompile>
+    <ClCompile Include="ArrayAccessExpression.cpp">
+      <Filter>Backend\Expression</Filter>
+    </ClCompile>
+    <ClCompile Include="AddressOfExpression.cpp">
+      <Filter>Backend\Expression</Filter>
+    </ClCompile>
+    <ClCompile Include="Statement.cpp">
+      <Filter>Backend\Statement</Filter>
+    </ClCompile>
+    <ClCompile Include="LabelStatement.cpp">
+      <Filter>Backend\Statement</Filter>
+    </ClCompile>
+    <ClCompile Include="DataDeclList.cpp">
+      <Filter>Frontend</Filter>
+    </ClCompile>
+    <ClCompile Include="Decompiler.cpp">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="IfStatement.cpp">
+      <Filter>Backend\Statement</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

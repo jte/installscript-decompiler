@@ -24,11 +24,15 @@ protected:
 	std::vector<ArgumentTypeInfo> m_arguments;
 	std::string m_name;
 	ScriptType m_returnType;
-
+	uint16_t m_bbId;
 	virtual void print(std::ostream& os) const;
 public:
 	CPrototype(StreamPtr& filePtr);
 	virtual ~CPrototype() = default;
+	virtual uint16_t GetBBId() const
+	{
+		return m_bbId;
+	}
 	virtual void Parse(StreamPtr& filePtr)
 	{
 		filePtr.Read(m_flags);

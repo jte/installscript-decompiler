@@ -21,7 +21,7 @@ void CFunctionCallExpression::print(std::ostream& out)
 	}
 	else
 	{
-		out << "@" << iproto->GetAddress();
+		out << "@" << iproto->GetBBId();
 	}
 	out << '(';
 	for (auto arg = m_args.cbegin(); arg != m_args.cend(); ++arg)

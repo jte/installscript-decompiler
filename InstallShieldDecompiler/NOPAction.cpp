@@ -13,7 +13,7 @@ void CNOPAction::print(std::ostream& os) const
 	os << "NOP";
 }
 
-CStatement CNOPAction::ToStatement() const
+std::shared_ptr<CStatement> CNOPAction::ToStatement() const
 {
-	return CStatement(StatementType::NOP);
+	return std::make_shared<CStatement>(StatementType::NOP);
 }

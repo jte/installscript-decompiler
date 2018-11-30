@@ -11,7 +11,7 @@ void CDLLPrototype::Parse(StreamPtr& filePtr)
 	filePtr.Read(m_returnType);
 	m_dllName = filePtr.ReadInsString();
 	m_name = filePtr.ReadInsString();
-	filePtr.Read(m_address);
+	filePtr.Read(m_bbId);
 	ParseArguments(filePtr);
 }
 
@@ -31,7 +31,7 @@ void CDLLPrototype::print(std::ostream& os) const
 	os << "(";
 	os << m_arguments;
 	os << ")";
-	os << " // @ " << m_address;
+	os << " // @ " << GetBBId();
 }
 
 std::string CDLLPrototype::GetDLLName() const

@@ -12,7 +12,7 @@ void CInternalPrototype::Parse(StreamPtr& filePtr)
 	uint16_t align;
 	filePtr.Read(align);
 	m_name = filePtr.ReadInsString();
-	filePtr.Read(m_address);
+	filePtr.Read(m_bbId);
 	ParseArguments(filePtr);
 }
 
@@ -30,7 +30,7 @@ void CInternalPrototype::print(std::ostream& os) const
 	}
 	//else
 	{
-		os << "(addr:" << m_address << ")";
+		os << "(addr:" << GetBBId() << ")";
 	}
 	os << '(';
 	os << m_arguments;

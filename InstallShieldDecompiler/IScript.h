@@ -1,12 +1,14 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
 #include "StreamPtr.h"
 #include "Struct.h"
 #include "ActionFile.h"
-#include "Optimizer.h"
+#include "Prototype.h"
+#include "DataDeclList.h"
 
-class CPrototype;
+//class CPrototype;
 class CAction;
 
 struct ExternRecord
@@ -26,15 +28,42 @@ class CIScript
 {
 public:
 	typedef std::vector<CAction*> ScriptBasicBlock;
+	struct Function
+	{
+		Function(CPrototype* proto) : 
+			prototype(proto)
+		{}
+		Function() : 
+			prototype(nullptr)
+		{}
+		CDataDeclList dataDeclList;
+		CPrototype* prototype;
+		std::vector<ScriptBasicBlock> bbs;
+	};
+	Function& GetFnById(size_t id)
+	{
+		return m_fns.at(id);
+	}
+	Function& GetFnByBBId(size_t addr)
+	{
+		auto fn = std::find_if(m_fns.begin(), m_fns.end(), [addr](const Function& fn) 
+		{ 
+			return fn.prototype->GetBBId() == addr; 
+		});
+		if (fn == m_fns.end())
+			throw std::runtime_error("Function not found");
+		return *fn;
+	}
+	std::vector<Function> GetFns() const
+	{
+		return m_fns;
+	}
 private:
-	
+	std::vector<Function> m_fns;
 	std::vector<uint8_t> m_script;
 	StreamPtr m_streamPtr;
-	std::vector<CPrototype*> m_prototypes;
 	std::vector<CStruct> m_structs;
 	ActionFileHeader m_header = {};
-	std::vector<ScriptBasicBlock> m_bbs;
-	std::vector<size_t> m_bbSizes;
 	std::vector<ExternRecord> m_externs;
 
 	void ReadHeader();
@@ -43,7 +72,6 @@ private:
 	void ReadBBs(uint32_t tableOffset);
 	void Read();
 	static void DecryptBuffer(uint32_t* seed, std::vector<uint8_t> buffer, char key);
-	void ReadVariablesTable(const StreamPtr& filePtr);
 	void ReadExternTable(uint32_t tableOffset);
 protected:
 	void ReadVariantTable(StreamPtr& filePtr);
@@ -53,19 +81,8 @@ protected:
 public:
 	CIScript(const std::vector<uint8_t>& script);
 	const CStruct& GetStruct(size_t id) const;
-	const CPrototype* GetPrototype(size_t id) const;
 	friend std::ostream& operator<<(std::ostream& out, const CIScript& o);
-	size_t GetLastLabelId() const;
 	void PrintPrototypes();
-	int32_t GetCurrentFunctionId() const;
-	std::vector<CPrototype*> GetPrototypes() const
-	{
-		return m_prototypes;
-	}
-	std::vector<ScriptBasicBlock> GetBasicBlocks() const
-	{
-		return m_bbs;
-	}
 	std::vector<ExternRecord> GetExterns() const
 	{
 		return m_externs;

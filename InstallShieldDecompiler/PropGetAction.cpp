@@ -7,7 +7,7 @@ void CPropGetAction::print(std::ostream& os) const
 	os << "Get " << *(m_arguments[0]) << " " << *(m_arguments[1]) << " " << *(m_arguments[2]);
 }
 
-CStatement CPropGetAction::ToStatement() const
+std::shared_ptr<CStatement> CPropGetAction::ToStatement() const
 {
-	return CStatement(StatementType::PropGet, CExpression::FromScript(m_arguments));
+	return std::make_shared<CStatement>(StatementType::PropGet, CExpression::FromScript(m_arguments));
 }

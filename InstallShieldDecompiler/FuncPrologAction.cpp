@@ -12,13 +12,16 @@ CFuncPrologAction::CFuncPrologAction(CIScript* script, StreamPtr& filePtr) :
 	CAction(script)
 {
 	Parse(filePtr);
-	char mark = 7;
+	char mark = 7; // NumConst
 	filePtr.Read(mark);
 	assert(mark == 7);
+	StreamPtr table(filePtr);
 	filePtr.Read(m_tableOffset);
+	table.JumpTo(table.GetOffset() + m_tableOffset);
+	m_declList.Parse(table);
 }
 
-CStatement CFuncPrologAction::ToStatement() const
+std::shared_ptr<CStatement> CFuncPrologAction::ToStatement() const
 {
-	return CStatement(StatementType::FuncProlog);
+	return std::make_shared<CStatement>(StatementType::FuncProlog);
 }

@@ -7,7 +7,6 @@ class CDLLPrototype : public CPrototype
 {
 protected:
 	std::string m_dllName;
-	uint16_t m_address;
 	void print(std::ostream& os) const;
 public:
 	CDLLPrototype(StreamPtr& filePtr);

@@ -25,20 +25,23 @@ bool CVariable::IsGlobal() const
 	return !IsLocal();
 }
 
-CVariable::CVariable(ArgType type, int32_t address) :
-	m_concreteType(type), m_address(address)
+CVariable::CVariable(ArgType type, int32_t address, bool isArgument) :
+	m_concreteType(type), m_address(address), m_isArgument(isArgument)
 {
 	if (m_address >= 0) // global
 		m_name += "gbl";
 	else
-		m_name += "lcl";
+		m_name += 'v';
 	switch (m_concreteType)
 	{
 	case ArgType::NumArg:
+		m_name += 'i';
 		break;
 	case ArgType::StrArg:
+		m_name += 's';
 		break;
 	case ArgType::VariantArg:
+		m_name += 'o';
 		break;
 	}
 	m_name += std::to_string(m_address < 0 ? -m_address : m_address);

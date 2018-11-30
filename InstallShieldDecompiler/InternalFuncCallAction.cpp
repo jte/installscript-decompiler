@@ -14,14 +14,14 @@ CInternalFuncCallAction::CInternalFuncCallAction(CIScript* script, StreamPtr& fi
 
 void CInternalFuncCallAction::print(std::ostream& os) const
 {
-	const CInternalPrototype* p = dynamic_cast<const CInternalPrototype*>(m_script->GetPrototype(m_functionId));
+	const CInternalPrototype* p = dynamic_cast<const CInternalPrototype*>(m_script->GetFnById(m_functionId).prototype);
 	assert(p);
 	auto name = p->GetName();
 	auto flags = p->GetFlags();
 	if (((uint32_t)flags & (uint32_t)CPrototype::Flags::IsExported) || !name.empty())
 		os << "name:" << name;
 	else
-		os << "addr:" << p->GetAddress();
+		os << "addr:" << p->GetBBId();
 	os << "(";
 	for (const auto& arg : m_arguments)
 	{
@@ -64,13 +64,13 @@ IArgument* CInternalFuncCallAction::ParseArgument(StreamPtr& filePtr)
 	//return pParams[(argId - 4) % _countof(apArgs)](filePtr);
 }
 
-CStatement CInternalFuncCallAction::ToStatement() const
+std::shared_ptr<CStatement> CInternalFuncCallAction::ToStatement() const
 {
 	// transform to LAST_RESULT = FuncCall(args)
 	std::vector<CExpression*> exprs;
-	CVariable* lastResult = new CVariable(ArgType::VariantArg, 0); // implicit
+	CVariable* lastResult = new CVariable(ArgType::VariantArg, 0, false); // implicit
 	exprs.push_back(lastResult);
-	CFunctionCallExpression* fcall = new CFunctionCallExpression(m_script->GetPrototype(m_functionId), CVariable::FromScript(m_arguments));
+	CFunctionCallExpression* fcall = new CFunctionCallExpression(m_script->GetFnByBBId(m_functionId).prototype, CVariable::FromScript(m_arguments));
 	exprs.push_back(fcall);
-	return CStatement(StatementType::Assign, exprs);
+	return std::make_shared<CStatement>(StatementType::Assign, exprs);
 }

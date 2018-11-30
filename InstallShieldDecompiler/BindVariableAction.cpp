@@ -8,7 +8,7 @@ void CBindVariableAction::print(std::ostream& os) const
 	os << *(m_arguments[0]) << " = " << *(m_arguments[1]);
 }
 
-CStatement CBindVariableAction::ToStatement() const
+std::shared_ptr<CStatement> CBindVariableAction::ToStatement() const
 {
-	return CStatement(StatementType::BindVariable, CExpression::FromScript(m_arguments));
+	return std::make_shared<CStatement>(StatementType::BindVariable, CExpression::FromScript(m_arguments));
 }

@@ -1,0 +1,214 @@
+//------------------------------------------------
+//--- 010 Editor v9.0 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+typedef struct
+{
+    DWORD Signature <format=hex>;
+    UCHAR CompilerVersion[12];
+    UCHAR CopyrightNotice[80];
+    WORD field_60; // set to 256
+    WORD numBBs;
+    WORD field_64; // set to 665
+    WORD Reserved1;
+    DWORD field_68; // set to 1
+    UCHAR Reserved2[0x78-0x6C];
+    DWORD field_78; // set to 256
+    DWORD List4Offset <format=hex>;
+    DWORD VariantTableOffset <format=hex>;
+    DWORD ExternTableOffset <format=hex>;
+    DWORD PrototypesTableOffset <format=hex>;
+    DWORD TypedefsTableOffset <format=hex>;
+    DWORD Reserved3;
+    DWORD DebugInfoOffset <format=hex>;
+    UCHAR field_98[64];
+    DWORD BBsTableOffset <format=hex>;
+    UCHAR Reserved4[0x100-0xdc];
+} ActionScriptHeader;
+
+typedef enum<UCHAR>
+{
+    String,
+    Char,
+    Short,
+    Int,
+    Long,
+    Pointer,
+    Bool,
+    Hwnd,
+    Void,
+    Struct,
+    Object,
+    Binary,
+    WString,
+    WPointer
+} EScriptType;
+
+typedef enum<UCHAR>
+{
+    StringPointer = 2,
+    NumberPointer,
+    ObjectPointer,
+    StringT,
+    NumberT,
+    ObjectT
+} EConcreteType;
+
+typedef struct
+{
+    WORD Count;
+    if (Count != 0)
+        char String[Count];
+} InsString;
+
+typedef struct
+{
+    EScriptType ScriptType;
+    EConcreteType ConcreteType;
+} FullType;
+
+typedef struct
+{
+    WORD Count;
+    if (Count != 0)
+        FullType t[Count];
+} Arguments;
+
+typedef struct
+{
+    UCHAR Flags;
+    if ((Flags & 1) || (Flags & 2))
+    {
+        EScriptType ReturnType;
+        InsString DllName; 
+        InsString FunctionName;
+        WORD Address;
+        Arguments Args;
+    }
+} Prototype;
+
+typedef struct
+{
+    WORD Count;
+    Prototype Protos[Count] <optimize=false>;
+} PrototypeTable;
+
+typedef enum <WORD>
+{
+    NopAction = 1,
+    AbortAction,
+    ExitAction,
+    IfAction,
+    GotoAction,
+    AssignAction,
+    BinActAdd,
+    BinActMod,
+    BinActLT,
+    BinActGT,
+    BinActLTE,
+    BinActGTE,
+    BinActEQ,
+    BinActNEQ,
+    BinActSub,
+    BinActMul,
+    BinActDiv,
+    BinActBitAnd,
+    BinActBitOr,
+    BinActBitXor,
+    UnActNot,
+    BinActShl,
+    BinActShr,
+    BinActLogAnd,
+    BinActLogOr,
+    AddressOfAct,
+    UnAct1,
+    UnAct2,
+    SetByteAct,
+    GetByteAct,
+    DLLFuncCallAct = 32,
+    InternalFuncCallAct,
+    FuncPrologAct,
+    ReturnAct1,
+    ReturnAct2,
+    ReturnAct3,
+    EndFuncAct,
+    UnkAct,
+    PropPutAct = 51,
+    PropPutRefAct,
+    PropGetAct,
+    TryAct,
+    EndTryAct,
+    EndCatchAct,
+    UseDLLAct,
+    UnUseDLLAct,
+    BindVariableAct,
+    AddressOfWideAct
+} EActionId;
+
+typedef struct
+{
+    EActionId ActionId;
+    WORD NumOperands;
+    switch (ActionId)
+    {
+        case 34:
+            UCHAR Mark; //NumberConst.Type
+            DWORD DataDeclListOffset;//NumberConst.Value
+        break;
+        default:
+        break;
+    }
+} Action;
+
+typedef struct
+{
+    UCHAR argType;
+    if (argType - 4 == 0) // StrArg
+    {
+        SHORT Address;
+    }
+    else if (argType - 4 == 1) // NumArg
+    {
+        SHORT Address;
+    }
+    else if (argType - 4 == 2) // StrConst
+    {
+        InsString StrConst;
+    }
+    else if (argType - 4 == 3) // NumConst
+    {
+        DWORD NumConst;
+    }
+    else if (argType - 4 == 4)// VariantArg
+    {
+        SHORT Address;
+    }
+} Operand;
+
+typedef struct
+{
+    Action act;
+    if (act.NumOperands > 0)
+        Operand ops[act.NumOperands] <optimize=false>;
+} ActionWithArgs;
+
+
+/** Parsing code **/
+LittleEndian();
+Printf("Started parsing ActionScript Header\n");
+ActionScriptHeader Hdr;
+FSeek(Hdr.PrototypesTableOffset);
+PrototypeTable protoTable;
+FSeek(Hdr.BBsTableOffset);
+DWORD BBs[Hdr.numBBs] <format=hex>;
+FSeek(BBs[2]);
+WORD numActions;
+ActionWithArgs acts[numActions] <optimize=false>;

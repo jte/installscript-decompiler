@@ -10,6 +10,7 @@
 #include <algorithm>
 #include "FuncPrologAction.h"
 #include "BasicBlock.h"
+#include "Decompiler.h"
 
 const std::vector<uint8_t> readFile(std::wstring filePath)
 {
@@ -34,18 +35,6 @@ const std::vector<uint8_t> readFile(std::wstring filePath)
 	return buffer;
 }
 
-CBasicBlock* TranslateBBs(uint32_t address, CIScript::ScriptBasicBlock bb)
-{
-	CBasicBlock* irbb = new CBasicBlock(address);
-	for (const auto& acts : bb)
-	{
-		auto s(acts->ToStatement());
-		s.SetOwner(irbb);
-		irbb->AddStatement(s);
-	}
-	return irbb;
-}
-
 int wmain(int argc, wchar_t** argv)
 {
 	try
@@ -53,45 +42,14 @@ int wmain(int argc, wchar_t** argv)
 		const std::vector<uint8_t> contents = readFile(L"output.obs");
 		
 		CIScript script(contents);
-		COptimizer optimizer;
-		for (const auto& proto : script.GetPrototypes())
-		{
-			optimizer.AddFunctionPrototype(proto);
-		}
-		const auto& bbs = script.GetBasicBlocks();
-		CFunction* currFunction = nullptr;
-		size_t label = 0;
-		for (auto bb = bbs.cbegin(); bb != bbs.cend(); ++bb)
-		{
-			size_t index = std::distance(bbs.cbegin(), bb);
-			if (dynamic_cast<CFuncPrologAction*>((*bb)[0]))
-			{
-				currFunction = &optimizer.GetFunction(index);
-				label = 0;
-			}
-			// detect func epilogue ?
-			currFunction->AddBasicBlock(TranslateBBs(label, *bb));
-			label++;
-		}
-		for (const auto& e : script.GetExterns())
-		{
-			ArgType type = (ArgType)-1;
-			if (e.type == 1)
-				type = ArgType::VariantArg;
-			else if (e.type == 2)
-				;//??
-			else if (e.type == 3)
-				;//??
-			CVariable* gvar = new CVariable(type, e.address);
-			gvar->SetName(e.name);
-			optimizer.AddGlobalVariable(gvar);
-		}
+	//	CDecompiler optimizer(script);
+
 
 		//std::cout << script.GetStruct(0);
 		//std::cout << script.GetStruct(1);
 		//script.PrintPrototypes();
-		//std::cout << script;
-		std::cout << optimizer;
+		std::cout << script;
+//		std::cout << optimizer;
 		std::cout << std::endl;
 	}
 	catch (std::exception& e)

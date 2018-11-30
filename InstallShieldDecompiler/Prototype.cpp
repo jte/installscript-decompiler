@@ -3,7 +3,8 @@
 #include "DLLPrototype.h"
 #include "Type.h"
 
-CPrototype::CPrototype(StreamPtr& filePtr)
+CPrototype::CPrototype(StreamPtr& filePtr) :
+	m_bbId(-1)
 {
 	filePtr.Read(m_flags);
 }
