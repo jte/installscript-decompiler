@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 		//script.PrintPrototypes();
 		//std::cout << script;
 		std::cout << decompiler;
-		std::cout << std::endl;
+		//std::cout << std::endl;
 		char dummy;
 		std::cin >> dummy;
 	}

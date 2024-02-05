@@ -41,7 +41,7 @@ public:
 			//std::cout << " -- STOP" << std::endl;
 			return false;
 		}
-		std::cout << std::endl;
+		//std::cout << std::endl;
 		exp->Accept(this);
 		m_visited[exp] = true;
 		return true;
