@@ -17,4 +17,6 @@ public:
 	friend std::ostream& operator<<(std::ostream& out, const CDecompiler& o);
 protected:
 	std::vector<CFunction> m_functions;
+private:
+	const CIScript& m_script;
 };

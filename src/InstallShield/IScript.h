@@ -85,6 +85,10 @@ public:
 	static void DecryptBuffer(uint32_t* seed, std::vector<uint8_t> buffer, char key);
 	CIScript(const std::vector<uint8_t>& script);
 	const CStruct& GetStruct(size_t id) const;
+	const std::vector<CStruct>& GetStructs() const
+	{
+		return m_structs;
+	}
 	friend std::ostream& operator<<(std::ostream& out, const CIScript& o);
 	void PrintPrototypes();
 	std::vector<ExternRecord> GetExterns() const

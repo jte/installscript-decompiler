@@ -79,15 +79,15 @@ void CIScript::ReadStructs(uint32_t tableOffset)
 	uint16_t numStructs = 0;
 	StreamPtr ptr(m_script, tableOffset);
 	ptr.Read(numStructs);
-	std::cout << "STRUCT Table START" << std::endl;
+	//std::cout << "STRUCT Table START" << std::endl;
 	for (size_t i = 0; i < numStructs; ++i)
 	{
 		CStruct s(this);
 		s.Parse(ptr);
 		m_structs.push_back(s);
-		std::cout << s << std::endl;
+		//std::cout << s << std::endl;
 	}
-	std::cout << "STRUCT Table END" << std::endl;
+	//std::cout << "STRUCT Table END" << std::endl;
 }
 
 void CIScript::ReadAddressResolve(uint32_t tableOffset)
@@ -95,16 +95,16 @@ void CIScript::ReadAddressResolve(uint32_t tableOffset)
 	StreamPtr ptr(m_script, tableOffset);
 	uint16_t numEntries = 0;
 	ptr.Read(numEntries);
-	std::cout << "Address Resolve Table START" << std::endl;
+	//std::cout << "Address Resolve Table START" << std::endl;
 	for (size_t i = 0; i < numEntries; ++i)
 	{
 		uint8_t type = 0;
 		uint32_t offset = 0;
 		ptr.Read(type);
 		ptr.Read(offset);
-		std::cout << "Entry #" << i << ": type (" << (uint32_t)type << ") offset (" << offset << ")" << std::endl;
+		//std::cout << "Entry #" << i << ": type (" << (uint32_t)type << ") offset (" << offset << ")" << std::endl;
 	}
-	std::cout << "Address Resolve Table END" << std::endl;
+	//std::cout << "Address Resolve Table END" << std::endl;
 }
 
 void CIScript::ReadBBs(uint32_t tableOffset)
@@ -175,7 +175,7 @@ void CIScript::ReadVariantTable(StreamPtr& table)
 	// use datadecllist
 	uint16_t count = 0;
 	table.Read(count);
-	std::cout << "variant table " << std::endl;
+	//std::cout << "variant table " << std::endl;
 	for (size_t i = 0; i < count; ++i)
 	{
 		// ref: DataDeclList::AddToListSymFlags
@@ -183,7 +183,7 @@ void CIScript::ReadVariantTable(StreamPtr& table)
 		table.Read(first);
 		uint16_t second;
 		table.Read(second);
-		std::cout << "variant entry " << i << ". first:" << first << ";second:" << second << std::endl;
+		//std::cout << "variant entry " << i << ". first:" << first << ";second:" << second << std::endl;
 	}
 }
 
@@ -194,14 +194,14 @@ void CIScript::ReadSymFlagTable(StreamPtr& table)
 	table.Read(count);
 	uint16_t unknown = 0;
 	table.Read(unknown);
-	std::cout << "sym flags table " << std::endl;
+	//std::cout << "sym flags table " << std::endl;
 	for (size_t i = 0; i < count; ++i)
 	{
 		uint16_t first;
 		table.Read(first);
 		uint16_t second;
 		table.Read(second);
-		std::cout << "symflags entry " << i << ". first:" << first << ";second:" << std::hex << second << std::dec << std::endl;
+		//std::cout << "symflags entry " << i << ". first:" << first << ";second:" << std::hex << second << std::dec << std::endl;
 	}
 }
 
@@ -209,15 +209,15 @@ void CIScript::Read()
 {
 	ReadHeader();
 	
-	std::cout << "field_74 -> " << m_header.field_74 << std::endl;
+	//std::cout << "field_74 -> " << m_header.field_74 << std::endl;
 	ReadExternTable(m_header.ExternTableOffset);
 	StreamPtr pv(m_script, m_header.VariantTableOffset);
 	ReadVariantTable(pv);
 	StreamPtr psf(m_script, m_header.List4Offset);
 	ReadSymFlagTable(psf);
 	//ReadVariablesTable(externp);
-	std::cout << ">.." << std::endl;
-	//ReadStructs(m_header.TypedefsTableOffset);
+	//std::cout << ">.." << std::endl;
+	ReadStructs(m_header.TypedefsTableOffset);
 	ReadPrototypes(m_header.PrototypesTableOffset);
 	ReadBBs(m_header.BBsTableOffset);
 	//ReadAddressResolve(m_header.AddressResolveTableOffset);

@@ -9,7 +9,7 @@ CEndFuncAction::CEndFuncAction(CIScript* script, StreamPtr& filePtr) :
 	Parse(filePtr);
 	uint16_t addr = 0; // DataDeclList->numVariables (numLocalVariables + numArguments)
 	filePtr.Read(addr);
-	std::cout << "num variables:" << addr << std::endl;
+	//std::cout << "num variables:" << addr << std::endl;
 	script->ReadVariantTable(filePtr);
 	script->ReadSymFlagTable(filePtr);
 }

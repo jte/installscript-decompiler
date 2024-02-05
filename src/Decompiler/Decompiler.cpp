@@ -6,7 +6,7 @@
 #include <vector>
 #include "Parser/Parser.h"
 
-CDecompiler::CDecompiler(const CIScript& script)
+CDecompiler::CDecompiler(const CIScript& script) : m_script(script)
 {
 	auto fns = script.GetFns();
 	for (const auto& fn : fns)
@@ -72,6 +72,10 @@ CFunction& CDecompiler::GetFunction(size_t address)
 
 std::ostream& operator<<(std::ostream& out, const CDecompiler& o)
 {
+	for (auto s : o.m_script.GetStructs())
+	{
+		out << s << std::endl;
+	}
 	for (const auto &fn : o.m_functions)
 	{
 		out << fn << std::endl;
