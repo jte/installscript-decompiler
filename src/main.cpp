@@ -7,13 +7,12 @@
 #include <algorithm>
 #include "Decompiler.h"
 
-const std::vector<uint8_t> readFile(std::wstring filePath)
+const std::vector<uint8_t> readFile(std::string filePath)
 {
 	std::ifstream in(filePath, std::ifstream::binary);
-
 	if (!in)
 	{
-		throw std::runtime_error("Failed to open the action file");
+		throw std::runtime_error("Failed to open the action file: " + std::string(strerror(errno)));
 	}
 
 	std::filebuf* pbuf = in.rdbuf();
@@ -30,11 +29,11 @@ const std::vector<uint8_t> readFile(std::wstring filePath)
 	return buffer;
 }
 
-int wmain(int argc, wchar_t** argv)
+int main(int argc, char** argv)
 {
 	try
 	{
-		const std::vector<uint8_t> contents = readFile(L"output.obs");
+		const std::vector<uint8_t> contents = readFile("output.obs");
 		
 		
 		CIScript script(contents);

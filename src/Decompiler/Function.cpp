@@ -74,7 +74,7 @@ void PrintBB(std::ostream& out, BasicBlock *bb, std::map<BasicBlock*,bool>& visi
 		{
 			out << std::string(indentLvl, '\t') << s->displayLabel << ":" << std::endl;
 		}
-		if (s->type == StatementTypeX::BRANCH)
+		if (s->type == StatementType::BRANCH)
 		{
 			auto branchSt = dynamic_cast<BranchStatement*>(s);
 			if (branchSt->isConditional) {
@@ -88,7 +88,7 @@ void PrintBB(std::ostream& out, BasicBlock *bb, std::map<BasicBlock*,bool>& visi
 				out << std::string(indentLvl, '\t') << s->Dump() << std::endl;
 			}
 		}
-		else if (s->type == StatementTypeX::GOTO)
+		else if (s->type == StatementType::GOTO)
 		{
 			auto gotoSt = dynamic_cast<GotoStatement*>(s);
 			out << std::string(indentLvl, '\t') << "goto " << gotoSt->targetLabel << std::endl;
@@ -116,7 +116,7 @@ std::ostream& operator<<(std::ostream& out, const CFunction& o)
 	
 	if (o.m_gen->m_cfg)
 	{
-		o.m_gen->m_cfg->CommitAllChanges();
+		//o.m_gen->m_cfg->CommitAllChanges(); throws error, probably because of abuse of cfg
 		std::map<BasicBlock*, bool> visited;
 		for (const auto& bb : o.m_gen->m_cfg->basicBlocks) 
 		{
