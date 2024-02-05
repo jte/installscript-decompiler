@@ -24,7 +24,7 @@ class BinaryExpression;
 class ControlFlowGraph;
 class BasicBlock;
 
-enum StatementTypeX {
+enum StatementType {
     ASSIGN = 0,
     BRANCH = 1,
     RETURN,
@@ -34,9 +34,9 @@ enum StatementTypeX {
 class AbstractStatement {
 public:
     std::string displayLabel = "";
-    StatementTypeX type;
+    StatementType type;
     virtual std::string Dump() = 0;
-    AbstractStatement(StatementTypeX type, std::string displayLabel) : type(type), displayLabel(displayLabel) {};
+    AbstractStatement(StatementType type, std::string displayLabel) : type(type), displayLabel(displayLabel) {};
     virtual void Accept(AbstractVisitor* visitor) = 0;
 };
 
