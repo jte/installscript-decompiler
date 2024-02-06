@@ -33,23 +33,23 @@ const std::vector<uint8_t> readFile(std::string filePath)
 
 HeaderKind AnalyzeCompiledFile(const std::string filename, std::vector<uint8_t>& output)
 {
-	std::vector<uint8_t> contents = readFile(filename);
+	output = readFile(filename);
 	HeaderKind hdrKind = HeaderKind::Unrecognized;
 
-	if (contents[0] == 0x48 && contents[1] == 0x4F && contents[2] == 0xF3 && contents[3] == 0xC9)
+	if (output[0] == 0x48 && output[1] == 0x4F && output[2] == 0xF3 && output[3] == 0xC9)
 	{ // .obs file
 		return HeaderKind::OBS;
 	}
 	else
 	{ // encrypted or invalid
 		uint32_t seed = 0;
-		CIScript::DecryptBuffer(&seed, contents, 0xF1);
+		CIScript::DecryptBuffer(&seed, output, 0xF1);
 
-		if (contents[0] == 'a' && contents[1] == 'L' && contents[2] == 'u' && contents[3] == 'Z')
+		if (output[0] == 'a' && output[1] == 'L' && output[2] == 'u' && output[3] == 'Z')
 		{// script file
 			return HeaderKind::aLuZ;
 		}
-		else if (contents[0] == 'k' && contents[1] == 'U' && contents[2] == 't' && contents[3] == 'Z')
+		else if (output[0] == 'k' && output[1] == 'U' && output[2] == 't' && output[3] == 'Z')
 		{ // script file with debug info
 			return HeaderKind::kUtZ;
 		}
@@ -62,19 +62,50 @@ HeaderKind AnalyzeCompiledFile(const std::string filename, std::vector<uint8_t>&
 
 int main(int argc, char** argv)
 {
+	argparse::ArgumentParser program("InstallScriptDecompiler");
+
+	program.add_argument("input_file")
+		.help("input file (.inx/.obs)");
+
+	auto& group = program.add_mutually_exclusive_group();
+	group.add_argument("--show-actions")
+		.default_value(false)
+		.help("show actions (disassembly)")
+		.implicit_value(true);
+	group.add_argument("--show-decompiled")
+		.default_value(true)
+		.help("show decompilation")
+		.implicit_value(true);
+
+	try 
+	{
+		program.parse_args(argc, argv);
+	}
+	catch (const std::exception& err) {
+		std::cerr << program;
+		std::cerr << std::endl;
+		std::cerr << "Error: " << err.what() << std::endl;
+		return 1;
+	}
+	
 	try
 	{
 		std::vector<uint8_t> contents;
-		HeaderKind hdrKind = AnalyzeCompiledFile("output.obs", contents);		
+		HeaderKind hdrKind = AnalyzeCompiledFile(program.get<std::string>("input_file"), contents);
 
 		CIScript script(contents, hdrKind);
-		CDecompiler decompiler(script);
 
-		std::cout << script;
-		//std::cout << decompiler;
-
+		if (program["--show-decompiled"] == true)
+		{
+			CDecompiler decompiler(script);
+			std::cout << decompiler;
+		}
+		else if (program["--show-actions"] == true)
+		{
+			std::cout << script;
+		}
 	}
-	catch (std::exception& e)
+	catch (const std::exception& e)
 	{
 		std::cerr << "Exception: " << e.what() << std::endl;
 		return 1;
