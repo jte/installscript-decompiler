@@ -7,6 +7,7 @@
 //
 
 #include "BasicBlock.h"
+#include <algorithm>
 using namespace std;
 
 void BasicBlock::AddStatement(AbstractStatement* statement) {
