@@ -10,6 +10,7 @@
 #include "Actions/IfAction.h"
 #include "Actions/GotoAction.h"
 #include <iostream>
+#include <string.h>
 
 CIScript::CIScript(const std::vector<uint8_t>& script, HeaderKind hdrKind) :
 	m_script(script), m_streamPtr(m_script), m_hdrKind(hdrKind)
@@ -27,7 +28,7 @@ void CIScript::ReadHeader()
 			throw std::runtime_error("Header too small");
 		}
 
-		std::memcpy(&m_headerOBS, &m_script[0], sizeof(m_headerOBS));
+		memcpy(&m_headerOBS, &m_script[0], sizeof(m_headerOBS));
 		break;
 	case HeaderKind::aLuZ:
 		if (m_script.size() < sizeof(m_headerALUZ))
@@ -35,7 +36,7 @@ void CIScript::ReadHeader()
 			throw std::runtime_error("Header too small");
 		}
 
-		std::memcpy(&m_headerALUZ, &m_script[0], sizeof(m_headerALUZ));
+		memcpy(&m_headerALUZ, &m_script[0], sizeof(m_headerALUZ));
 		break;
 	}
 
