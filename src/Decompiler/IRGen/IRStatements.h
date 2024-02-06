@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string>
 #include <map>
+#include <cstdint>
 #include "AbstractVisitor.h"
 
 class AbstractExpression;
