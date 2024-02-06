@@ -5,7 +5,7 @@
 class CTryAction : public CActionWithArgs
 {
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 public:
 	CTryAction(CIScript* script, StreamPtr& filePtr) :
 		CActionWithArgs(script, filePtr)

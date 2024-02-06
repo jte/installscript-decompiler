@@ -12,7 +12,7 @@ public:
 	uint32_t GetElseBranchLabelOffset() const;
 	size_t elseBranchTarget;
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 	AbstractExpression* ToExpression() const override
 	{
 		return m_arguments[1]->ToExpression();

@@ -6,7 +6,7 @@
 class CPropGetAction : public CActionWithArgs
 {
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 	//AbstractExpression* ToExpression() const override {
 	//	return new AssignExpression(new VariableExpression("GblObj0"), m_arguments[1]->ToExpression());
 	//}

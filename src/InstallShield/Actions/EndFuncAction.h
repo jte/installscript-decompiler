@@ -6,7 +6,7 @@
 class CEndFuncAction : public CAction
 {
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 public:
 	CEndFuncAction(CIScript* script, StreamPtr& filePtr);
 	//void Parse(StreamPtr& filePtr);

@@ -8,7 +8,7 @@
 class CFuncPrologAction : public CAction
 {
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 	uint32_t m_tableOffset;
 	CDataDeclList m_declList;
 public:

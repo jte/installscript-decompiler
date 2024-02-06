@@ -23,6 +23,6 @@ public:
 		return m_bbId;
 	}
 private:
-	uint32_t m_bbId;
+	uint32_t m_bbId = 0;
 	std::vector<CAction*> m_acts;
 };

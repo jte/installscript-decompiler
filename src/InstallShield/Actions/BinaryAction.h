@@ -12,7 +12,7 @@ public:
 		CActionWithArgs(script, filePtr)
 	{}
 protected:
-	void print(std::ostream& os) const
+	void print(std::ostream& os) const override
 	{
 		assert(m_arguments.size() == 3);
 		os << *(m_arguments[0]) << " = " << *(m_arguments[1]) << ' ' << (int)Sym << ' ' << *(m_arguments[2]);

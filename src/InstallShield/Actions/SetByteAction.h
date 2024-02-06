@@ -6,7 +6,7 @@
 class CSetByteAction : public CActionWithArgs
 {
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 
 	AbstractExpression* ToExpression() const override {
 		auto lhs = new ArrayAccessExpression(dynamic_cast<VariableExpression*>(m_arguments[0]->ToExpression()), m_arguments[1]->ToExpression());

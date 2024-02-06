@@ -5,7 +5,7 @@
 class CDLLFuncCallAction : public CFuncCallAction
 {
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 public:
 	CDLLFuncCallAction(CIScript* script, StreamPtr& filePtr);
 };

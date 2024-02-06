@@ -6,7 +6,7 @@
 class CNOPAction : public CAction
 {
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 public:
 	CNOPAction(CIScript* script, StreamPtr& filePtr);
 };

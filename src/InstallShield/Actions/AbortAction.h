@@ -6,7 +6,7 @@
 class CAbortAction : public CAction
 {
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 public:
 	CAbortAction(CIScript* script, StreamPtr& filePtr);
 };

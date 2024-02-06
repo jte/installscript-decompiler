@@ -9,13 +9,13 @@ class CNumConst : public IArgument
 private:
 	uint32_t m_num;
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 	AbstractExpression* ToExpression() const override
 	{
 		return new NumberExpression(m_num);
 	}
 public:
 	CNumConst(StreamPtr& filePtr);
-	void Parse(StreamPtr& filePtr);
+	void Parse(StreamPtr& filePtr) override;
 	uint32_t GetConst() const;
 };

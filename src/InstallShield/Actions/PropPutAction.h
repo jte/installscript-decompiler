@@ -6,7 +6,7 @@
 class CPropPutAction : public CActionWithArgs
 {
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 public:
 	CPropPutAction(CIScript* script, StreamPtr& filePtr) :
 		CActionWithArgs(script, filePtr)

@@ -11,7 +11,7 @@ protected:
 public:
 	CActionWithArgs(CIScript* script) : CAction(script) {}
 	CActionWithArgs(CIScript* script, StreamPtr& filePtr);
-	virtual void Parse(StreamPtr& filePtr);
+	virtual void Parse(StreamPtr& filePtr) override;
 	virtual IArgument* ParseArgument(StreamPtr& filePtr);
 	virtual void ParseArguments(StreamPtr& filePtr);
 };

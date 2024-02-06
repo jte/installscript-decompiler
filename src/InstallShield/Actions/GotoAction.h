@@ -12,7 +12,7 @@ public:
 	size_t target;
 	int32_t GetLabelOffset() const;
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 	AbstractExpression* ToExpression() const override 
 	{
 		return new GotoExpression(nullptr);

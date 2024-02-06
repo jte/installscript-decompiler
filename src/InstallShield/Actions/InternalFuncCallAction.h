@@ -6,7 +6,7 @@
 class CInternalFuncCallAction : public CFuncCallAction
 {
 protected:
-	void print(std::ostream& os) const;
+	void print(std::ostream& os) const override;
 	AbstractExpression* ToExpression() const override;
 public:
 	CInternalFuncCallAction(CIScript* script, StreamPtr& filePtr);

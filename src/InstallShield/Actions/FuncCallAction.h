@@ -8,5 +8,5 @@ protected:
 	uint16_t m_functionId;
 public:
 	CFuncCallAction(CIScript* script, StreamPtr& filePtr);
-	virtual void Parse(StreamPtr& filePtr);
+	void Parse(StreamPtr& filePtr) override;
 };

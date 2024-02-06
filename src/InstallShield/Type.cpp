@@ -33,6 +33,15 @@ std::ostream& operator<<(std::ostream& out, const ConcreteType& o)
 	case ConcreteType::String:
 		out << "STR";
 		break;
+	case ConcreteType::NumberPointer:
+		out << "NUM POINTER";
+		break;
+	case ConcreteType::ObjectPointer:
+		out << "OBJ POINTER";
+		break;
+	case ConcreteType::StringPointer:
+		out << "STR POINTER";
+		break;
 	}
 	return out;
 }
