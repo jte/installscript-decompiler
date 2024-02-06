@@ -122,7 +122,7 @@ std::ostream& operator<<(std::ostream& out, const CFunction& o)
 	// print local variables
 	for (size_t i = 0; i < (o.m_nLocalNums - o.m_nArgNums); i++)
 	{
-		out << "INT LclVarNum" << o.m_nArgNums + 1 + i << std::endl;
+		out << "INT LclVarNum" << o.m_nArgNums + 1 + i << ';' << std::endl;
 	}
 	for (size_t i = 0; i < (o.m_nLocalStrs - o.m_nArgStrs); i++)
 	{
@@ -134,6 +134,7 @@ std::ostream& operator<<(std::ostream& out, const CFunction& o)
 				out << "[" << strInfo.stringSize << "]";
 			}
 		}
+		out << ';';
 		out << std::endl;
 	}
 	auto objectTable = o.m_declList.GetObjectTable();
@@ -142,17 +143,17 @@ std::ostream& operator<<(std::ostream& out, const CFunction& o)
 	{
 		if (((int)obj.flags & (int)SymFlags::vbArray) != 0)
 		{
-			out << "VARIANT LclVarObj" << variantId << "(" << obj.elemCount << ")" << std::endl;
+			out << "VARIANT LclVarObj" << variantId << "(" << obj.elemCount << ");" << std::endl;
 		}
 		else
 		{
 			if (obj.typedefId == -1)
 			{
-				out << "VARIANT LclVarObj" << variantId << std::endl;
+				out << "VARIANT LclVarObj" << variantId << ';' << std::endl;
 			}
 			else
 			{
-				out << "STRUCT_" << obj.typedefId + 1 << " LclVarObj" << variantId << std::endl;
+				out << "STRUCT_" << obj.typedefId + 1 << " LclVarObj" << variantId << ';' << std::endl;
 			}
 		}
 		variantId++;

@@ -68,7 +68,7 @@ std::ostream& operator<<(std::ostream& out, const CDecompiler& o)
 
 	for (size_t i = 0; i < globals.GetNumNumbers(); i++)
 	{
-		out << "INT GblVarNum" << i << std::endl;
+		out << "INT GblVarNum" << i << ';' << std::endl;
 	}
 	for (size_t i = 0; i < globals.GetNumStrings(); i++)
 	{
@@ -80,6 +80,7 @@ std::ostream& operator<<(std::ostream& out, const CDecompiler& o)
 				out << "[" << strInfo.stringSize << "]";
 			}
 		}
+		out << ';';
 		out << std::endl;
 	}
 	auto objectTable = globals.GetObjectTable();
@@ -88,17 +89,17 @@ std::ostream& operator<<(std::ostream& out, const CDecompiler& o)
 	{
 		if (((int)obj.flags & (int)SymFlags::vbArray) != 0)
 		{
-			out << "VARIANT GblVarObj" << variantId << "(" << obj.elemCount << ")" << std::endl;
+			out << "VARIANT GblVarObj" << variantId << "(" << obj.elemCount << ");" << std::endl;
 		}
 		else
 		{
 			if (obj.typedefId == -1)
 			{
-				out << "VARIANT GblVarObj" << variantId << std::endl;
+				out << "VARIANT GblVarObj" << variantId << ';' << std::endl;
 			}
 			else
 			{
-				out << "STRUCT_" << obj.typedefId + 1 << " GblVarObj" << variantId << std::endl;
+				out << "STRUCT_" << obj.typedefId + 1 << " GblVarObj" << variantId << ';' << std::endl;
 			}
 		}
 		variantId++;
