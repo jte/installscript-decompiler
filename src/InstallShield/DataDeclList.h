@@ -24,9 +24,7 @@ enum class SymFlags : uint16_t
 	vbByte =	17,
 	vbLongLong =	20,
 	vbUserDefinedType =	36,
-	vbArray =	8192,
-
-	IsVariant = 0x2000,//if not set - it's structure
+	vbArray =	0x2000,//if not set - it's structure
 };
 
 struct ObjectVarInfo
@@ -35,7 +33,7 @@ struct ObjectVarInfo
 	union
 	{
 		uint16_t elemCount; // for variant
-		uint16_t typedefId; // for struct
+		int16_t typedefId; // for struct
 	};
 };
 
@@ -55,6 +53,8 @@ protected:
 	void ParseStringTable(StreamPtr& ptr);
 	virtual void print(std::ostream& os) const;
 private:
+	size_t m_info1 = 0;
+	uint16_t m_numStrings = 0;
 	std::vector<ObjectVarInfo> m_objectTable;
 	std::vector<StringVarInfo> m_stringTable;
 };

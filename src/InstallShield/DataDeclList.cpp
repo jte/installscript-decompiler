@@ -4,11 +4,11 @@ void CDataDeclList::Parse(StreamPtr& ptr)
 {
 	uint16_t info1;
 	ptr.Read(info1);
-
+	m_info1 = info1;
+	
 	ParseObjectTable(ptr);
 
-	uint16_t info2;
-	ptr.Read(info2);
+	ptr.Read(m_numStrings);
 
 	ParseStringTable(ptr);
 }
@@ -37,6 +37,27 @@ std::ostream& operator<<(std::ostream& out, const CDataDeclList& o)
 
 void CDataDeclList::print(std::ostream& os) const
 {
+	os << "info1: " << m_info1 << std::endl;
+	os << "numStrings: " << m_numStrings << std::endl;
+
+	size_t i = 0;
+	for (auto obj : m_objectTable)
+	{ 
+		if (((int)obj.flags & (int)SymFlags::vbArray) != 0)
+		{
+			os << "[" << i++ << "]: " << " flags: " << std::hex << (int)obj.flags << " count: " << std::dec << obj.elemCount << std::endl;
+		}
+		else
+		{
+			os << "[" << i++ << "]: " << " flags: " << std::hex << (int)obj.flags << " structId: " << std::dec << obj.typedefId << std::endl;
+		}
+	}
+
+	i = 0;
+	for (auto str : m_stringTable)
+	{
+		os << "[" << i++ << "]: " << " varId: " << str.varId << " count: " << str.stringSize << std::endl;
+	}
 }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<uint32_t>& vec) 

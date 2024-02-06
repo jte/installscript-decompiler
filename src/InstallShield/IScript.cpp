@@ -291,6 +291,7 @@ std::ostream& operator<<(std::ostream& out, const CIScript& o)
 	for (const auto& fn : o.m_fns)
 	{
 		out << *(fn.prototype);
+		//out << fn.dataDeclList;
 		for (const auto& bb : fn.bbs)
 		{
 			for (const auto& act : bb.GetActions())
