@@ -2,27 +2,30 @@
 
 void CDataDeclList::Parse(StreamPtr& ptr)
 {
-	ptr.Read(m_numVariables);
-	ParseVariantTable(ptr);
-	ParseSymFlags(ptr);
+	uint16_t info1;
+	ptr.Read(info1);
+
+	ParseObjectTable(ptr);
+
+	uint16_t info2;
+	ptr.Read(info2);
+
+	ParseStringTable(ptr);
 }
 
-void CDataDeclList::ParseVariantTable(StreamPtr& ptr)
+void CDataDeclList::ParseObjectTable(StreamPtr& ptr)
 {
-	uint16_t numVariants;
-	ptr.Read(numVariants);
-	ptr.ReadArray(m_variantTable, numVariants);
+	uint16_t numObjects;
+	ptr.Read(numObjects);
+	ptr.ReadArray(m_objectTable, numObjects);
 }
 
-void CDataDeclList::ParseSymFlags(StreamPtr& ptr)
+void CDataDeclList::ParseStringTable(StreamPtr& ptr)
 {
-	uint16_t num;
-	ptr.Read(num);
-	uint16_t unknown;
-	ptr.Read(unknown);
-	uint16_t numEntries;
-	ptr.Read(numEntries);
-	ptr.ReadArray(m_symFlags, numEntries);
+	uint16_t numStringVars;
+	ptr.Read(numStringVars);
+
+	ptr.ReadArray(m_stringTable, numStringVars);
 }
 
 std::ostream& operator<<(std::ostream& out, const CDataDeclList& o)
@@ -34,15 +37,6 @@ std::ostream& operator<<(std::ostream& out, const CDataDeclList& o)
 
 void CDataDeclList::print(std::ostream& os) const
 {
-	os << "DataDeclList START" << std::endl;
-	os << "numVariables: " << m_numVariables << std::endl;
-	os << "variantTable START" << std::endl;
-	os << m_variantTable << std::endl;
-	os << "variantTable END" << std::endl;
-	os << "symFlags START" << std::endl;
-	os << m_symFlags << std::endl;
-	os << "symFlags END" << std::endl;
-	os << "DataDeclList END" << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<uint32_t>& vec) 

@@ -9,7 +9,7 @@ void CFuncPrologAction::print(std::ostream& os) const
 }
 
 CFuncPrologAction::CFuncPrologAction(CIScript* script, StreamPtr& filePtr) :
-	CAction(script)
+	CAction(script), m_tableOffset(0)
 {
 	Parse(filePtr);
 	char mark = 7; // NumConst

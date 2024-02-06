@@ -4,7 +4,9 @@
 
 void CStruct::Parse(StreamPtr& filePtr)
 {
-	m_name = filePtr.ReadInsString();
+	if (m_script->GetHeaderKind() == HeaderKind::OBS) {
+		m_name = filePtr.ReadInsString();
+	}
 
 	uint16_t numMembers = 0;
 	filePtr.Read(numMembers);

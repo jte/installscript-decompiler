@@ -24,7 +24,7 @@ class BinaryExpression;
 class ControlFlowGraph;
 class BasicBlock;
 
-enum StatementType {
+enum class StatementType : uint8_t {
     ASSIGN = 0,
     BRANCH = 1,
     RETURN,
@@ -47,7 +47,7 @@ public:
     AbstractExpression* rhs;
 
     std::string Dump() override;
-    AssignStatement(AbstractExpression* var, AbstractExpression* rhs, std::string displayLabel) : AbstractStatement(ASSIGN, displayLabel), var(var), rhs(rhs) {};
+    AssignStatement(AbstractExpression* var, AbstractExpression* rhs, std::string displayLabel) : AbstractStatement(StatementType::ASSIGN, displayLabel), var(var), rhs(rhs) {};
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 
@@ -56,7 +56,7 @@ public:
     VariableExpression* var;
 
     std::string Dump() override;
-    ReturnStatement(VariableExpression* var, std::string displayLabel) : AbstractStatement(RETURN, displayLabel), var(var) {};
+    ReturnStatement(VariableExpression* var, std::string displayLabel) : AbstractStatement(StatementType::RETURN, displayLabel), var(var) {};
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 
@@ -65,14 +65,14 @@ public:
     AbstractExpression* targetExp;
     std::string targetLabel;
     std::string Dump() override;
-    GotoStatement(AbstractExpression* targetExp, std::string displayLabel, std::string targetLabel) : AbstractStatement(GOTO, displayLabel), targetExp(targetExp), targetLabel(targetLabel) {};
+    GotoStatement(AbstractExpression* targetExp, std::string displayLabel, std::string targetLabel) : AbstractStatement(StatementType::GOTO, displayLabel), targetExp(targetExp), targetLabel(targetLabel) {};
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 
 class BranchStatement : public AbstractStatement {
 
 private:
-    BranchStatement(AbstractExpression* condition, BasicBlock* firstBranchBB, BasicBlock* secondBranchBB, bool isCond, std::string displayLabel) : AbstractStatement(BRANCH, displayLabel), condition(condition), firstBranchBB(firstBranchBB), secondBranchBB(secondBranchBB), isConditional(isCond) {};
+    BranchStatement(AbstractExpression* condition, BasicBlock* firstBranchBB, BasicBlock* secondBranchBB, bool isCond, std::string displayLabel) : AbstractStatement(StatementType::BRANCH, displayLabel), condition(condition), firstBranchBB(firstBranchBB), secondBranchBB(secondBranchBB), isConditional(isCond) {};
 public:
     bool isConditional;
     AbstractExpression* condition;

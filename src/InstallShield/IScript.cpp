@@ -11,24 +11,38 @@
 #include "Actions/GotoAction.h"
 #include <iostream>
 
-CIScript::CIScript(const std::vector<uint8_t>& script) :
-	m_script(script), m_streamPtr(m_script)
+CIScript::CIScript(const std::vector<uint8_t>& script, HeaderKind hdrKind) :
+	m_script(script), m_streamPtr(m_script), m_hdrKind(hdrKind)
 {
 	Read();
 }
 
 void CIScript::ReadHeader()
 {
-	if (m_script.size() < sizeof(m_header))
+	switch (m_hdrKind)
 	{
-		throw std::runtime_error("Header too small");
+	case HeaderKind::OBS:
+		if (m_script.size() < sizeof(m_headerOBS))
+		{
+			throw std::runtime_error("Header too small");
+		}
+
+		std::memcpy(&m_headerOBS, &m_script[0], sizeof(m_headerOBS));
+		break;
+	case HeaderKind::aLuZ:
+		if (m_script.size() < sizeof(m_headerALUZ))
+		{
+			throw std::runtime_error("Header too small");
+		}
+
+		std::memcpy(&m_headerALUZ, &m_script[0], sizeof(m_headerALUZ));
+		break;
 	}
 
-	std::memcpy(&m_header, &m_script[0], sizeof(m_header));
 	m_streamPtr = StreamPtr(m_script);
 }
 
-void CIScript::DecryptBuffer(uint32_t* seed, std::vector<uint8_t> buffer, char key)
+void CIScript::DecryptBuffer(uint32_t* seed, std::vector<uint8_t>& buffer, uint8_t key)
 {
 	for (size_t i = 0; i < buffer.size(); ++i)
 	{
@@ -41,15 +55,7 @@ void CIScript::DecryptBuffer(uint32_t* seed, std::vector<uint8_t> buffer, char k
 			v9 |= 0x80;
 		buffer[i] = v9 - (i + *seed) % 0x47;
 	}
-	*seed += buffer.size();
-}
-
-void CIScript::PrintPrototypes()
-{
-	for (const auto& p : m_fns)
-	{
-		std::cout << *(p.prototype);
-	}
+	*seed += (uint32_t)buffer.size();
 }
 
 void CIScript::ReadPrototypes(uint32_t tableOffset)
@@ -79,15 +85,12 @@ void CIScript::ReadStructs(uint32_t tableOffset)
 	uint16_t numStructs = 0;
 	StreamPtr ptr(m_script, tableOffset);
 	ptr.Read(numStructs);
-	//std::cout << "STRUCT Table START" << std::endl;
 	for (size_t i = 0; i < numStructs; ++i)
 	{
 		CStruct s(this);
 		s.Parse(ptr);
 		m_structs.push_back(s);
-		//std::cout << s << std::endl;
 	}
-	//std::cout << "STRUCT Table END" << std::endl;
 }
 
 void CIScript::ReadAddressResolve(uint32_t tableOffset)
@@ -95,24 +98,21 @@ void CIScript::ReadAddressResolve(uint32_t tableOffset)
 	StreamPtr ptr(m_script, tableOffset);
 	uint16_t numEntries = 0;
 	ptr.Read(numEntries);
-	//std::cout << "Address Resolve Table START" << std::endl;
 	for (size_t i = 0; i < numEntries; ++i)
 	{
 		uint8_t type = 0;
 		uint32_t offset = 0;
 		ptr.Read(type);
 		ptr.Read(offset);
-		//std::cout << "Entry #" << i << ": type (" << (uint32_t)type << ") offset (" << offset << ")" << std::endl;
 	}
-	//std::cout << "Address Resolve Table END" << std::endl;
 }
 
-void CIScript::ReadBBs(uint32_t tableOffset)
+void CIScript::ReadBBsOBS(uint32_t tableOffset)
 {
 	StreamPtr ptr(m_script, tableOffset);
 	Function* fn = nullptr;
 
-	for (size_t i = 0; i < m_header.numBBs; ++i)
+	for (size_t i = 0; i < m_headerOBS.numBBs; ++i)
 	{
 		// Read BB addrs from table
 		uint32_t bbAddr = 0;
@@ -125,7 +125,7 @@ void CIScript::ReadBBs(uint32_t tableOffset)
 
 		ISBasicBlock newBb;
 		newBb.SetBBId(bbAddr);
-		
+
 		for (size_t j = 0; j < numActions; ++j)
 		{
 			uint16_t actionId = 0;
@@ -142,7 +142,54 @@ void CIScript::ReadBBs(uint32_t tableOffset)
 				newBb.AddAction(newAct);
 			}
 		}
-		
+
+		if (fn)
+			fn->bbs.push_back(newBb);
+	}
+}
+
+void CIScript::ReadBBsALUZ(uint32_t tableOffset)
+{
+	StreamPtr ptr(m_script, tableOffset);
+	Function* fn = nullptr;
+	uint16_t numBBs = 0;
+
+	ptr.Read(numBBs);
+
+	std::vector<uint32_t> bbAddrs;
+	for (size_t i = 0; i < numBBs; i++)
+	{
+		uint32_t bbAddr = 0;
+		ptr.Read(bbAddr);
+		bbAddrs.push_back(bbAddr);
+	}
+
+	for (size_t i = 0; i < numBBs; i++)
+	{
+		StreamPtr bbPtr(m_script, bbAddrs[i]);
+		uint16_t numActions = 0;
+		bbPtr.Read(numActions);
+
+		ISBasicBlock newBb;
+		newBb.SetBBId(bbAddrs[i]);
+
+		for (size_t j = 0; j < numActions; ++j)
+		{
+			uint16_t actionId = 0;
+			bbPtr.Read(actionId, false);
+			auto newAct = CAction::FindFactory(actionId, this, bbPtr);
+			newAct->SetBBId(bbAddrs[i]);
+			if (CFuncPrologAction* funcProlog = dynamic_cast<CFuncPrologAction*>(newAct))
+			{
+				fn = &GetFnByBBId(i);
+				fn->dataDeclList = funcProlog->GetDataDeclList();
+			}
+			else
+			{
+				newBb.AddAction(newAct);
+			}
+		}
+
 		if (fn)
 			fn->bbs.push_back(newBb);
 	}
@@ -209,18 +256,33 @@ void CIScript::Read()
 {
 	ReadHeader();
 	
-	//std::cout << "field_74 -> " << m_header.field_74 << std::endl;
-	ReadExternTable(m_header.ExternTableOffset);
-	StreamPtr pv(m_script, m_header.VariantTableOffset);
-	ReadVariantTable(pv);
-	StreamPtr psf(m_script, m_header.List4Offset);
-	ReadSymFlagTable(psf);
-	//ReadVariablesTable(externp);
-	//std::cout << ">.." << std::endl;
-	ReadStructs(m_header.TypedefsTableOffset);
-	ReadPrototypes(m_header.PrototypesTableOffset);
-	ReadBBs(m_header.BBsTableOffset);
-	//ReadAddressResolve(m_header.AddressResolveTableOffset);
+	switch (m_hdrKind)
+	{
+		case HeaderKind::OBS:
+		{
+			ReadExternTable(m_headerOBS.ExternTableOffset);
+
+			StreamPtr pv(m_script, m_headerOBS.VariantTableOffset);
+			ReadVariantTable(pv);
+			StreamPtr psf(m_script, m_headerOBS.List4Offset);
+			ReadSymFlagTable(psf);
+
+			ReadStructs(m_headerOBS.TypedefsTableOffset);
+			ReadPrototypes(m_headerOBS.PrototypesTableOffset);
+			ReadBBsOBS(m_headerOBS.BBsTableOffset);
+			//ReadAddressResolve(m_header.AddressResolveTableOffset);
+			break;
+		}
+		case HeaderKind::aLuZ:
+		{
+			ReadStructs(m_headerALUZ.TypedefsTableOffset);
+			StreamPtr pvars(m_script, m_headerALUZ.VariablesTableOffset);
+			m_globalDeclList.Parse(pvars);
+			ReadPrototypes(m_headerALUZ.PrototypesTableOffset);
+			ReadBBsALUZ(m_headerALUZ.BBsTableOffset);
+			break;
+		}
+	}
 }
 
 std::ostream& operator<<(std::ostream& out, const CIScript& o)
@@ -229,7 +291,6 @@ std::ostream& operator<<(std::ostream& out, const CIScript& o)
 	for (const auto& fn : o.m_fns)
 	{
 		out << *(fn.prototype);
-		out << fn.dataDeclList;
 		for (const auto& bb : fn.bbs)
 		{
 			for (const auto& act : bb.GetActions())

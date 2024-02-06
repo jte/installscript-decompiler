@@ -2,8 +2,16 @@
 
 #include <cstdint>
 
+enum class HeaderKind
+{
+	Unrecognized,
+	OBS,
+	aLuZ,
+	kUtZ
+};
+
 #pragma pack(push, 1)
-struct ActionFileHeader
+struct ActionFileHeaderOBS
 {
 	uint32_t Signature; // match 0xC9F34F48
 	uint8_t CompilerVersion[12];
@@ -37,6 +45,25 @@ struct ActionFileHeader
 	uint32_t field_F8;
 	uint32_t field_FC;
 };
-static_assert(sizeof(ActionFileHeader) == 0x100, "sizeof ActionFileHeader MUST be 0x100 bytes");
+static_assert(sizeof(ActionFileHeaderOBS) == 0x100, "sizeof ActionFileHeaderOBS MUST be 0x100 bytes");
+
+struct ActionFileHeaderaLuZ
+{
+	uint32_t Signature; // match "aLuZ"
+	uint16_t _unknown1;
+	uint8_t CopyrightNotice[80];
+	uint16_t _unknown2;
+	uint32_t _unknown3;
+	uint32_t _unknown4;
+	uint32_t _unknown5;
+	uint32_t _unknown6;
+	uint32_t VariablesTableOffset;
+	uint32_t PrototypesTableOffset;
+	uint32_t TypedefsTableOffset;
+	uint32_t BBsTableOffset;
+	uint32_t DebugInfoOffset;
+};
+static_assert(sizeof(ActionFileHeaderaLuZ) == 124, "sizeof ActionFileHeaderaLuZ MUST be 0x100 bytes");
+
 
 #pragma pack(pop)

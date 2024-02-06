@@ -67,13 +67,17 @@ private:
 	std::vector<uint8_t> m_script;
 	StreamPtr m_streamPtr;
 	std::vector<CStruct> m_structs;
-	ActionFileHeader m_header = {};
+	ActionFileHeaderOBS m_headerOBS = {};
+	ActionFileHeaderaLuZ m_headerALUZ = {};
 	std::vector<ExternRecord> m_externs;
+	HeaderKind m_hdrKind;
+	CDataDeclList m_globalDeclList;
 
+	void ReadBBsOBS(uint32_t tableOffset);
+	void ReadBBsALUZ(uint32_t tableOffset);
 	void ReadHeader();
 	void ReadStructs(uint32_t tableOffset);
 	void ReadPrototypes(uint32_t tableOffset);
-	void ReadBBs(uint32_t tableOffset);
 	void ReadAddressResolve(uint32_t tableOffset);
 	void Read();
 	
@@ -82,15 +86,18 @@ protected:
 	void ReadVariantTable(StreamPtr& filePtr);
 	void ReadSymFlagTable(StreamPtr& filePtr);
 public:
-	static void DecryptBuffer(uint32_t* seed, std::vector<uint8_t> buffer, char key);
-	CIScript(const std::vector<uint8_t>& script);
+	static void DecryptBuffer(uint32_t* seed, std::vector<uint8_t>& buffer, uint8_t key);
+	CIScript(const std::vector<uint8_t>& script, HeaderKind hdrKind);
 	const CStruct& GetStruct(size_t id) const;
 	const std::vector<CStruct>& GetStructs() const
 	{
 		return m_structs;
 	}
+	HeaderKind GetHeaderKind() const
+	{
+		return m_hdrKind;
+	}
 	friend std::ostream& operator<<(std::ostream& out, const CIScript& o);
-	void PrintPrototypes();
 	std::vector<ExternRecord> GetExterns() const
 	{
 		return m_externs;

@@ -19,20 +19,6 @@ CDecompiler::CDecompiler(const CIScript& script) : m_script(script)
 		outFn.Construct(expressions);
 		delete parser;
 	}
-
-	/**for (const auto& e : script.GetExterns())
-	{
-		ArgType type = (ArgType)-1;
-		if (e.type == 1)
-			type = ArgType::VariantArg;
-		else if (e.type == 2)
-			;//??
-		else if (e.type == 3)
-			;//??
-		CVariable* gvar = new CVariable(type, e.address, false);
-		gvar->SetName(e.name);
-		AddGlobalVariable(gvar);
-	}*/
 }
 
 CFunction& CDecompiler::AddFunctionPrototype(CPrototype* proto)

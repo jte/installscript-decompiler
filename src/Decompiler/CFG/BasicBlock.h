@@ -38,7 +38,7 @@ public:
     static void AddLink(BasicBlock* pred, BasicBlock* succ);
     std::string GetLabel();
 
-    BasicBlock(int index, std::string label) : _index(index), _label(label) {};
+    BasicBlock(int index, std::string label) : _index(index), _label(label), dominator(nullptr) {};
 };
 
 #endif /* BasicBlock_hpp */
