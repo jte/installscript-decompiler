@@ -38,6 +38,10 @@ void CIScript::ReadHeader()
 
 		memcpy(&m_headerALUZ, &m_script[0], sizeof(m_headerALUZ));
 		break;
+	case HeaderKind::kUtZ:
+		break;
+	case HeaderKind::Unrecognized:
+		break;
 	}
 
 	m_streamPtr = StreamPtr(m_script);
@@ -283,6 +287,10 @@ void CIScript::Read()
 			ReadBBsALUZ(m_headerALUZ.BBsTableOffset);
 			break;
 		}
+		case HeaderKind::kUtZ:
+			break;
+		case HeaderKind::Unrecognized:
+			break;
 	}
 }
 
