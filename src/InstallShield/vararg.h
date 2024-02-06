@@ -10,7 +10,7 @@ class vararg : public IArgument
 {
 protected:
 	int16_t m_address;
-	void print(std::ostream& os) const
+	void print(std::ostream& os) const override
 	{
 		os << (parameter ? "p" : "v") << ' ' << type << ' ' << m_address;
 	}

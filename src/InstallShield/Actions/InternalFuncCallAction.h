@@ -10,5 +10,5 @@ protected:
 	AbstractExpression* ToExpression() const override;
 public:
 	CInternalFuncCallAction(CIScript* script, StreamPtr& filePtr);
-	IArgument* ParseArgument(StreamPtr& filePtr);
+	IArgument* ParseArgument(StreamPtr& filePtr) override;
 };
