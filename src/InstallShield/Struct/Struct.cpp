@@ -7,6 +7,11 @@ void CStruct::Parse(StreamPtr& filePtr)
 	if (m_script->GetHeaderKind() == HeaderKind::OBS) {
 		m_name = filePtr.ReadInsString();
 	}
+	else
+	{
+		static size_t structIdCounter = 1;
+		m_name = "STRUCT_" + std::to_string(structIdCounter++);
+	}
 
 	uint16_t numMembers = 0;
 	filePtr.Read(numMembers);
