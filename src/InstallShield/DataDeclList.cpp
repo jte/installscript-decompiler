@@ -2,9 +2,7 @@
 
 void CDataDeclList::Parse(StreamPtr& ptr)
 {
-	uint16_t info1;
-	ptr.Read(info1);
-	m_info1 = info1;
+	ptr.Read(m_numNumbers);
 	
 	ParseObjectTable(ptr);
 
@@ -37,7 +35,7 @@ std::ostream& operator<<(std::ostream& out, const CDataDeclList& o)
 
 void CDataDeclList::print(std::ostream& os) const
 {
-	os << "info1: " << m_info1 << std::endl;
+	os << "numNumbers: " << m_numNumbers << std::endl;
 	os << "numStrings: " << m_numStrings << std::endl;
 
 	size_t i = 0;

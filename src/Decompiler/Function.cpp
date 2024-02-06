@@ -22,10 +22,9 @@ ScriptType CFunction::GetReturnType() const
 
 void CFunction::SetArguments(std::vector<ArgumentTypeInfo> args)
 {
-	size_t nNums = 0, nStrs = 0, nObjs = 0;
 	for (const auto& a : args)
 	{
-		AddArgument(a, nNums, nStrs, nObjs);
+		AddArgument(a, m_nArgNums, m_nArgStrs, m_nArgObjs);
 	}
 }
 
@@ -101,6 +100,13 @@ void PrintBB(std::ostream& out, BasicBlock *bb, std::map<BasicBlock*,bool>& visi
 	visited[bb] = true;
 }
 
+void CFunction::SetVariables(const CDataDeclList& declList)
+{
+	m_declList = declList;
+	m_nLocalNums = declList.GetNumNumbers();
+	m_nLocalStrs = declList.GetNumStrings();
+}
+
 std::ostream& operator<<(std::ostream& out, const CFunction& o)
 {
 	out << "function" << ' ' << o.GetReturnType() << ' ' << o.GetName() << '@' << o.GetAddress() << '(';
@@ -112,6 +118,25 @@ std::ostream& operator<<(std::ostream& out, const CFunction& o)
 			out << ',';
 	}
 	out << ')' << std::endl;
+	
+	// print local variables
+	for (size_t i = 0; i < (o.m_nLocalNums - o.m_nArgNums); i++)
+	{
+		out << "INT LclVarNum" << o.m_nArgNums + 1 + i << std::endl;
+	}
+	for (size_t i = 0; i < (o.m_nLocalStrs - o.m_nArgStrs); i++)
+	{
+		out << "STRING LclVarStr" << o.m_nArgStrs + 1 + i;
+		for (auto strInfo : o.m_declList.GetStringTable())
+		{
+			if (strInfo.varId == i)
+			{
+				out << "[" << strInfo.stringSize << "]";
+			}
+		}
+		out << std::endl;
+	}
+	// print function body
 	out << "begin" << std::endl;
 	
 	if (o.m_gen->m_cfg)

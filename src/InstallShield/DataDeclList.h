@@ -48,12 +48,24 @@ class CDataDeclList
 public:
 	void Parse(StreamPtr& ptr);
 	friend std::ostream& operator<<(std::ostream& out, const CDataDeclList& o);
+	uint16_t GetNumNumbers() const
+	{
+		return m_numNumbers;
+	}
+	uint16_t GetNumStrings() const
+	{
+		return m_numStrings;
+	}
+	const std::vector<StringVarInfo> GetStringTable() const
+	{
+		return m_stringTable;
+	}
 protected:
 	void ParseObjectTable(StreamPtr& ptr);
 	void ParseStringTable(StreamPtr& ptr);
 	virtual void print(std::ostream& os) const;
 private:
-	size_t m_info1 = 0;
+	uint16_t m_numNumbers = 0;
 	uint16_t m_numStrings = 0;
 	std::vector<ObjectVarInfo> m_objectTable;
 	std::vector<StringVarInfo> m_stringTable;

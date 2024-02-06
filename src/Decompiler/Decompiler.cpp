@@ -16,6 +16,7 @@ CDecompiler::CDecompiler(const CIScript& script) : m_script(script)
 		auto& outFn = AddFunctionPrototype(fn.prototype);
 		Parser* parser = new Parser;
 		std::vector<AbstractExpression*> expressions = parser->Parse(fn.bbs);
+		outFn.SetVariables(fn.dataDeclList);
 		outFn.Construct(expressions);
 		delete parser;
 	}

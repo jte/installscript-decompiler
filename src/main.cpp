@@ -67,14 +67,14 @@ int main(int argc, char** argv)
 	program.add_argument("input_file")
 		.help("input file (.inx/.obs)");
 
-	auto& group = program.add_mutually_exclusive_group();
+	auto& group = program.add_mutually_exclusive_group(true);
 	group.add_argument("--show-actions")
-		.default_value(false)
 		.help("show actions (disassembly)")
+		.default_value(false)
 		.implicit_value(true);
 	group.add_argument("--show-decompiled")
-		.default_value(true)
 		.help("show decompilation")
+		.default_value(false)
 		.implicit_value(true);
 
 	try 
