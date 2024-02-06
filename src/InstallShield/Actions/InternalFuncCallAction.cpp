@@ -42,7 +42,7 @@ AbstractExpression* CInternalFuncCallAction::ToExpression() const
 	if (((uint32_t)flags & (uint32_t)CPrototype::Flags::IsExported) || !name.empty())
 		ss << name;
 	else
-		ss << '@' << p->GetBBId();
+		ss << "Func_" << p->GetBBId();
 
 	std::vector<AbstractExpression*> args;
 	for (const auto& arg : m_arguments)

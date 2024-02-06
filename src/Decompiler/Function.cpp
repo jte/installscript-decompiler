@@ -109,7 +109,7 @@ void CFunction::SetVariables(const CDataDeclList& declList)
 
 std::ostream& operator<<(std::ostream& out, const CFunction& o)
 {
-	out << "function" << ' ' << o.GetReturnType() << ' ' << o.GetName() << '@' << o.GetAddress() << '(';
+	out << "function" << ' ' << o.GetReturnType() << ' ' << o.GetName() << "Func_" << o.GetAddress() << '(';
 	// print argument list
 	for (auto it = o.m_arguments.begin(); it != o.m_arguments.end(); ++it)
 	{
@@ -135,6 +135,27 @@ std::ostream& operator<<(std::ostream& out, const CFunction& o)
 			}
 		}
 		out << std::endl;
+	}
+	auto objectTable = o.m_declList.GetObjectTable();
+	size_t variantId = 1;
+	for (auto obj : objectTable)
+	{
+		if (((int)obj.flags & (int)SymFlags::vbArray) != 0)
+		{
+			out << "VARIANT LclVarObj" << variantId << "(" << obj.elemCount << ")" << std::endl;
+		}
+		else
+		{
+			if (obj.typedefId == -1)
+			{
+				out << "VARIANT LclVarObj" << variantId << std::endl;
+			}
+			else
+			{
+				out << "STRUCT_" << obj.typedefId + 1 << " LclVarObj" << variantId << std::endl;
+			}
+		}
+		variantId++;
 	}
 	// print function body
 	out << "begin" << std::endl;
