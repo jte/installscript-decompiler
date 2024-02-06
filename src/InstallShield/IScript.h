@@ -86,6 +86,10 @@ protected:
 	void ReadVariantTable(StreamPtr& filePtr);
 	void ReadSymFlagTable(StreamPtr& filePtr);
 public:
+	const CDataDeclList& GetGlobalDeclList() const
+	{
+		return m_globalDeclList;
+	}
 	static void DecryptBuffer(uint32_t* seed, std::vector<uint8_t>& buffer, uint8_t key);
 	CIScript(const std::vector<uint8_t>& script, HeaderKind hdrKind);
 	const CStruct& GetStruct(size_t id) const;

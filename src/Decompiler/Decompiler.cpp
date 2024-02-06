@@ -63,6 +63,48 @@ std::ostream& operator<<(std::ostream& out, const CDecompiler& o)
 	{
 		out << s << std::endl;
 	}
+	out << std::endl;
+	auto globals = o.m_script.GetGlobalDeclList();
+
+	for (size_t i = 0; i < globals.GetNumNumbers(); i++)
+	{
+		out << "INT GblVarNum" << i << std::endl;
+	}
+	for (size_t i = 0; i < globals.GetNumStrings(); i++)
+	{
+		out << "STRING GblVarStr" << i;
+		for (auto strInfo : globals.GetStringTable())
+		{
+			if (strInfo.varId == i)
+			{
+				out << "[" << strInfo.stringSize << "]";
+			}
+		}
+		out << std::endl;
+	}
+	auto objectTable = globals.GetObjectTable();
+	size_t variantId = 0;
+	for (auto obj : objectTable)
+	{
+		if (((int)obj.flags & (int)SymFlags::vbArray) != 0)
+		{
+			out << "VARIANT GblVarObj" << variantId << "(" << obj.elemCount << ")" << std::endl;
+		}
+		else
+		{
+			if (obj.typedefId == -1)
+			{
+				out << "VARIANT GblVarObj" << variantId << std::endl;
+			}
+			else
+			{
+				out << "STRUCT_" << obj.typedefId + 1 << " GblVarObj" << variantId << std::endl;
+			}
+		}
+		variantId++;
+	}
+
+	out << std::endl;
 	for (const auto &fn : o.m_functions)
 	{
 		out << fn << std::endl;

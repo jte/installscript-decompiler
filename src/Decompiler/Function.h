@@ -29,6 +29,7 @@ public:
 	uint32_t GetAddress() const;
 	std::string GetName() const;
 	ScriptType GetReturnType() const;
+	
 	void SetArguments(std::vector<ArgumentTypeInfo> args);
 	void SetVariables(const CDataDeclList& declList);
 
