@@ -9,6 +9,7 @@
 #include "ControlFlowGraph.h"
 #include "BasicBlock.h"
 #include <set>
+#include <algorithm>
 
 
 using namespace std;
