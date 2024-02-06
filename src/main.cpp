@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "Decompiler.h"
 #include <argparse/argparse.hpp>
+#include <string.h>
 
 const std::vector<uint8_t> readFile(std::string filePath)
 {
