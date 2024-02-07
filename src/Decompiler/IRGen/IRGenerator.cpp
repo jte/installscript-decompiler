@@ -31,7 +31,7 @@ void IRGenerator::Visit(AssignExpression* exp) {
 
 void IRGenerator::Visit(ReturnExpression* exp)
 {
-	m_currentBB.top()->AddStatement(new ReturnStatement(dynamic_cast<VariableExpression*>(exp->varExp), exp->displayLabel));
+	m_currentBB.top()->AddStatement(new ReturnStatement(exp->varExp, exp->displayLabel));
 }
 
 void IRGenerator::Visit(GotoExpression* exp)

@@ -89,7 +89,6 @@ public:
 
 class ReturnExpression : public AbstractExpression {
 public:
-    std::string varName() { return dynamic_cast<VariableExpression*>(varExp)->name; };
     AbstractExpression* varExp;
 
     ReturnExpression(AbstractExpression* varExp) : varExp(varExp) {}

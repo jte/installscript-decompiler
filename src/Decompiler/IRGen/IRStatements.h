@@ -54,10 +54,10 @@ public:
 
 class ReturnStatement : public AbstractStatement {
 public:
-    VariableExpression* var;
+    AbstractExpression* exp;
 
     std::string Dump() override;
-    ReturnStatement(VariableExpression* var, std::string displayLabel) : AbstractStatement(StatementType::RETURN, displayLabel), var(var) {};
+    ReturnStatement(AbstractExpression* exp, std::string displayLabel) : AbstractStatement(StatementType::RETURN, displayLabel), exp(exp) {};
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 

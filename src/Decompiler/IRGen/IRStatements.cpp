@@ -29,7 +29,7 @@ std::string BranchStatement::Dump()
 
 std::string ReturnStatement::Dump()
 {
-    return "return" + (var ? (" " + var->stringValue()) : "");
+    return "return" + (exp ? (" " + exp->stringValue()) : "");
 }
 
 std::string GotoStatement::Dump()
