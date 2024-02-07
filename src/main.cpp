@@ -43,6 +43,10 @@ HeaderKind GetHeaderKind(std::vector<uint8_t>& contents)
 	{
 		return HeaderKind::OBL;
 	}
+	else if (contents[0] == 'a' && contents[1] == 'L' && contents[2] == 'u' && contents[3] == 'Z')
+	{
+		return HeaderKind::aLuZ;
+	}
 	else
 	{ // encrypted or invalid
 		uint32_t seed = 0;
