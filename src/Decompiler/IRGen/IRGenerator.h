@@ -67,12 +67,16 @@ public:
 	void Visit(SetRefExpression* exp) override;
 	void Visit(FunctionCallExpression* exp) override;
 	void Visit(NopExpression* exp) override;
+	void Visit(AbortExpression* exp) override;
+	void Visit(ExitExpression* exp) override;
 
 	// not implemented, because visits only expressions
 	virtual void Visit(BranchStatement* stmt) override {};
 	virtual void Visit(AssignStatement* stmt) override {};
 	virtual void Visit(ReturnStatement* stmt) override {};
 	virtual void Visit(GotoStatement* stmt) override {};
+	virtual void Visit(ExitStatement* stmt) override {};
+	virtual void Visit(AbortStatement* stmt) override {};
 	void LogError(const char*);
 
 	ControlFlowGraph* m_cfg;

@@ -10,7 +10,7 @@ protected:
 	void print(std::ostream& os) const override;
 	AbstractExpression* ToExpression() const override
 	{
-		return new NopExpression();
+		return new AbortExpression();
 	}
 public:
 	CAbortAction(CIScript* script, StreamPtr& filePtr);

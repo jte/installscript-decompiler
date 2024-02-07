@@ -31,6 +31,10 @@ class ArrayAccessExpression;
 class SetRefExpression;
 class FunctionCallExpression;
 class NopExpression;
+class AbortExpression;
+class ExitExpression;
+class AbortStatement;
+class ExitStatement;
 
 class AbstractVisitor {
 public:
@@ -49,10 +53,14 @@ public:
     virtual void Visit(SetRefExpression* exp) = 0;
     virtual void Visit(FunctionCallExpression* exp) = 0;
     virtual void Visit(NopExpression* exp) = 0;
+    virtual void Visit(AbortExpression* exp) = 0;
+    virtual void Visit(ExitExpression* exp) = 0;
 
     virtual void Visit(BranchStatement* stmt) = 0;
     virtual void Visit(AssignStatement* stmt) = 0;
     virtual void Visit(ReturnStatement* stmt) = 0;
     virtual void Visit(GotoStatement* stmt) = 0;
+    virtual void Visit(ExitStatement* stmt) = 0;
+    virtual void Visit(AbortStatement* stmt) = 0;
 };
 #endif /* AbstractVisitor_hpp */

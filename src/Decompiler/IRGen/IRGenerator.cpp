@@ -39,6 +39,16 @@ void IRGenerator::Visit(GotoExpression* exp)
 	m_currentBB.top()->AddStatement(new GotoStatement(exp, exp->displayLabel, exp->targetLabel));
 }
 
+void IRGenerator::Visit(ExitExpression* exp)
+{
+	m_currentBB.top()->AddStatement(new ExitStatement(exp->displayLabel));
+}
+
+void IRGenerator::Visit(AbortExpression* exp)
+{
+	m_currentBB.top()->AddStatement(new AbortStatement(exp->displayLabel));
+}
+
 void IRGenerator::Visit(IfExpression* exp) {
 	BasicBlock* thenBB = CreateBB("then");
 

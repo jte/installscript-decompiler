@@ -95,6 +95,18 @@ public:
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 
+class AbortExpression : public AbstractExpression {
+public:
+    AbortExpression() {}
+    void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
+};
+
+class ExitExpression : public AbstractExpression {
+public:
+    ExitExpression() {}
+    void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
+};
+
 class GotoExpression : public AbstractExpression {
 public:
     AbstractExpression* targetExp;

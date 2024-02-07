@@ -36,3 +36,13 @@ std::string GotoStatement::Dump()
 {
     return "goto " + targetExp->stringValue();
 }
+
+std::string AbortStatement::Dump()
+{
+    return "abort";
+}
+
+std::string ExitStatement::Dump()
+{
+    return "exit";
+}

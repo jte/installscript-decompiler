@@ -29,7 +29,9 @@ enum class StatementType : uint8_t {
     ASSIGN = 0,
     BRANCH = 1,
     RETURN,
-    GOTO
+    GOTO,
+    EXIT,
+    ABORT
 };
 
 class AbstractStatement {
@@ -58,6 +60,20 @@ public:
 
     std::string Dump() override;
     ReturnStatement(AbstractExpression* exp, std::string displayLabel) : AbstractStatement(StatementType::RETURN, displayLabel), exp(exp) {};
+    void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
+};
+
+class ExitStatement : public AbstractStatement {
+public:
+    std::string Dump() override;
+    ExitStatement(std::string displayLabel) : AbstractStatement(StatementType::EXIT, displayLabel) {};
+    void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
+};
+
+class AbortStatement : public AbstractStatement {
+public:
+    std::string Dump() override;
+    AbortStatement(std::string displayLabel) : AbstractStatement(StatementType::ABORT, displayLabel) {};
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 
