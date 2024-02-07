@@ -2,7 +2,7 @@
 
 InstallScript Decompiler is a decompiler for InstallShield's InstallScript programming language.
 
-## Installation
+## Building
 
 ```
 git clone https://github.com/jte/installscript-decompiler.git
