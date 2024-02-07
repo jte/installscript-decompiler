@@ -31,5 +31,7 @@ private:
 	};
 	std::vector<ScriptInfo> m_scripts;
 public:
-	LibFile(StreamPtr& filePtr);
+	LibFile();
+	bool Parse(StreamPtr& filePtr);
+	std::vector<std::vector<uint8_t>> GetScriptsContent(StreamPtr& filePtr);
 };

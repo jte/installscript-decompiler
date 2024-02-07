@@ -8,6 +8,8 @@
 #include "Decompiler.h"
 #include <argparse/argparse.hpp>
 #include <string.h>
+#include "Wrapper/LibFile.h"
+#include "StreamPtr.h"
 
 const std::vector<uint8_t> readFile(std::string filePath)
 {
@@ -31,25 +33,26 @@ const std::vector<uint8_t> readFile(std::string filePath)
 	return buffer;
 }
 
-HeaderKind AnalyzeCompiledFile(const std::string filename, std::vector<uint8_t>& output)
+HeaderKind GetHeaderKind(std::vector<uint8_t>& contents)
 {
-	output = readFile(filename);
-	HeaderKind hdrKind = HeaderKind::Unrecognized;
-
-	if (output[0] == 0x48 && output[1] == 0x4F && output[2] == 0xF3 && output[3] == 0xC9)
+	if (contents[0] == 0x48 && contents[1] == 0x4F && contents[2] == 0xF3 && contents[3] == 0xC9)
 	{ // .obs file
 		return HeaderKind::OBS;
+	}
+	else if (contents[0] == 'p' && contents[1] == 'O' && contents[2] == 'd' && contents[3] == 'A')
+	{
+		return HeaderKind::OBL;
 	}
 	else
 	{ // encrypted or invalid
 		uint32_t seed = 0;
-		CIScript::DecryptBuffer(&seed, output, 0xF1);
+		CIScript::DecryptBuffer(&seed, contents, 0xF1);
 
-		if (output[0] == 'a' && output[1] == 'L' && output[2] == 'u' && output[3] == 'Z')
+		if (contents[0] == 'a' && contents[1] == 'L' && contents[2] == 'u' && contents[3] == 'Z')
 		{// script file
 			return HeaderKind::aLuZ;
 		}
-		else if (output[0] == 'k' && output[1] == 'U' && output[2] == 't' && output[3] == 'Z')
+		else if (contents[0] == 'k' && contents[1] == 'U' && contents[2] == 't' && contents[3] == 'Z')
 		{ // script file with debug info
 			return HeaderKind::kUtZ;
 		}
@@ -58,6 +61,13 @@ HeaderKind AnalyzeCompiledFile(const std::string filename, std::vector<uint8_t>&
 			return HeaderKind::Unrecognized;
 		}
 	}
+}
+
+HeaderKind AnalyzeCompiledFile(const std::string filename, std::vector<uint8_t>& contents)
+{
+	contents = readFile(filename);
+
+	return GetHeaderKind(contents);
 }
 
 int main(int argc, char** argv)
@@ -93,16 +103,40 @@ int main(int argc, char** argv)
 		std::vector<uint8_t> contents;
 		HeaderKind hdrKind = AnalyzeCompiledFile(program.get<std::string>("input_file"), contents);
 
-		CIScript script(contents, hdrKind);
+		if (hdrKind == HeaderKind::OBL)
+		{
+			LibFile libFile;
+			StreamPtr filePtr(contents);
+			libFile.Parse(filePtr);
+			auto files = libFile.GetScriptsContent(filePtr);
+			for (auto file : files)
+			{
+				CIScript script(file, GetHeaderKind(file));
 
-		if (program["--show-decompiled"] == true)
-		{
-			CDecompiler decompiler(script);
-			std::cout << decompiler;
+				if (program["--show-decompiled"] == true)
+				{
+					CDecompiler decompiler(script);
+					std::cout << decompiler;
+				}
+				else if (program["--show-actions"] == true)
+				{
+					std::cout << script;
+				}
+			}
 		}
-		else if (program["--show-actions"] == true)
+		else
 		{
-			std::cout << script;
+			CIScript script(contents, hdrKind);
+
+			if (program["--show-decompiled"] == true)
+			{
+				CDecompiler decompiler(script);
+				std::cout << decompiler;
+			}
+			else if (program["--show-actions"] == true)
+			{
+				std::cout << script;
+			}
 		}
 	}
 	catch (const std::exception& e)
