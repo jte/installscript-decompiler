@@ -78,10 +78,10 @@ public:
     bool isConditional;
     AbstractExpression* condition;
     BasicBlock* firstBranchBB;
-    BasicBlock* secondBranchBB;
+    BasicBlock* secondBranchBB; // actually continue branch
     std::string Dump() override;
-    BranchStatement(AbstractExpression* condition, BasicBlock* trueBranch, BasicBlock* falseBranch) : BranchStatement(condition, trueBranch, falseBranch, true, "") {};
-    BranchStatement(BasicBlock* bb) : BranchStatement(nullptr, bb, nullptr, false, "") {};
+    BranchStatement(AbstractExpression* condition, BasicBlock* trueBranch, BasicBlock* falseBranch, std::string displayLabel) : BranchStatement(condition, trueBranch, falseBranch, true, displayLabel) {};
+    BranchStatement(BasicBlock* bb, std::string displayLabel) : BranchStatement(nullptr, bb, nullptr, false, displayLabel) {};
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 

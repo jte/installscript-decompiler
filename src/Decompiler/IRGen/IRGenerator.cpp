@@ -1,18 +1,18 @@
 #include "IRGenerator.h"
 #include "IRStatements.h"
 
-void IRGenerator::CreateConditionalBr(AbstractExpression* condition, BasicBlock* thenBB, BasicBlock* elseBB)
+void IRGenerator::CreateConditionalBr(IfExpression* ifExp, BasicBlock* thenBB, BasicBlock* elseBB)
 {
 	BasicBlock::AddLink(m_currentBB.top(), thenBB);
 	//BasicBlock::AddLink(m_currentBB.top(), elseBB);
-	BranchStatement* branchStmt = new BranchStatement(condition, thenBB, elseBB);
+	BranchStatement* branchStmt = new BranchStatement(ifExp->conditionExp, thenBB, elseBB, ifExp->displayLabel);
 	m_currentBB.top()->AddStatement(branchStmt);
 }
 
-void IRGenerator::CreateBr(BasicBlock* targetBB)
+void IRGenerator::CreateBr(GotoExpression* gotoExp, BasicBlock* targetBB)
 {
 	BasicBlock::AddLink(m_currentBB.top(), targetBB);
-	BranchStatement* branchStmt = new BranchStatement(targetBB);
+	BranchStatement* branchStmt = new BranchStatement(targetBB, gotoExp->displayLabel);
 	m_currentBB.top()->AddStatement(branchStmt);
 }
 
@@ -43,7 +43,7 @@ void IRGenerator::Visit(GotoExpression* exp)
 void IRGenerator::Visit(IfExpression* exp) {
 	BasicBlock* thenBB = CreateBB("then");
 
-	CreateConditionalBr(exp->conditionExp, thenBB, nullptr);
+	CreateConditionalBr(exp, thenBB, nullptr);
 
 	m_currentBB.push(thenBB);
 	m_stopExp.push(exp->elseExp);

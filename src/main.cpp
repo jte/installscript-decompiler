@@ -16,7 +16,7 @@ const std::vector<uint8_t> readFile(std::string filePath)
 	std::ifstream in(filePath, std::ifstream::binary);
 	if (!in)
 	{
-		throw std::runtime_error("Failed to open the action file: " + std::string(strerror(errno)));
+		throw std::runtime_error("Failed to open the input file: " + std::string(strerror(errno)));
 	}
 
 	std::filebuf* pbuf = in.rdbuf();

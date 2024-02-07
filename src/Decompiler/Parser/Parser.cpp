@@ -13,18 +13,14 @@
 #include "Actions/GotoAction.h"
 #include <string>
 #include <map>
+#include <cassert>
 #if 0
 #include <iostream>
 #endif
 
 AbstractExpression* Parser::ParseCurrentExpression(CAction* act) {
     auto expr = act->ToExpression();
-    size_t debug = 0;
-    if (!expr)
-    {
-        debug = 1;
-    }
-
+    assert(expr);
     return expr;
 }
 
@@ -35,6 +31,7 @@ std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& 
     std::map<CAction*, AbstractExpression*> map;
     std::vector<size_t> ifExprs;
     std::vector<size_t> gotoExprs;
+    int labelCounter = 1;
 
     for (const auto& bb : isBBs)
     {
@@ -121,7 +118,7 @@ std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& 
 
                 // Set label if not already set
                 if (targetExpr->displayLabel == "")
-                    targetExpr->displayLabel = AbstractExpression::GetNextLabel();
+                    targetExpr->displayLabel = "label_" + std::to_string(labelCounter++);
                 gotoExpr->targetLabel = targetExpr->displayLabel;
 
                 lastGotoExpr++;
