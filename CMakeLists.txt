@@ -144,6 +144,8 @@ set(ACTIONS_FILES
 	src/InstallShield/Actions/DoHandlerAction.cpp
 	src/InstallShield/Actions/ResizeAction.cpp
 	src/InstallShield/Actions/SizeofAction.cpp
+	src/InstallShield/Actions/IndirectStructAction.cpp
+	src/InstallShield/Actions/IndirectStructAction.h
 )
 
 set(PROTOTYPE_FILES

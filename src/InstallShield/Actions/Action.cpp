@@ -37,6 +37,7 @@
 #include "DoHandlerAction.h"
 #include "ResizeAction.h"
 #include "SizeofAction.h"
+#include "IndirectStructAction.h"
 
 CAction::CAction(CIScript* script) :
 	m_script(script)
@@ -87,7 +88,7 @@ CAction* CAction::FindFactory(size_t id, CIScript* script, StreamPtr& fileptr)
 	case 25: return new CBinaryAction<BinaryExprType::LogOr>(script, fileptr);
 	case 26: return new CAddressOfAction(script, fileptr);
 	case 27: return new CUnaryAction<'*'>(script, fileptr);
-	case 28: return new CUnaryAction<'.'>(script, fileptr);
+	case 28: return new CIndirectStructAction(script, fileptr);
 	case 29: return new CSetByteAction(script, fileptr);
 	case 30: return new CGetByteAction(script, fileptr);
 	//case 31: non-existant in 2016

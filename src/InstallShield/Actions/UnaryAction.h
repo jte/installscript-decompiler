@@ -20,5 +20,6 @@ protected:
 public:
 	CUnaryAction(CIScript* script, StreamPtr& filePtr) :
 		CActionWithArgs(script, filePtr)
-	{}
+	{
+	}
 };
