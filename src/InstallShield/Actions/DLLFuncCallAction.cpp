@@ -10,7 +10,7 @@ CDLLFuncCallAction::CDLLFuncCallAction(CIScript* script, StreamPtr& filePtr) :
 
 void CDLLFuncCallAction::print(std::ostream& os) const
 {
-	const CDLLPrototype* p = dynamic_cast<const CDLLPrototype*>(m_script->GetFnByBBId(m_functionId).prototype);
+	const CDLLPrototype* p = dynamic_cast<const CDLLPrototype*>(m_script->GetFnById(m_functionId).prototype);
 	assert(p);
 	auto name = p->GetName();
 	auto flags = p->GetFlags();

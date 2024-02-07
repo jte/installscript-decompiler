@@ -122,6 +122,28 @@ set(ACTIONS_FILES
     src/InstallShield/Actions/UnUseDLLAction.h
     src/InstallShield/Actions/UseDLLAction.cpp
     src/InstallShield/Actions/UseDLLAction.h
+	src/InstallShield/Actions/StrLengthCharsAction.h
+	src/InstallShield/Actions/StrSubAction.h
+	src/InstallShield/Actions/StrFindAction.h
+	src/InstallShield/Actions/StrCompareAction.h
+	src/InstallShield/Actions/StrToNumAction.h
+	src/InstallShield/Actions/NumToStrAction.h
+	src/InstallShield/Actions/HandlerAction.h
+	src/InstallShield/Actions/HandlerExAction.h
+	src/InstallShield/Actions/DoHandlerAction.h
+	src/InstallShield/Actions/ResizeAction.h
+	src/InstallShield/Actions/SizeofAction.h
+	src/InstallShield/Actions/StrLengthCharsAction.cpp
+	src/InstallShield/Actions/StrSubAction.cpp
+	src/InstallShield/Actions/StrFindAction.cpp
+	src/InstallShield/Actions/StrCompareAction.cpp
+	src/InstallShield/Actions/StrToNumAction.cpp
+	src/InstallShield/Actions/NumToStrAction.cpp
+	src/InstallShield/Actions/HandlerAction.cpp
+	src/InstallShield/Actions/HandlerExAction.cpp
+	src/InstallShield/Actions/DoHandlerAction.cpp
+	src/InstallShield/Actions/ResizeAction.cpp
+	src/InstallShield/Actions/SizeofAction.cpp
 )
 
 set(PROTOTYPE_FILES

@@ -194,6 +194,16 @@ public:
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 
+class NopExpression : public AbstractExpression
+{
+public:
+    std::string stringValue() override { return "nop"; };
+
+
+    NopExpression() {}
+    void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
+};
+
 class BinaryExpression : public AbstractExpression {
 public:
     char op;

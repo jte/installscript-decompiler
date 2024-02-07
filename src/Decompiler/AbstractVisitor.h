@@ -30,6 +30,7 @@ class AddressOfExpression;
 class ArrayAccessExpression;
 class SetRefExpression;
 class FunctionCallExpression;
+class NopExpression;
 
 class AbstractVisitor {
 public:
@@ -47,6 +48,7 @@ public:
     virtual void Visit(ArrayAccessExpression* exp) = 0;
     virtual void Visit(SetRefExpression* exp) = 0;
     virtual void Visit(FunctionCallExpression* exp) = 0;
+    virtual void Visit(NopExpression* exp) = 0;
 
     virtual void Visit(BranchStatement* stmt) = 0;
     virtual void Visit(AssignStatement* stmt) = 0;

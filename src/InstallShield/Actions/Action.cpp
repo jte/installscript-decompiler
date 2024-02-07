@@ -26,7 +26,17 @@
 #include "UnUseDLLAction.h"
 #include "BindVariableAction.h"
 #include "AddressOfWideAction.h"
-
+#include "StrLengthCharsAction.h"
+#include "StrSubAction.h"
+#include "StrFindAction.h"
+#include "StrCompareAction.h"
+#include "StrToNumAction.h"
+#include "NumToStrAction.h"
+#include "HandlerAction.h"
+#include "HandlerExAction.h"
+#include "DoHandlerAction.h"
+#include "ResizeAction.h"
+#include "SizeofAction.h"
 
 CAction::CAction(CIScript* script) :
 	m_script(script)
@@ -89,7 +99,7 @@ CAction* CAction::FindFactory(size_t id, CIScript* script, StreamPtr& fileptr)
 	case 37: return new CReturnAction(script, fileptr);
 	case 38: return new CEndFuncAction(script, fileptr);
 	case 39: return new CNOPAction(script, fileptr);
-	/*case 40: return new CStrLengthCharsAction(script, fileptr);
+	case 40: return new CStrLengthCharsAction(script, fileptr);
 	case 41: return new CStrSubAction(script, fileptr);
 	case 42: return new CStrFindAction(script, fileptr);
 	case 43: return new CStrCompareAction(script, fileptr);
@@ -99,7 +109,7 @@ CAction* CAction::FindFactory(size_t id, CIScript* script, StreamPtr& fileptr)
 	case 47: return new CHandlerExAction(script, fileptr);
 	case 48: return new CDoHandlerAction(script, fileptr);
 	case 49: return new CResizeAction(script, fileptr);
-	case 50: return new CSizeofAction(script, fileptr);*/
+	case 50: return new CSizeofAction(script, fileptr);
 	case 51: return new CPropPutAction(script, fileptr);
 	case 52: return new CPropPutRefAction(script, fileptr);
 	case 53: return new CPropGetAction(script, fileptr);

@@ -79,11 +79,23 @@ std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& 
             {
                 auto elseOffset = ifAct->GetElseBranchLabelOffset();
                 auto elseExpr = map[isBBs[i + elseOffset].GetActions()[0]];
-                auto thenExpr = map[acts[actId+1]];
 
-                if (!elseExpr || !thenExpr)
+                if (!elseExpr)
                 {
-                    throw std::runtime_error("Invalid else or then expression found");
+                    throw std::runtime_error("Invalid else expression found");
+                }
+
+                AbstractExpression* thenExpr = nullptr;
+                
+                // check required because of potential empty ifs
+                if (actId + 1 < acts.size())
+                {
+                    thenExpr = map[acts[actId + 1]];
+
+                    if (!thenExpr)
+                    {
+                        throw std::runtime_error("Invalid then expression found");
+                    }
                 }
                 
                 auto ifExpr = dynamic_cast<IfExpression*>(expressions[ifExprs[lastIfExpr]]);

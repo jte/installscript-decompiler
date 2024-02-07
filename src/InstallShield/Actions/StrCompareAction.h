@@ -3,7 +3,7 @@
 #include "ActionWithArgs.h"
 #include "Parser/Expressions.h"
 
-class CEndTryAction : public CActionWithArgs
+class CStrCompareAction : public CActionWithArgs
 {
 protected:
 	void print(std::ostream& os) const override;
@@ -12,7 +12,5 @@ protected:
 		return new NopExpression();
 	}
 public:
-	CEndTryAction(CIScript* script, StreamPtr& filePtr) :
-		CActionWithArgs(script, filePtr)
-	{}
+	CStrCompareAction(CIScript* script, StreamPtr& filePtr);
 };

@@ -72,7 +72,8 @@ void CPrototype::print(std::ostream& os) const
 		os << "export ";
 	}
 	os << "prototype ";
-	os << m_returnType << ' ';
+	if (m_bbId != 0xffff)
+		os << m_returnType << ' ';
 	if (m_flags & (uint8_t)Flags::IsExported)
 	{
 		os << m_name;
@@ -81,9 +82,12 @@ void CPrototype::print(std::ostream& os) const
 	{
 		os << "predefined_func";
 	}
-	os << '(';
-	os << m_arguments;
-	os << ");";
+	if (m_arguments.size())
+	{
+		os << '(';
+		os << m_arguments;
+		os << ");";
+	}
 }
 
 bool CPrototype::GetIsExported() const

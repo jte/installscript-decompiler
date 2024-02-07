@@ -34,14 +34,17 @@ void CFunction::AddArgument(ArgumentTypeInfo typeInfo, size_t& nNums, size_t& nS
 	switch (typeInfo.internalType)
 	{
 	case ConcreteType::Number:
+	case ConcreteType::NumberPointer:
 		ss << "LclVarNum" << nNums + 1;
 		nNums++;
 		break;
 	case ConcreteType::String:
+	case ConcreteType::StringPointer:
 		ss << "LclVarStr" << nStrs + 1;
 		nStrs++;
 		break;
 	case ConcreteType::Object:
+	case ConcreteType::ObjectPointer:
 		ss << "LclVarObj" << nObjs + 1;
 		nObjs++;
 		break;

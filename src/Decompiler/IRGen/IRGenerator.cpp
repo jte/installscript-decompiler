@@ -84,6 +84,11 @@ void IRGenerator::Visit(FunctionCallExpression* exp)
 
 }
 
+void IRGenerator::Visit(NopExpression* exp)
+{
+
+}
+
 void IRGenerator::LogError(const char* str) {
 	fprintf(stderr, "Error: %s\n", str);
 }

@@ -299,17 +299,20 @@ std::ostream& operator<<(std::ostream& out, const CIScript& o)
 	size_t i = 0;
 	for (const auto& fn : o.m_fns)
 	{
-		out << *(fn.prototype);
-		out << fn.dataDeclList;
-		for (const auto& bb : fn.bbs)
+		if (fn.prototype->GetIsExported() || fn.bbs.size() != 0)
 		{
-			for (const auto& act : bb.GetActions())
+			out << *(fn.prototype);
+			out << fn.dataDeclList;
+			for (const auto& bb : fn.bbs)
 			{
-				out << std::hex << bb.GetBBId() << std::dec << ": ";
-				out << *act << std::endl;
+				for (const auto& act : bb.GetActions())
+				{
+					out << std::hex << bb.GetBBId() << std::dec << ": ";
+					out << *act << std::endl;
+				}
 			}
+			out << "\n\n" << std::endl;
 		}
-		out << "\n\n" << std::endl;
 	}
 	return out;
 }
