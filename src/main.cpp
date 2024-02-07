@@ -77,6 +77,9 @@ int main(int argc, char** argv)
 	program.add_argument("input_file")
 		.help("input file (.inx/.obs)");
 
+	program.add_argument("output_file")
+		.help("output file (.rul)");
+
 	auto& group = program.add_mutually_exclusive_group(true);
 	group.add_argument("--show-actions")
 		.help("show actions (disassembly)")
@@ -113,30 +116,38 @@ int main(int argc, char** argv)
 			{
 				CIScript script(file, GetHeaderKind(file));
 
+				// TODO: make output_file optional and output files to their respective output files by name (but replace extension to be .rul)
+				std::ofstream of(program.get("output_file"), std::ifstream::binary);
+				
 				if (program["--show-decompiled"] == true)
 				{
 					CDecompiler decompiler(script);
-					std::cout << decompiler;
+					of << decompiler;
 				}
 				else if (program["--show-actions"] == true)
 				{
-					std::cout << script;
+					of << script;
 				}
+				of.close();
+
 			}
 		}
 		else
 		{
 			CIScript script(contents, hdrKind);
 
+			std::ofstream of(program.get("output_file"), std::ifstream::binary);
+
 			if (program["--show-decompiled"] == true)
 			{
 				CDecompiler decompiler(script);
-				std::cout << decompiler;
+				of << decompiler;
 			}
 			else if (program["--show-actions"] == true)
 			{
-				std::cout << script;
+				of << script;
 			}
+			of.close();
 		}
 	}
 	catch (const std::exception& e)
