@@ -112,12 +112,12 @@ int main(int argc, char** argv)
 			StreamPtr filePtr(contents);
 			libFile.Parse(filePtr);
 			auto files = libFile.GetScriptsContent(filePtr);
+			std::ofstream of(program.get("output_file"), std::ifstream::binary);
 			for (auto file : files)
 			{
 				CIScript script(file, GetHeaderKind(file));
 
 				// TODO: make output_file optional and output files to their respective output files by name (but replace extension to be .rul)
-				std::ofstream of(program.get("output_file"), std::ifstream::binary);
 				
 				if (program["--show-decompiled"] == true)
 				{
@@ -128,9 +128,8 @@ int main(int argc, char** argv)
 				{
 					of << script;
 				}
-				of.close();
-
 			}
+			of.close();
 		}
 		else
 		{
