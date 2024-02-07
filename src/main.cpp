@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 	argparse::ArgumentParser program("InstallScriptDecompiler");
 
 	program.add_argument("input_file")
-		.help("input file (.inx/.obs)");
+		.help("input file (.inx/.obs/.obl)");
 
 	program.add_argument("output_file")
 		.help("output file (.rul)");
