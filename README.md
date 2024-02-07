@@ -1,4 +1,4 @@
-# MoneyPrinter
+# InstallScript Decompiler
 
 InstallScript Decompiler is a decompiler for InstallShield's InstallScript programming language.
 
