@@ -4,7 +4,7 @@ InstallScript Decompiler is a decompiler for InstallShield's InstallScript progr
 
 ## Installation
 
-```bash
+```
 git clone https://github.com/jte/installscript-decompiler.git
 cd installscript-decompiler
 
@@ -16,7 +16,7 @@ cmake ..
 
 ## Usage
 
-```bash
+```
 Usage: InstallScriptDecompiler [--help] [--version] [--show-actions] [--show-decompiled] input_file output_file
 
 Positional arguments:
