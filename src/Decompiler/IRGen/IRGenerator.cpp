@@ -39,7 +39,9 @@ void IRGenerator::Visit(GotoExpression* exp)
 	m_currentBB.top()->AddStatement(new GotoStatement(exp, exp->displayLabel, exp->targetLabel));
 }
 
-
+// START -> BB(ENTRY)
+// IF -> BB(ENTRY, THEN)
+// ENDIF -> BB(ENTRY)
 void IRGenerator::Visit(IfExpression* exp) {
 	BasicBlock* thenBB = CreateBB("then");
 
@@ -48,11 +50,16 @@ void IRGenerator::Visit(IfExpression* exp) {
 	m_currentBB.push(thenBB);
 	m_stopExp.push(exp->elseExp);
 	AbstractExpression* thenExp = exp->thenExp;
-	bool ok = true;
-	while (thenExp && ok) {
-		ok = GenerateIR(thenExp);
+	while (thenExp) {
+		if (thenExp == m_stopExp.top())
+		{
+			m_stopExp.pop();
+			break;
+		}
+		GenerateIR(thenExp);
 		thenExp = thenExp->next;
 	}
+	m_currentBB.pop();
 }
 
 void IRGenerator::Visit(ForExpression* exp) {

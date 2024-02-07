@@ -99,6 +99,9 @@ class GotoExpression : public AbstractExpression {
 public:
     AbstractExpression* targetExp;
     std::string targetLabel;
+
+    std::string stringValue() override { return "goto " + targetLabel; }
+
     GotoExpression(AbstractExpression* targetExp) : targetExp(targetExp) {}
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
