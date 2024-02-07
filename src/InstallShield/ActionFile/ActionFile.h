@@ -7,7 +7,8 @@ enum class HeaderKind
 	Unrecognized,
 	OBS,
 	aLuZ,
-	kUtZ
+	kUtZ,
+	OBL
 };
 
 #pragma pack(push, 1)
