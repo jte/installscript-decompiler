@@ -62,7 +62,7 @@ void CFunction::Construct(const std::vector<AbstractExpression*>& expressions)
 	for (std::vector<AbstractExpression*>::const_iterator it = expressions.begin(); it != expressions.end(); ++it)
 	{
 		auto expr = *it;
-		std::cout << "Construct GenerateIR: " << expr->stringValue() << std::endl;
+		//std::cout << "Construct GenerateIR: " << expr->stringValue() << std::endl;
 		m_gen->GenerateIR(expr);
 	}
 }
