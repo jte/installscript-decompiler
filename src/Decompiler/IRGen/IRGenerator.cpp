@@ -4,7 +4,8 @@
 void IRGenerator::CreateConditionalBr(IfExpression* ifExp, BasicBlock* thenBB, BasicBlock* elseBB)
 {
 	BasicBlock::AddLink(m_currentBB.top(), thenBB);
-	//BasicBlock::AddLink(m_currentBB.top(), elseBB);
+	BasicBlock::AddLink(m_currentBB.top(), elseBB);
+	BasicBlock::AddLink(thenBB, elseBB);
 	BranchStatement* branchStmt = new BranchStatement(ifExp->conditionExp, thenBB, elseBB, ifExp->displayLabel);
 	m_currentBB.top()->AddStatement(branchStmt);
 }
@@ -51,8 +52,9 @@ void IRGenerator::Visit(AbortExpression* exp)
 
 void IRGenerator::Visit(IfExpression* exp) {
 	BasicBlock* thenBB = CreateBB("then");
+	BasicBlock* contBB = CreateBB("if_cont");
 
-	CreateConditionalBr(exp, thenBB, nullptr);
+	CreateConditionalBr(exp, thenBB, contBB);
 
 	m_currentBB.push(thenBB);
 	m_stopExp.push(exp->elseExp);

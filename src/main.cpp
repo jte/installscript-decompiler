@@ -110,19 +110,43 @@ int main(int argc, char** argv)
 		std::vector<uint8_t> contents;
 		HeaderKind hdrKind = AnalyzeCompiledFile(program.get<std::string>("input_file"), contents);
 
-		if (hdrKind == HeaderKind::OBL)
+		switch (hdrKind)
 		{
-			LibFile libFile;
-			StreamPtr filePtr(contents);
-			libFile.Parse(filePtr);
-			auto files = libFile.GetScriptsContent(filePtr);
-			std::ofstream of(program.get("output_file"), std::ifstream::binary);
-			for (auto file : files)
+		case HeaderKind::OBL:
 			{
-				CIScript script(file, GetHeaderKind(file));
+				LibFile libFile;
+				StreamPtr filePtr(contents);
+				libFile.Parse(filePtr);
+				auto files = libFile.GetScriptsContent(filePtr);
+				std::ofstream of(program.get("output_file"), std::ifstream::binary);
+				for (auto file : files)
+				{
+					CIScript script(file, GetHeaderKind(file));
 
-				// TODO: make output_file optional and output files to their respective output files by name (but replace extension to be .rul)
-				
+					// TODO: make output_file optional and output files to their respective output files by name (but replace extension to be .rul)
+
+					if (program["--show-decompiled"] == true)
+					{
+						CDecompiler decompiler(script);
+						of << decompiler;
+					}
+					else if (program["--show-actions"] == true)
+					{
+						of << script;
+					}
+				}
+				of.close();
+			}
+			break;
+		case HeaderKind::Unrecognized:
+			std::cerr << "The input file is unrecognized." << std::endl;
+			return 1;
+		default:
+			{
+				CIScript script(contents, hdrKind);
+
+				std::ofstream of(program.get("output_file"), std::ifstream::binary);
+
 				if (program["--show-decompiled"] == true)
 				{
 					CDecompiler decompiler(script);
@@ -132,26 +156,10 @@ int main(int argc, char** argv)
 				{
 					of << script;
 				}
+				of.close();
 			}
-			of.close();
 		}
-		else
-		{
-			CIScript script(contents, hdrKind);
-
-			std::ofstream of(program.get("output_file"), std::ifstream::binary);
-
-			if (program["--show-decompiled"] == true)
-			{
-				CDecompiler decompiler(script);
-				of << decompiler;
-			}
-			else if (program["--show-actions"] == true)
-			{
-				of << script;
-			}
-			of.close();
-		}
+		std::cout << "Successful decompilation." << std::endl;
 	}
 	catch (const std::exception& e)
 	{
