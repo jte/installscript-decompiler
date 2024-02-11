@@ -17,7 +17,27 @@ void CStrConst::Parse(StreamPtr& filePtr)
 
 const std::string CStrConst::GetString() const
 {
-	return m_string;
+	std::string str;
+	for (auto elem : m_string)
+	{
+		if (elem == '\n')
+		{
+			str += "\\n";
+		}
+		else if (elem == '\r')
+		{
+			str += "\\r";
+		}
+		else if (elem == '\t')
+		{
+			str += "\\t";
+		}
+		else
+		{
+			str += elem;
+		}
+	}
+	return str;
 }
 
 void CStrConst::print(std::ostream& os) const
