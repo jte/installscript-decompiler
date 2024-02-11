@@ -107,6 +107,8 @@ int main(int argc, char** argv)
 	
 	try
 	{
+		std::cout << "Starting decompilation..." << std::endl;
+
 		std::vector<uint8_t> contents;
 		HeaderKind hdrKind = AnalyzeCompiledFile(program.get<std::string>("input_file"), contents);
 
