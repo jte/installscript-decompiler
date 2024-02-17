@@ -4,4 +4,5 @@
 
 void CEndTryAction::print(std::ostream& os) const
 {
+	os << "EndTryAction";
 }

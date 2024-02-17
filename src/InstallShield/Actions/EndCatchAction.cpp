@@ -4,4 +4,5 @@
 
 void CEndCatchAction::print(std::ostream& os) const
 {
+	os << "EndCatchAction";
 }
