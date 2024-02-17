@@ -12,7 +12,7 @@ void CNumConst::Parse(StreamPtr& filePtr)
 	filePtr.Read(m_num);
 }
 
-uint32_t CNumConst::GetConst() const
+int32_t CNumConst::GetConst() const
 {
 	return m_num;
 }

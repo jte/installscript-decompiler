@@ -7,7 +7,7 @@
 class CNumConst : public IArgument
 {
 private:
-	uint32_t m_num;
+	int32_t m_num;
 protected:
 	void print(std::ostream& os) const override;
 	AbstractExpression* ToExpression() const override
@@ -17,5 +17,5 @@ protected:
 public:
 	CNumConst(StreamPtr& filePtr);
 	void Parse(StreamPtr& filePtr) override;
-	uint32_t GetConst() const;
+	int32_t GetConst() const;
 };
