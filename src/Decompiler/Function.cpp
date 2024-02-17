@@ -113,7 +113,14 @@ void CFunction::SetVariables(const CDataDeclList& declList)
 
 std::ostream& operator<<(std::ostream& out, const CFunction& o)
 {
-	out << "function" << ' ' << o.GetReturnType() << ' ' << o.GetName() << "Func_" << o.GetAddress() << '(';
+	if (o.GetName().empty())
+	{
+		out << "function" << ' ' << o.GetReturnType() << ' ' << "Func_" << o.GetAddress() << '(';
+	}
+	else
+	{
+		out << "function" << ' ' << o.GetReturnType() << ' ' << o.GetName() << '(';
+	}
 	// print argument list
 	for (auto it = o.m_arguments.begin(); it != o.m_arguments.end(); ++it)
 	{

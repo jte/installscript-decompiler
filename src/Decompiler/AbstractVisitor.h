@@ -35,6 +35,8 @@ class AbortExpression;
 class ExitExpression;
 class AbortStatement;
 class ExitStatement;
+class PropPutExpression;
+class PropGetExpression;
 
 class AbstractVisitor {
 public:
@@ -55,6 +57,8 @@ public:
     virtual void Visit(NopExpression* exp) = 0;
     virtual void Visit(AbortExpression* exp) = 0;
     virtual void Visit(ExitExpression* exp) = 0;
+    virtual void Visit(PropPutExpression* exp) = 0;
+    virtual void Visit(PropGetExpression* exp) = 0;
 
     virtual void Visit(BranchStatement* stmt) = 0;
     virtual void Visit(AssignStatement* stmt) = 0;

@@ -69,6 +69,8 @@ public:
 	void Visit(NopExpression* exp) override;
 	void Visit(AbortExpression* exp) override;
 	void Visit(ExitExpression* exp) override;
+	void Visit(PropPutExpression* exp) override;
+	void Visit(PropGetExpression* exp) override;
 
 	// not implemented, because visits only expressions
 	virtual void Visit(BranchStatement* stmt) override {};

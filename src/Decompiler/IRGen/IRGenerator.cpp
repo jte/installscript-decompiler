@@ -26,6 +26,14 @@ void IRGenerator::Visit(StringExpression* exp) {
 void IRGenerator::Visit(VariableExpression* exp) {
 }
 
+void IRGenerator::Visit(PropPutExpression* exp) {
+
+}
+
+void IRGenerator::Visit(PropGetExpression* exp) {
+
+}
+
 void IRGenerator::Visit(AssignExpression* exp) {
 	m_currentBB.top()->AddStatement(new AssignStatement(exp->varExp, exp->expr, exp->displayLabel));
 }

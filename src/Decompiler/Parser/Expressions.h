@@ -107,6 +107,68 @@ public:
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 
+class PropPutExpression : public AbstractExpression {
+public:
+    AbstractExpression* var;
+    std::vector<AbstractExpression*> accessors;
+
+    std::string stringValue() override {
+        std::stringstream val;
+        val << var->stringValue();
+        for (auto ac : accessors)
+        {
+            if (dynamic_cast<NumberExpression*>(ac) || dynamic_cast<VariableExpression*>(ac))
+            {
+                val << "(" << ac->stringValue() << ")";
+            }
+            else if (dynamic_cast<StringExpression*>(ac))
+            {
+                auto str = dynamic_cast<StringExpression*>(ac);
+                val << "." << str->value;
+            }
+            else
+            {
+                throw std::runtime_error("Invalid accessor expression in prop put expression.");
+            }
+        }
+        return val.str();
+    }
+
+    PropPutExpression(AbstractExpression* var, std::vector<AbstractExpression*> accessors) : var(var), accessors(accessors) {}
+    void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
+};
+
+class PropGetExpression : public AbstractExpression {
+public:
+    AbstractExpression* var;
+    std::vector<AbstractExpression*> accessors;
+
+    std::string stringValue() override {
+        std::stringstream val;
+        val << var->stringValue();
+        for (auto ac : accessors)
+        {
+            if (dynamic_cast<NumberExpression*>(ac) || dynamic_cast<VariableExpression*>(ac))
+            {
+                val << "(" << ac->stringValue() << ")";
+            }
+            else if (dynamic_cast<StringExpression*>(ac))
+            {
+                auto str = dynamic_cast<StringExpression*>(ac);
+                val << "." << str->value;
+            }
+            else
+            {
+                throw std::runtime_error("Invalid accessor expression in prop get expression.");
+            }
+        }
+        return val.str();
+    }
+
+    PropGetExpression(AbstractExpression* var, std::vector<AbstractExpression*> accessors) : var(var), accessors(accessors) {}
+    void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
+};
+
 class GotoExpression : public AbstractExpression {
 public:
     AbstractExpression* targetExp;
