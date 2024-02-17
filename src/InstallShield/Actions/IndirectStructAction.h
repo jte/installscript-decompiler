@@ -7,12 +7,13 @@
 class CIndirectStructAction : public CActionWithArgs
 {
 protected:
+	uint16_t m_structId = 0;
 	void print(std::ostream& os) const override
 	{
 	}
 	AbstractExpression* ToExpression() const override
 	{
-		return new NopExpression;
+		return new AssignExpression(new VariableExpression("GblVarObj0"), new UnaryExpression('*', m_arguments[0]->ToExpression()));
 	}
 public:
 	CIndirectStructAction(CIScript* script, StreamPtr& filePtr) :
@@ -20,9 +21,7 @@ public:
 	{
 		uint16_t actionId = 0;
 		filePtr.Read(actionId);
-
-		uint16_t structId = 0;
-		filePtr.Read(structId);
+		filePtr.Read(m_structId);
 
 		m_numOperands = 1;
 

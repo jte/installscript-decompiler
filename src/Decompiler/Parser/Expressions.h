@@ -199,6 +199,7 @@ public:
         switch (op)
         {
         case (char)'~': return "~";
+        case (char)'*': return "*";
         default: return "undefined";
         }
     }
