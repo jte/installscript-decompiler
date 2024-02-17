@@ -24,10 +24,10 @@ struct ActionFileHeaderOBS
 	uint32_t field_68;
 	uint32_t field_6C;
 	uint32_t field_70;
-	uint16_t field_74;
+	uint16_t numGlobalVarNumbers;
 	uint16_t field_76;
 	uint32_t field_78;
-	uint32_t List4Offset;
+	uint32_t StringTableOffset;
 	uint32_t VariantTableOffset;
 	uint32_t ExternTableOffset;
 	uint32_t PrototypesTableOffset;

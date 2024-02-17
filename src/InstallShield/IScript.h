@@ -82,9 +82,6 @@ private:
 	void Read();
 	
 	void ReadExternTable(uint32_t tableOffset);
-protected:
-	void ReadVariantTable(StreamPtr& filePtr);
-	void ReadSymFlagTable(StreamPtr& filePtr);
 public:
 	const CDataDeclList& GetGlobalDeclList() const
 	{

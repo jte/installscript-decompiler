@@ -222,41 +222,6 @@ void CIScript::ReadExternTable(uint32_t tableOffset)
 	}
 }
 
-void CIScript::ReadVariantTable(StreamPtr& table)
-{
-	// use datadecllist
-	uint16_t count = 0;
-	table.Read(count);
-	//std::cout << "variant table " << std::endl;
-	for (size_t i = 0; i < count; ++i)
-	{
-		// ref: DataDeclList::AddToListSymFlags
-		uint16_t first;
-		table.Read(first);
-		uint16_t second;
-		table.Read(second);
-		//std::cout << "variant entry " << i << ". first:" << first << ";second:" << second << std::endl;
-	}
-}
-
-void CIScript::ReadSymFlagTable(StreamPtr& table)
-{
-	// use datadecllist
-	uint16_t count = 0;
-	table.Read(count);
-	uint16_t unknown = 0;
-	table.Read(unknown);
-	//std::cout << "sym flags table " << std::endl;
-	for (size_t i = 0; i < count; ++i)
-	{
-		uint16_t first;
-		table.Read(first);
-		uint16_t second;
-		table.Read(second);
-		//std::cout << "symflags entry " << i << ". first:" << first << ";second:" << std::hex << second << std::dec << std::endl;
-	}
-}
-
 void CIScript::Read()
 {
 	ReadHeader();
@@ -267,10 +232,7 @@ void CIScript::Read()
 		{
 			ReadExternTable(m_headerOBS.ExternTableOffset);
 
-			StreamPtr pv(m_script, m_headerOBS.VariantTableOffset);
-			ReadVariantTable(pv);
-			StreamPtr psf(m_script, m_headerOBS.List4Offset);
-			ReadSymFlagTable(psf);
+			m_globalDeclList.ParseGlobalForOBS(m_script, m_headerOBS);
 
 			ReadStructs(m_headerOBS.TypedefsTableOffset);
 			ReadPrototypes(m_headerOBS.PrototypesTableOffset);

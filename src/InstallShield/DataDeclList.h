@@ -1,6 +1,7 @@
 #pragma once
 
 #include "StreamPtr.h"
+#include "ActionFile/ActionFile.h"
 #include <vector>
 
 enum class SymFlags : uint16_t
@@ -47,6 +48,7 @@ class CDataDeclList
 {
 public:
 	void Parse(StreamPtr& ptr);
+	void ParseGlobalForOBS(const std::vector<uint8_t>& script, const ActionFileHeaderOBS& hdr);
 	friend std::ostream& operator<<(std::ostream& out, const CDataDeclList& o);
 	uint16_t GetNumNumbers() const
 	{
@@ -67,6 +69,7 @@ public:
 protected:
 	void ParseObjectTable(StreamPtr& ptr);
 	void ParseStringTable(StreamPtr& ptr);
+	void ParseStringTableOBS(StreamPtr& ptr);
 	virtual void print(std::ostream& os) const;
 private:
 	uint16_t m_numNumbers = 0;

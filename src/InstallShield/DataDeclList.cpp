@@ -1,4 +1,5 @@
 #include "DataDeclList.h"
+#include "IScript.h"
 
 void CDataDeclList::Parse(StreamPtr& ptr)
 {
@@ -11,11 +12,32 @@ void CDataDeclList::Parse(StreamPtr& ptr)
 	ParseStringTable(ptr);
 }
 
+void CDataDeclList::ParseGlobalForOBS(const std::vector<uint8_t>& script, const ActionFileHeaderOBS& hdr)
+{
+	StreamPtr pvariants(script, hdr.VariantTableOffset);
+	ParseObjectTable(pvariants);
+	StreamPtr pstrings(script, hdr.StringTableOffset);
+	ParseStringTableOBS(pstrings);
+	m_numNumbers = hdr.numGlobalVarNumbers;
+	m_numStrings = m_stringTable.size();
+}
+
 void CDataDeclList::ParseObjectTable(StreamPtr& ptr)
 {
 	uint16_t numObjects;
 	ptr.Read(numObjects);
 	ptr.ReadArray(m_objectTable, numObjects);
+}
+
+void CDataDeclList::ParseStringTableOBS(StreamPtr& ptr)
+{
+	uint16_t numStringVars;
+	ptr.Read(numStringVars);
+
+	uint16_t unknown;
+	ptr.Read(unknown);
+
+	ptr.ReadArray(m_stringTable, numStringVars);
 }
 
 void CDataDeclList::ParseStringTable(StreamPtr& ptr)
