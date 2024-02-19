@@ -2,6 +2,7 @@
 
 #include "Variable.h"
 #include <optional>
+#include <cstdint>
 
 class CStringVariable : public CVariable
 {

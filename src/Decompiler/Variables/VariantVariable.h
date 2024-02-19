@@ -3,6 +3,7 @@
 #include "Variable.h"
 #include <optional>
 #include "Struct/Struct.h"
+#include <cstdint>
 
 class CVariantVariable : public CVariable
 {
