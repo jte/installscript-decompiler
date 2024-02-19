@@ -74,6 +74,21 @@ HeaderKind AnalyzeCompiledFile(const std::string filename, std::vector<uint8_t>&
 	return GetHeaderKind(contents);
 }
 
+void ProcessFile(std::ofstream& of, const std::vector<uint8_t>& file, HeaderKind hdrKind, bool showDecompiled, bool showActions)
+{
+	CIScript script(file, hdrKind);
+
+	if (showDecompiled)
+	{
+		CDecompiler decompiler(script);
+		of << decompiler;
+	}
+	else if (showActions)
+	{
+		of << script;
+	}
+}
+
 int main(int argc, char** argv)
 {
 	argparse::ArgumentParser program("InstallScriptDecompiler");
@@ -123,19 +138,8 @@ int main(int argc, char** argv)
 				std::ofstream of(program.get("output_file"), std::ifstream::binary);
 				for (auto file : files)
 				{
-					CIScript script(file, GetHeaderKind(file));
-
 					// TODO: make output_file optional and output files to their respective output files by name (but replace extension to be .rul)
-
-					if (program["--show-decompiled"] == true)
-					{
-						CDecompiler decompiler(script);
-						of << decompiler;
-					}
-					else if (program["--show-actions"] == true)
-					{
-						of << script;
-					}
+					ProcessFile(of, file, GetHeaderKind(file), program["--show-decompiled"] == true, program["--show-actions"] == true);
 				}
 				of.close();
 			}
@@ -145,19 +149,10 @@ int main(int argc, char** argv)
 			return 1;
 		default:
 			{
-				CIScript script(contents, hdrKind);
-
 				std::ofstream of(program.get("output_file"), std::ifstream::binary);
-
-				if (program["--show-decompiled"] == true)
-				{
-					CDecompiler decompiler(script);
-					of << decompiler;
-				}
-				else if (program["--show-actions"] == true)
-				{
-					of << script;
-				}
+				
+				ProcessFile(of, contents, hdrKind, program["--show-decompiled"] == true, program["--show-actions"] == true);
+				
 				of.close();
 			}
 		}
