@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <vector>
-#include "../../InstallShield/ISBasicBlock.h"
+#include "InstallShield_Common/ISBasicBlock.h"
 #include "Variables/SymbolTable.h"
 
 class AbstractExpression;

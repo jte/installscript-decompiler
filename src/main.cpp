@@ -1,4 +1,4 @@
-#include "IScript.h"
+//#include "IScript.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -8,8 +8,12 @@
 #include "Decompiler.h"
 #include <argparse/argparse.hpp>
 #include <string.h>
-#include "Wrapper/LibFile.h"
+//#include "Wrapper/LibFile.h"
 #include "StreamPtr.h"
+#include "HeaderKind.h"
+#include "Frontend.h"
+#include "InstallShield_Old/IScript.h"
+#include "InstallShield_New/IScript.h"
 
 const std::vector<uint8_t> readFile(std::string filePath)
 {
@@ -33,6 +37,22 @@ const std::vector<uint8_t> readFile(std::string filePath)
 	return buffer;
 }
 
+void DecryptBuffer(uint32_t* seed, std::vector<uint8_t>& buffer, uint8_t key)
+{
+	for (size_t i = 0; i < buffer.size(); ++i)
+	{
+		uint8_t v7 = ~key ^ ~buffer[i];
+		uint8_t v8 = v7 >> 1;
+		if (v7 & 1)
+			v8 |= 0x80;
+		uint8_t v9 = v8 >> 1;
+		if (v8 & 1)
+			v9 |= 0x80;
+		buffer[i] = v9 - (i + *seed) % 0x47;
+	}
+	*seed += (uint32_t)buffer.size();
+}
+
 HeaderKind GetHeaderKind(std::vector<uint8_t>& contents)
 {
 	if (contents[0] == 0x48 && contents[1] == 0x4F && contents[2] == 0xF3 && contents[3] == 0xC9)
@@ -47,10 +67,14 @@ HeaderKind GetHeaderKind(std::vector<uint8_t>& contents)
 	{
 		return HeaderKind::aLuZ;
 	}
+	else if (contents[0] == 0xb8 && contents[1] == 0xc9 && contents[2] == 0x0c && contents[3] == 0x00)
+	{
+		return HeaderKind::INS;
+	}
 	else
 	{ // encrypted or invalid
 		uint32_t seed = 0;
-		CIScript::DecryptBuffer(&seed, contents, 0xF1);
+		DecryptBuffer(&seed, contents, 0xF1);
 
 		if (contents[0] == 'a' && contents[1] == 'L' && contents[2] == 'u' && contents[3] == 'Z')
 		{// script file
@@ -76,16 +100,25 @@ HeaderKind AnalyzeCompiledFile(const std::string filename, std::vector<uint8_t>&
 
 void ProcessFile(std::ofstream& of, const std::vector<uint8_t>& file, HeaderKind hdrKind, bool showDecompiled, bool showActions)
 {
-	CIScript script(file, hdrKind);
+	CFrontend* frontend = nullptr; 
+	
+	if (hdrKind == HeaderKind::INS)
+	{
+		frontend = new oldis::CIScript(file, hdrKind);
+	}
+	else
+	{
+		frontend = new newis::CIScript(file, hdrKind);
+	}
 
 	if (showDecompiled)
 	{
-		CDecompiler decompiler(script);
+		CDecompiler decompiler(frontend);
 		of << decompiler;
 	}
 	else if (showActions)
 	{
-		of << script;
+		of << *frontend;
 	}
 }
 
@@ -120,8 +153,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	
-	try
-	{
+	//try
+	//{
 		std::cout << "Starting decompilation..." << std::endl;
 
 		std::vector<uint8_t> contents;
@@ -131,6 +164,7 @@ int main(int argc, char** argv)
 		{
 		case HeaderKind::OBL:
 			{
+			/*
 				LibFile libFile;
 				StreamPtr filePtr(contents);
 				libFile.Parse(filePtr);
@@ -142,6 +176,7 @@ int main(int argc, char** argv)
 					ProcessFile(of, file, GetHeaderKind(file), program["--show-decompiled"] == true, program["--show-actions"] == true);
 				}
 				of.close();
+				*/
 			}
 			break;
 		case HeaderKind::Unrecognized:
@@ -157,11 +192,11 @@ int main(int argc, char** argv)
 			}
 		}
 		std::cout << "Successful decompilation." << std::endl;
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << "Exception: " << e.what() << std::endl;
-		return 1;
-	}
+	//}
+	//catch (const std::exception& e)
+	//{
+	//	std::cerr << "Exception: " << e.what() << std::endl;
+	//	return 1;
+	//}
 	return 0;
 }

@@ -37,146 +37,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${ISIS_OUTPUT_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${ISIS_OUTPUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${ISIS_OUTPUT_DIR})
 
-set(INSTALLSHIELD_FILES
-    src/InstallShield/CNumConst.cpp
-    src/InstallShield/CNumConst.h
-    src/InstallShield/CStrConst.cpp
-    src/InstallShield/CStrConst.h
-    src/InstallShield/DataDeclList.cpp
-    src/InstallShield/DataDeclList.h
-    src/InstallShield/IArgument.cpp
-    src/InstallShield/IArgument.h
-    src/InstallShield/ISBasicBlock.cpp
-    src/InstallShield/ISBasicBlock.h
-    src/InstallShield/IScript.cpp
-    src/InstallShield/IScript.h
-    src/InstallShield/StreamPtr.cpp
-    src/InstallShield/StreamPtr.h
-    src/InstallShield/Type.cpp
-    src/InstallShield/Type.h
-    src/InstallShield/vararg.cpp
-    src/InstallShield/vararg.h
-)
-
-set(ACTION_FILE_FILES
-    src/InstallShield/ActionFile/ActionFile.cpp
-    src/InstallShield/ActionFile/ActionFile.h
-)
-
-set(ACTIONS_FILES
-    src/InstallShield/Actions/AbortAction.cpp
-    src/InstallShield/Actions/AbortAction.h
-    src/InstallShield/Actions/Action.cpp
-    src/InstallShield/Actions/Action.h
-    src/InstallShield/Actions/ActionWithArgs.cpp
-    src/InstallShield/Actions/ActionWithArgs.h
-    src/InstallShield/Actions/AddressOfAction.cpp
-    src/InstallShield/Actions/AddressOfAction.h
-    src/InstallShield/Actions/AddressOfWideAction.cpp
-    src/InstallShield/Actions/AddressOfWideAction.h
-    src/InstallShield/Actions/AssignAction.cpp
-    src/InstallShield/Actions/AssignAction.h
-    src/InstallShield/Actions/BinaryAction.cpp
-    src/InstallShield/Actions/BinaryAction.h
-    src/InstallShield/Actions/BindVariableAction.cpp
-    src/InstallShield/Actions/BindVariableAction.h
-    src/InstallShield/Actions/DLLFuncCallAction.cpp
-    src/InstallShield/Actions/DLLFuncCallAction.h
-    src/InstallShield/Actions/EndCatchAction.cpp
-    src/InstallShield/Actions/EndCatchAction.h
-    src/InstallShield/Actions/EndFuncAction.cpp
-    src/InstallShield/Actions/EndFuncAction.h
-    src/InstallShield/Actions/EndTryAction.cpp
-    src/InstallShield/Actions/EndTryAction.h
-    src/InstallShield/Actions/ExitAction.cpp
-    src/InstallShield/Actions/ExitAction.h
-    src/InstallShield/Actions/FuncCallAction.cpp
-    src/InstallShield/Actions/FuncCallAction.h
-    src/InstallShield/Actions/FuncPrologAction.cpp
-    src/InstallShield/Actions/FuncPrologAction.h
-    src/InstallShield/Actions/GetByteAction.cpp
-    src/InstallShield/Actions/GetByteAction.h
-    src/InstallShield/Actions/GotoAction.cpp
-    src/InstallShield/Actions/GotoAction.h
-    src/InstallShield/Actions/IfAction.cpp
-    src/InstallShield/Actions/IfAction.h
-    src/InstallShield/Actions/InternalFuncCallAction.cpp
-    src/InstallShield/Actions/InternalFuncCallAction.h
-    src/InstallShield/Actions/NOPAction.cpp
-    src/InstallShield/Actions/NOPAction.h
-    src/InstallShield/Actions/PropGetAction.cpp
-    src/InstallShield/Actions/PropGetAction.h
-    src/InstallShield/Actions/PropPutAction.cpp
-    src/InstallShield/Actions/PropPutAction.h
-    src/InstallShield/Actions/PropPutRefAction.cpp
-    src/InstallShield/Actions/PropPutRefAction.h
-    src/InstallShield/Actions/ReturnAction.cpp
-    src/InstallShield/Actions/ReturnAction.h
-    src/InstallShield/Actions/SetByteAction.cpp
-    src/InstallShield/Actions/SetByteAction.h
-    src/InstallShield/Actions/TryAction.cpp
-    src/InstallShield/Actions/TryAction.h
-    src/InstallShield/Actions/UnaryAction.cpp
-    src/InstallShield/Actions/UnaryAction.h
-    src/InstallShield/Actions/UnUseDLLAction.cpp
-    src/InstallShield/Actions/UnUseDLLAction.h
-    src/InstallShield/Actions/UseDLLAction.cpp
-    src/InstallShield/Actions/UseDLLAction.h
-	src/InstallShield/Actions/StrLengthCharsAction.h
-	src/InstallShield/Actions/StrSubAction.h
-	src/InstallShield/Actions/StrFindAction.h
-	src/InstallShield/Actions/StrCompareAction.h
-	src/InstallShield/Actions/StrToNumAction.h
-	src/InstallShield/Actions/NumToStrAction.h
-	src/InstallShield/Actions/HandlerAction.h
-	src/InstallShield/Actions/HandlerExAction.h
-	src/InstallShield/Actions/DoHandlerAction.h
-	src/InstallShield/Actions/ResizeAction.h
-	src/InstallShield/Actions/SizeofAction.h
-	src/InstallShield/Actions/StrLengthCharsAction.cpp
-	src/InstallShield/Actions/StrSubAction.cpp
-	src/InstallShield/Actions/StrFindAction.cpp
-	src/InstallShield/Actions/StrCompareAction.cpp
-	src/InstallShield/Actions/StrToNumAction.cpp
-	src/InstallShield/Actions/NumToStrAction.cpp
-	src/InstallShield/Actions/HandlerAction.cpp
-	src/InstallShield/Actions/HandlerExAction.cpp
-	src/InstallShield/Actions/DoHandlerAction.cpp
-	src/InstallShield/Actions/ResizeAction.cpp
-	src/InstallShield/Actions/SizeofAction.cpp
-	src/InstallShield/Actions/IndirectStructAction.cpp
-	src/InstallShield/Actions/IndirectStructAction.h
-)
-
-set(PROTOTYPE_FILES
-    src/InstallShield/Prototype/DLLPrototype.cpp
-    src/InstallShield/Prototype/DLLPrototype.h
-    src/InstallShield/Prototype/InternalPrototype.cpp
-    src/InstallShield/Prototype/InternalPrototype.h
-    src/InstallShield/Prototype/Prototype.cpp
-    src/InstallShield/Prototype/Prototype.h
-)
-
-set(STRUCT_FILES
-    src/InstallShield/Struct/Struct.cpp
-    src/InstallShield/Struct/Struct.h
-)
-
-set(WRAPPER_FILES
-    src/InstallShield/Wrapper/LibFile.cpp
-    src/InstallShield/Wrapper/LibFile.h
-)
-
-source_group("InstallShield" FILES ${INSTALLSHIELD_FILES})
-
-list(APPEND INSTALLSHIELD_FILES ${ACTION_FILE_FILES} ${ACTIONS_FILES} ${PROTOTYPE_FILES} ${STRUCT_FILES} ${WRAPPER_FILES})
-
-source_group("InstallShield/ActionFile" FILES ${ACTION_FILE_FILES})
-source_group("InstallShield/Actions" FILES ${ACTIONS_FILES})
-source_group("InstallShield/Prototype" FILES ${PROTOTYPE_FILES})
-source_group("InstallShield/Struct" FILES ${STRUCT_FILES})
-source_group("InstallShield/Wrapper" FILES ${WRAPPER_FILES})
-
 set(CFG_FILES
 	src/Decompiler/CFG/BasicBlock.h
     src/Decompiler/CFG/ControlFlowGraph.h
@@ -225,19 +85,16 @@ source_group("Decompiler" FILES ${DECOMPILER_FILES})
 
 list(APPEND DECOMPILER_FILES ${CFG_FILES} ${IRGEN_FILES} ${PARSER_FILES} ${VARIABLES_FILES})
 
-#add_library(Decompiler ${FILES})
-
-#target_include_directories(Decompiler PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
 source_group("Decompiler/CFG" FILES ${CFG_FILES})
 source_group("Decompiler/IRGen" FILES ${IRGEN_FILES})
 source_group("Decompiler/Parser" FILES ${PARSER_FILES})
 source_group("Decompiler/Variables" FILES ${VARIABLES_FILES})
 
 set(ALL_SOURCE_FILES
-	${INSTALLSHIELD_FILES}
 	${DECOMPILER_FILES}
 )
+
+add_subdirectory(src/Frontend)
 
 # fetch latest argparse
 include(FetchContent)
@@ -252,8 +109,8 @@ add_executable(InstallScriptDecompiler
 	${ALL_SOURCE_FILES}
 )
 
-target_link_libraries(InstallScriptDecompiler argparse)
+target_link_libraries(InstallScriptDecompiler argparse InstallShield_Common InstallShield_Old InstallShield_New)
 
-target_include_directories(InstallScriptDecompiler PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/Decompiler ${CMAKE_CURRENT_SOURCE_DIR}/src/InstallShield)
+target_include_directories(InstallScriptDecompiler PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/Decompiler ${CMAKE_CURRENT_SOURCE_DIR}/src/Frontend/InstallShield_Common ${ISIS_BUILD_DIR}/src/Frontend)
 
 source_group("", FILES src/main.cpp)

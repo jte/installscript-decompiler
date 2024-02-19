@@ -8,16 +8,13 @@
 
 #include "Parser.h"
 #include "Expressions.h"
-#include "Actions/IfAction.h"
-#include "Actions/AssignAction.h"
-#include "Actions/GotoAction.h"
+#include "InstallShield_New/Actions/IfAction.h"
+#include "InstallShield_New/Actions/GotoAction.h"
 #include <string>
 #include <map>
 #include <cassert>
 #include "Function.h"
-#if 0
-#include <iostream>
-#endif
+#include "ISBasicBlock.h"
 
 AbstractExpression* Parser::ParseCurrentExpression(CAction* act, SymbolTable* symTable) {
     auto expr = act->ToExpression(symTable);
@@ -37,7 +34,7 @@ std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& 
     {
         for (const auto& act : bb.GetActions())
         {
-            act->SetBBId(bb.GetBBId());
+            //act->SetBBId(bb.GetBBId());
 
             expr = ParseCurrentExpression(act, symTable);
 
@@ -66,7 +63,7 @@ std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& 
         for (size_t actId = 0; actId < acts.size(); actId++)
         {
             auto act = acts[actId];
-            if (auto ifAct = dynamic_cast<CIfAction*>(act))
+            if (auto ifAct = dynamic_cast<newis::CIfAction*>(act))
             {
                 auto elseOffset = ifAct->GetElseBranchLabelOffset();
                 auto elseExpr = map[isBBs[i + elseOffset].GetActions()[0]];
@@ -95,7 +92,7 @@ std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& 
 
                 lastIfExpr++;
             }
-            else if (auto gotoAct = dynamic_cast<CGotoAction*>(act))
+            else if (auto gotoAct = dynamic_cast<newis::CGotoAction*>(act))
             {
                 auto targetOffset = gotoAct->GetLabelOffset();
                 auto gacts = isBBs[i + targetOffset].GetActions();
@@ -119,13 +116,6 @@ std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& 
             }
         }
     }
-#if 0
-    std::cout << "Expressions START" << std::endl;
-    for (const auto& expr : expressions)
-    {
-        std::cout << expr->stringValue() << std::endl;
-    }
-    std::cout << "Expressions END" << std::endl;
-#endif
+
     return expressions;
 }

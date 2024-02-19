@@ -3,7 +3,7 @@
 #include "IRGen/IRGenerator.h"
 #include <algorithm>
 #include <sstream>
-#include "IScript.h"
+#include "Frontend.h"
 #include "Variables/SymbolTable.h"
 #include "Variables/NumberVariable.h"
 #include "Variables/StringVariable.h"
@@ -121,21 +121,20 @@ void CFunction::SetGlobalSymTable(SymbolTable* symTable)
 
 void CFunction::SetVariables(const CDataDeclList& declList)
 {
-	m_declList = declList;
 	m_nLocalNums = declList.GetNumNumbers();
 	m_nLocalStrs = declList.GetNumStrings();
 	
 	const size_t numOffset = m_nArgNums;
-	for (size_t i = 0; i < m_declList.GetNumNumbers()-m_nArgNums; i++)
+	for (size_t i = 0; i < declList.GetNumNumbers()-m_nArgNums; i++)
 	{
 		m_localVars.Add(new CNumberVariable(-100 - (i+1+numOffset)));
 	}
 
 	const size_t strOffset = m_nArgStrs;
-	for (size_t i = 0; i < m_declList.GetNumStrings()-m_nArgStrs; i++)
+	for (size_t i = 0; i < declList.GetNumStrings()-m_nArgStrs; i++)
 	{
 		std::optional<uint16_t> stringSize = std::nullopt;
-		for (auto strInfo : m_declList.GetStringTable())
+		for (auto strInfo : declList.GetStringTable())
 		{
 			if (strInfo.varId == i)
 			{
@@ -146,7 +145,7 @@ void CFunction::SetVariables(const CDataDeclList& declList)
 	}
 
 	const size_t varOffset = m_nArgObjs;
-	auto objectTable = m_declList.GetObjectTable();
+	auto objectTable = declList.GetObjectTable();
 	for (size_t i = 0; i < objectTable.size()-m_nArgObjs; i++)
 	{
 		auto obj = objectTable[i];
@@ -161,7 +160,7 @@ void CFunction::SetVariables(const CDataDeclList& declList)
 			if (obj.typedefId != -1)
 			{
 				var->SetIsStruct(true);
-				var->SetTypedef(m_script->GetStruct(obj.typedefId));
+				//var->SetTypedef(m_script->GetStruct(obj.typedefId));
 			}
 		}
 		m_localVars.Add(var);

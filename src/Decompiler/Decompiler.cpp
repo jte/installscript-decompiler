@@ -1,7 +1,7 @@
 #include "Decompiler.h"
-#include "Prototype/InternalPrototype.h"
+//#include "Prototype/InternalPrototype.h"
 #include "Function.h"
-#include "IScript.h"
+#include "Frontend.h"
 #include <algorithm>
 #include <vector>
 #include "Parser/Parser.h"
@@ -9,18 +9,20 @@
 #include "Variables/StringVariable.h"
 #include "Variables/VariantVariable.h"
 #include <optional>
+#include "Frontend.h"
+#include "ScriptPrototype.h"
 
-CDecompiler::CDecompiler(const CIScript& script) : m_script(script)
+CDecompiler::CDecompiler(CFrontend* frontend) : m_frontend(frontend)
 {
-	AddGlobalVariables(script.GetGlobalDeclList());
+	AddGlobalVariables(frontend->GetGlobalDeclList());
 
-	auto fns = script.GetFns();
+	auto fns = frontend->GetFns();
 	for (const auto& fn : fns)
 	{
 		if (fn.bbs.size() == 0)
 			continue; // skip predefined funcs
 		auto& outFn = AddFunctionPrototype(fn.prototype);
-		outFn.SetScript(&script);
+		outFn.SetFrontend(frontend);
 		outFn.SetGlobalSymTable(&m_globalVars);
 		outFn.SetVariables(fn.dataDeclList);
 		Parser parser;
@@ -64,7 +66,7 @@ void CDecompiler::AddGlobalVariables(const CDataDeclList& globals)
 			if (obj.typedefId != -1)
 			{
 				var->SetIsStruct(true);
-				var->SetTypedef(m_script.GetStruct(obj.typedefId));
+				//var->SetTypedef(m_script.GetStruct(obj.typedefId));
 			}
 		}
 		m_globalVars.Add(var);
@@ -72,34 +74,29 @@ void CDecompiler::AddGlobalVariables(const CDataDeclList& globals)
 	}
 
 	m_globalVars.GetByAddress(0, EVariableType::Variant, true)->SetName("LAST_RESULT");
-	for (auto extRecord : m_script.GetExterns())
+	/**for (auto extRecord : m_script.GetExterns())
 	{
 		if (extRecord.type == 1)
 		{
 			m_globalVars.GetByAddress(extRecord.address, EVariableType::Variant, true)->SetName(extRecord.name);
 		}
-	}
+	}*/
 }
 
-CFunction& CDecompiler::AddFunctionPrototype(CPrototype* proto)
+CFunction& CDecompiler::AddFunctionPrototype(ScriptPrototype* proto)
 {
-	CInternalPrototype *iproto = dynamic_cast<CInternalPrototype*>(proto);
-	if (!iproto)
+	if (proto->GetIsExported())
 	{
-		throw std::runtime_error("Invalid prototype");
-	}
-	if (iproto->GetIsExported())
-	{
-		CFunction fn(iproto->GetName(), iproto->GetBBId(), iproto->GetReturnType());
+		CFunction fn(proto->GetName(), proto->GetBBId(), proto->GetReturnType());
 		m_functions.push_back(fn);
 	}
 	else
 	{
-		CFunction fn(iproto->GetBBId(), iproto->GetReturnType());
+		CFunction fn(proto->GetBBId(), proto->GetReturnType());
 		m_functions.push_back(fn);
 	}
 	CFunction& f = m_functions.back();
-	f.SetArguments(iproto->GetArgumentTypeInfo());
+	f.SetArguments(proto->GetArguments());
 	return f;
 }
 
@@ -117,11 +114,11 @@ CFunction& CDecompiler::GetFunction(size_t address)
 
 std::ostream& operator<<(std::ostream& out, const CDecompiler& o)
 {
-	for (auto s : o.m_script.GetStructs())
+	/**for (auto s : o.m_script.GetStructs())
 	{
 		out << s << std::endl;
 	}
-	out << std::endl;
+	out << std::endl;*/
 	
 	for (auto global : o.m_globalVars.GetVariables())
 	{

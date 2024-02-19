@@ -12,6 +12,7 @@ CVariable* SymbolTable::GetByAddress(int address, EVariableType type, bool isGlo
 	}
 	else if (m_parent == nullptr)
 	{
+		throw std::runtime_error("GetByAddress couldn't find a variable with address: " + std::to_string(address));
 		return nullptr;
 	}
 	else
@@ -30,6 +31,7 @@ CVariable* SymbolTable::GetByName(const std::string& name, EVariableType type, b
 	}
 	else if (m_parent == nullptr)
 	{
+		throw std::runtime_error("GetByAddress couldn't find a variable with name: " + name);
 		return nullptr;
 	}
 	else

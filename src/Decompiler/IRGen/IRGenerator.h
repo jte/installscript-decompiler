@@ -35,13 +35,6 @@ public:
 			//std::cout << " -- VISITED" << std::endl;
 			return false;
 		}
-		/**if (m_stopExp.size() && m_stopExp.top() == exp) {
-			m_stopExp.pop();
-			m_currentBB.pop();
-			std::cout << " -- STOP" << std::endl;
-			return false;
-		}*/
-		//std::cout << std::endl;
 		exp->Accept(this);
 		m_visited[exp] = true;
 		return true;

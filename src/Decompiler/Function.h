@@ -2,7 +2,7 @@
 
 #include "CFG/ControlFlowGraph.h"
 #include "CFG/BasicBlock.h"
-#include "ISBasicBlock.h"
+//#include "ISBasicBlock.h"
 #include "IRGen/IRStatements.h"
 #include "GraphVizPrinter.h"
 #include <vector>
@@ -12,12 +12,13 @@
 #include <iostream>
 #include <stack>
 #include "Parser/Expressions.h"
-#include "../InstallShield/Type.h"
+#include "Type.h"
 #include "DataDeclList.h"
 #include "Variables/SymbolTable.h"
 
 class IRGenerator;
 class SymbolTable;
+class CFrontend;
 
 class CFunction
 {
@@ -39,7 +40,7 @@ public:
 	void SetArguments(std::vector<ArgumentTypeInfo> args);
 	void SetVariables(const CDataDeclList& declList);
 	void SetGlobalSymTable(SymbolTable* symTable);
-	void SetScript(const CIScript* script)
+	void SetFrontend(CFrontend* script)
 	{
 		m_script = script;
 	}
@@ -49,7 +50,7 @@ public:
 protected:
 	void AddArgument(ArgumentTypeInfo typeInfo, size_t& nNums, size_t& nStrs, size_t& nObjs);
 private:
-	const CIScript* m_script; // TODO: Make a counterpart to installshield struct in decompiler and we won't need this
+	CFrontend* m_script; // TODO: Make a counterpart to installshield struct in decompiler and we won't need this
 	IRGenerator* m_gen;
 	SymbolTable m_localVars;
 	SymbolTable m_argVars;
@@ -61,7 +62,4 @@ private:
 	size_t m_nArgObjs = 0;
 	size_t m_nLocalNums = 0;
 	size_t m_nLocalStrs = 0;
-	CDataDeclList m_declList;
-	//std::vector<VariableExpression*> m_arguments;
-	//std::vector<CVariable*> m_arguments;
 };

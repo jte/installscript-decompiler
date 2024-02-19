@@ -1,0 +1,5 @@
+#
+
+add_subdirectory(InstallShield_Old)
+add_subdirectory(InstallShield_New)
+add_subdirectory(InstallShield_Common)
