@@ -3,9 +3,12 @@
 #include <cstdint>
 #include <memory>
 #include "StreamPtr.h"
+#include "Variables/SymbolTable.h"
 
 class CIScript;
 class AbstractExpression;
+class CFunction;
+class SymbolTable;
 
 class CAction
 {
@@ -27,7 +30,7 @@ public:
 	}
 	virtual ~CAction() = default;
 	virtual void Parse(StreamPtr& filePtr);
-	virtual AbstractExpression* ToExpression() const { return nullptr;  }
+	virtual AbstractExpression* ToExpression(SymbolTable* symTable) const { return nullptr; }
 
 	friend std::ostream& operator<<(std::ostream& out, const CAction& o);
 	static CAction* FindFactory(size_t id, CIScript* script, StreamPtr& fileptr);

@@ -9,8 +9,8 @@ class CNOPAction : public CAction
 protected:
 	void print(std::ostream& os) const override;
 
-	AbstractExpression* ToExpression() const override {
-		return new AssignExpression(new VariableExpression("GblVarObj0"), new VariableExpression("GblVarObj0"));
+	AbstractExpression* ToExpression(SymbolTable* symTable) const override {
+		return new AssignExpression(new VariableExpression(symTable->GetByName("LAST_RESULT", EVariableType::Variant, true)), new VariableExpression(symTable->GetByName("LAST_RESULT", EVariableType::Variant, true)));
 	}
 public:
 	CNOPAction(CIScript* script, StreamPtr& filePtr);

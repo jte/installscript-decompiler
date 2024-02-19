@@ -5,6 +5,7 @@
 #include <ostream>
 #include "IScript.h"
 #include <map>
+#include "Variables/SymbolTable.h"
 
 class CPrototype;
 
@@ -16,7 +17,9 @@ public:
 	CFunction& GetFunction(size_t address);
 	friend std::ostream& operator<<(std::ostream& out, const CDecompiler& o);
 protected:
+	void AddGlobalVariables(const CDataDeclList& globals);
 	std::vector<CFunction> m_functions;
 private:
 	const CIScript& m_script;
+	SymbolTable m_globalVars;
 };

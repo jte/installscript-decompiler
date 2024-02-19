@@ -10,7 +10,7 @@ private:
 	int32_t m_num;
 protected:
 	void print(std::ostream& os) const override;
-	AbstractExpression* ToExpression() const override
+	AbstractExpression* ToExpression(SymbolTable* symTable) const override
 	{
 		return new NumberExpression(m_num);
 	}

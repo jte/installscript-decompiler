@@ -7,7 +7,7 @@ class CPropGetAction : public CActionWithArgs
 {
 protected:
 	void print(std::ostream& os) const override;
-	AbstractExpression* ToExpression() const override
+	AbstractExpression* ToExpression(SymbolTable* symTable) const override
 	{
 		AbstractExpression* var = nullptr;
 		std::vector<AbstractExpression*> accessors;
@@ -15,11 +15,11 @@ protected:
 		{
 			if (i == 0)
 			{
-				var = m_arguments[i]->ToExpression();
+				var = m_arguments[i]->ToExpression(symTable);
 			}
 			else
 			{
-				auto expr = m_arguments[i]->ToExpression();
+				auto expr = m_arguments[i]->ToExpression(symTable);
 				if (dynamic_cast<StringExpression*>(expr))
 				{
 					auto str = dynamic_cast<StringExpression*>(expr);
@@ -31,7 +31,7 @@ protected:
 				accessors.push_back(expr);
 			}
 		}
-		return new AssignExpression(new VariableExpression("GblVarObj0"), new PropGetExpression(var, accessors));
+		return new AssignExpression(new VariableExpression(symTable->GetByName("LAST_RESULT", EVariableType::Variant, true)), new PropGetExpression(var, accessors));
 	}
 public:
 	CPropGetAction(CIScript* script, StreamPtr& filePtr) :

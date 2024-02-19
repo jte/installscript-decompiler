@@ -4,6 +4,7 @@
 #include "StreamPtr.h"
 #include "Parser/Expressions.h"
 #include <sstream>
+#include "Variables/Variable.h"
 
 template <ArgType type, bool parameter>
 class vararg : public IArgument
@@ -16,25 +17,22 @@ protected:
 	}
 
 public:
-	AbstractExpression* ToExpression() const override
+	AbstractExpression* ToExpression(SymbolTable* symTable) const override
 	{
-		std::stringstream ss;
-		ss << ((m_address <= -100) ? "Lcl" : "Gbl");
-		ss << (parameter ? "Param" : "Var");
+		EVariableType varType;
 		switch (type)
 		{
 		case ArgType::StrArg:
-			ss << "Str";
+			varType = EVariableType::String;
 			break;
 		case ArgType::NumArg:
-			ss << "Num";
+			varType = EVariableType::Number;
 			break;
 		case ArgType::VariantArg:
-			ss << "Obj";
+			varType = EVariableType::Variant;
 			break;
 		}
-		ss << (m_address <= -100 ? (m_address+100)*-1 : m_address);
-		return new VariableExpression(ss.str());
+		return new VariableExpression(symTable->GetByAddress(m_address, varType, m_address > -100));
 	}
 	vararg(StreamPtr& filePtr)
 	{

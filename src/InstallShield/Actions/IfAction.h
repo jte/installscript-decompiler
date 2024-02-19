@@ -13,8 +13,8 @@ public:
 	size_t elseBranchTarget;
 protected:
 	void print(std::ostream& os) const override;
-	AbstractExpression* ToExpression() const override
+	AbstractExpression* ToExpression(SymbolTable* symTable) const override
 	{
-		return m_arguments[1]->ToExpression();
+		return new IfExpression(m_arguments[1]->ToExpression(symTable), nullptr, nullptr);
 	}
 };

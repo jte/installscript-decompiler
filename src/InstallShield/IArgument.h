@@ -2,6 +2,7 @@
 
 #include "StreamPtr.h"
 #include "Type.h"
+#include "Variables/SymbolTable.h"
 
 class AbstractExpression;
 
@@ -13,5 +14,5 @@ protected:
 public:
 	virtual void Parse(StreamPtr& filePtr) = 0;
 	friend std::ostream& operator<<(std::ostream& out, const IArgument& o);
-	virtual AbstractExpression* ToExpression() const = 0;
+	virtual AbstractExpression* ToExpression(SymbolTable* symTable) const = 0;
 };

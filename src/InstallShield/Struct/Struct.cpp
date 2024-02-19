@@ -41,7 +41,7 @@ std::ostream& operator<<(std::ostream& os, const CStruct& obj)
 		os << "\t\t";
 		if (m.type == ScriptType::Struct)
 		{
-			os << obj.m_script->GetStruct(m.repCount).GetName() << " " << m.name;
+			os << obj.m_script->GetStruct(m.repCount)->GetName() << " " << m.name;
 		}
 		else
 		{

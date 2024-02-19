@@ -14,31 +14,45 @@
 #include "Parser/Expressions.h"
 #include "../InstallShield/Type.h"
 #include "DataDeclList.h"
+#include "Variables/SymbolTable.h"
 
 class IRGenerator;
+class SymbolTable;
 
 class CFunction
 {
 public:
 	CFunction(int32_t address, ScriptType returnType) :
-		m_address(address), m_returnType(returnType), m_gen(nullptr)
+		m_address(address), m_returnType(returnType), m_gen(nullptr), m_script(nullptr)
 	{}
 	CFunction(std::string name, int32_t address, ScriptType returnType) :
-		m_name(name), m_address(address), m_returnType(returnType), m_gen(nullptr)
+		m_name(name), m_address(address), m_returnType(returnType), m_gen(nullptr), m_script(nullptr)
 	{}
 	uint32_t GetAddress() const;
 	std::string GetName() const;
 	ScriptType GetReturnType() const;
+	SymbolTable* GetLocalVars()
+	{
+		return &m_localVars;
+	}
 	
 	void SetArguments(std::vector<ArgumentTypeInfo> args);
 	void SetVariables(const CDataDeclList& declList);
+	void SetGlobalSymTable(SymbolTable* symTable);
+	void SetScript(const CIScript* script)
+	{
+		m_script = script;
+	}
 
 	friend std::ostream& operator<<(std::ostream& out, const CFunction& o);
 	void Construct(const std::vector<AbstractExpression*>& expressions);
 protected:
 	void AddArgument(ArgumentTypeInfo typeInfo, size_t& nNums, size_t& nStrs, size_t& nObjs);
 private:
+	const CIScript* m_script; // TODO: Make a counterpart to installshield struct in decompiler and we won't need this
 	IRGenerator* m_gen;
+	SymbolTable m_localVars;
+	SymbolTable m_argVars;
 	ScriptType m_returnType;
 	uint32_t m_address;
 	std::string m_name;
@@ -48,5 +62,6 @@ private:
 	size_t m_nLocalNums = 0;
 	size_t m_nLocalStrs = 0;
 	CDataDeclList m_declList;
-	std::vector<VariableExpression*> m_arguments;
+	//std::vector<VariableExpression*> m_arguments;
+	//std::vector<CVariable*> m_arguments;
 };

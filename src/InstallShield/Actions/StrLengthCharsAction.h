@@ -7,11 +7,11 @@ class CStrLengthCharsAction : public CActionWithArgs
 {
 protected:
 	void print(std::ostream& os) const override;
-	AbstractExpression* ToExpression() const override
+	AbstractExpression* ToExpression(SymbolTable* symTable) const override
 	{
 		std::vector<AbstractExpression*> args;
-		args.push_back(m_arguments[0]->ToExpression());
-		return new AssignExpression(new VariableExpression("GblVarObj0"), new FunctionCallExpression("StrLengthChars ", args));
+		args.push_back(m_arguments[0]->ToExpression(symTable));
+		return new AssignExpression(new VariableExpression(symTable->GetByName("LAST_RESULT", EVariableType::Variant, true)), new FunctionCallExpression("StrLengthChars ", args));
 	}
 public:
 	CStrLengthCharsAction(CIScript* script, StreamPtr& filePtr);

@@ -8,7 +8,7 @@ class CExitAction : public CAction
 {
 protected:
 	void print(std::ostream& os) const override;
-	AbstractExpression* ToExpression() const override
+	AbstractExpression* ToExpression(SymbolTable* symTable) const override
 	{
 		return new ExitExpression();
 	}

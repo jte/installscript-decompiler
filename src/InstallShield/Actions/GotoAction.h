@@ -13,7 +13,7 @@ public:
 	int32_t GetLabelOffset() const;
 protected:
 	void print(std::ostream& os) const override;
-	AbstractExpression* ToExpression() const override 
+	AbstractExpression* ToExpression(SymbolTable* symTable) const override 
 	{
 		return new GotoExpression(nullptr);
 	}

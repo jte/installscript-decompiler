@@ -11,7 +11,7 @@ private:
 	std::string m_string;
 protected:
 	void print(std::ostream& os) const override;
-	AbstractExpression* ToExpression() const override
+	AbstractExpression* ToExpression(SymbolTable* symTable) const override
 	{
 		return new StringExpression(m_string);
 	}

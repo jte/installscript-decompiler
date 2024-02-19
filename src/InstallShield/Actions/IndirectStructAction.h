@@ -3,6 +3,7 @@
 #include "ActionWithArgs.h"
 #include <cassert>
 #include "Parser/Expressions.h"
+#include "Variables/SymbolTable.h"
 
 class CIndirectStructAction : public CActionWithArgs
 {
@@ -11,9 +12,9 @@ protected:
 	void print(std::ostream& os) const override
 	{
 	}
-	AbstractExpression* ToExpression() const override
+	AbstractExpression* ToExpression(SymbolTable* symTable) const override
 	{
-		return new AssignExpression(new VariableExpression("GblVarObj0"), new UnaryExpression('*', m_arguments[0]->ToExpression()));
+		return new AssignExpression(new VariableExpression(symTable->GetByName("LAST_RESULT", EVariableType::Variant, true)), new UnaryExpression('*', m_arguments[0]->ToExpression(symTable)));
 	}
 public:
 	CIndirectStructAction(CIScript* script, StreamPtr& filePtr) :

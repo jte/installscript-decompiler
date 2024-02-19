@@ -14,17 +14,17 @@
 #include <string>
 #include <map>
 #include <cassert>
+#include "Function.h"
 #if 0
 #include <iostream>
 #endif
 
-AbstractExpression* Parser::ParseCurrentExpression(CAction* act) {
-    auto expr = act->ToExpression();
-    assert(expr);
+AbstractExpression* Parser::ParseCurrentExpression(CAction* act, SymbolTable* symTable) {
+    auto expr = act->ToExpression(symTable);
     return expr;
 }
 
-std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& isBBs) {
+std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& isBBs, SymbolTable* symTable) {
     std::vector<AbstractExpression*> expressions;
 
     AbstractExpression* expr = nullptr;
@@ -38,14 +38,8 @@ std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& 
         for (const auto& act : bb.GetActions())
         {
             act->SetBBId(bb.GetBBId());
-            if (auto ifAct = dynamic_cast<CIfAction*>(act))
-            {
-                expr = new IfExpression(act->ToExpression(), nullptr, nullptr);
-            }
-            else
-            {
-                expr = ParseCurrentExpression(act);
-            }
+
+            expr = ParseCurrentExpression(act, symTable);
 
             if (expr) {
                 if (dynamic_cast<IfExpression*>(expr))

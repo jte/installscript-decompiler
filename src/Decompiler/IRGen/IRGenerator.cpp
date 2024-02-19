@@ -35,7 +35,7 @@ void IRGenerator::Visit(PropGetExpression* exp) {
 }
 
 void IRGenerator::Visit(AssignExpression* exp) {
-	m_currentBB.top()->AddStatement(new AssignStatement(exp->varExp, exp->expr, exp->displayLabel));
+	m_currentBB.top()->AddStatement(new AssignStatement(exp->lhs, exp->rhs, exp->displayLabel));
 }
 
 void IRGenerator::Visit(ReturnExpression* exp)

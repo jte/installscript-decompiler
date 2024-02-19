@@ -37,6 +37,8 @@ enum class BinaryExprType
     LogOr
 };
 
+class CVariable;
+
 class AbstractExpression {
 public:
     virtual std::string stringValue() { return ""; };
@@ -68,22 +70,22 @@ public:
 
 class VariableExpression : public AbstractExpression {
 public:
-    std::string name;
-    std::string stringValue() override { return name; }
+    CVariable* var;
+    std::string stringValue() override;
 
-    VariableExpression(const std::string& name) : name(name) {}
+    VariableExpression(CVariable* var) : var(var) {}
 
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 
 class AssignExpression : public AbstractExpression {
 public:
-    std::string varName() { return dynamic_cast<VariableExpression*>(varExp)->name; };
-    AbstractExpression* expr;
-    AbstractExpression* varExp;
-    std::string stringValue() override { return varExp->stringValue() + " = " + (expr ? expr->stringValue() : "null"); }
+    std::string varName() { return lhs->stringValue(); };
+    AbstractExpression* rhs;
+    AbstractExpression* lhs;
+    std::string stringValue() override { return lhs->stringValue() + " = " + (rhs ? rhs->stringValue() : "null"); }
 
-    AssignExpression(AbstractExpression* varExp, AbstractExpression* expr) : varExp(varExp), expr(expr) {}
+    AssignExpression(AbstractExpression* lhs, AbstractExpression* rhs) : lhs(lhs), rhs(rhs) {}
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 

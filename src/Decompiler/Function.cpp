@@ -3,6 +3,11 @@
 #include "IRGen/IRGenerator.h"
 #include <algorithm>
 #include <sstream>
+#include "IScript.h"
+#include "Variables/SymbolTable.h"
+#include "Variables/NumberVariable.h"
+#include "Variables/StringVariable.h"
+#include "Variables/VariantVariable.h"
 
 uint32_t CFunction::GetAddress() const
 {
@@ -31,28 +36,29 @@ void CFunction::SetArguments(std::vector<ArgumentTypeInfo> args)
 void CFunction::AddArgument(ArgumentTypeInfo typeInfo, size_t& nNums, size_t& nStrs, size_t& nObjs)
 {
 	std::stringstream ss;
+	CVariable* var = nullptr;
 	switch (typeInfo.internalType)
 	{
 	case ConcreteType::Number:
 	case ConcreteType::NumberPointer:
-		ss << "LclVarNum" << nNums + 1;
+		var = new CNumberVariable(-100 - (nNums + 1));
 		nNums++;
 		break;
 	case ConcreteType::String:
 	case ConcreteType::StringPointer:
-		ss << "LclVarStr" << nStrs + 1;
+		var = new CStringVariable(-100 - (nStrs + 1));
 		nStrs++;
 		break;
 	case ConcreteType::Object:
 	case ConcreteType::ObjectPointer:
-		ss << "LclVarObj" << nObjs + 1;
+		var = new CVariantVariable(-100 - (nObjs + 1));
 		nObjs++;
 		break;
 	default:
 		throw std::runtime_error("Invalid argument type info");
 		break;
 	}
-	m_arguments.push_back(new VariableExpression(ss.str()));
+	m_argVars.Add(var);
 }
 
 void CFunction::Construct(const std::vector<AbstractExpression*>& expressions)
@@ -88,20 +94,29 @@ void PrintBB(std::ostream& out, BasicBlock *bb, std::map<BasicBlock*,bool>& visi
 			}
 			else
 			{
-				out << std::string(indentLvl, '\t') << s->Dump() << std::endl;
+				out << std::string(indentLvl, '\t') << s->Dump() << ';' << std::endl;
 			}
 		}
 		else if (s->type == StatementType::GOTO)
 		{
 			auto gotoSt = dynamic_cast<GotoStatement*>(s);
-			out << std::string(indentLvl, '\t') << "goto " << gotoSt->targetLabel << std::endl;
+			out << std::string(indentLvl, '\t') << "goto " << gotoSt->targetLabel << ';' << std::endl;
 		}
 		else
 		{
-			out << std::string(indentLvl, '\t') << s->Dump() << std::endl;
+			out << std::string(indentLvl, '\t') << s->Dump() << ';' << std::endl;
 		}
 	}
 	visited[bb] = true;
+}
+
+void CFunction::SetGlobalSymTable(SymbolTable* symTable)
+{
+	/* Symbol tables go like this:
+	 *  Global symtable -> Arguments symtable -> Locals symtable
+	 */
+	m_argVars.SetParent(symTable);
+	m_localVars.SetParent(&m_argVars);
 }
 
 void CFunction::SetVariables(const CDataDeclList& declList)
@@ -109,7 +124,50 @@ void CFunction::SetVariables(const CDataDeclList& declList)
 	m_declList = declList;
 	m_nLocalNums = declList.GetNumNumbers();
 	m_nLocalStrs = declList.GetNumStrings();
+	
+	const size_t numOffset = m_nArgNums;
+	for (size_t i = 0; i < m_declList.GetNumNumbers()-m_nArgNums; i++)
+	{
+		m_localVars.Add(new CNumberVariable(-100 - (i+1+numOffset)));
+	}
+
+	const size_t strOffset = m_nArgStrs;
+	for (size_t i = 0; i < m_declList.GetNumStrings()-m_nArgStrs; i++)
+	{
+		std::optional<uint16_t> stringSize = std::nullopt;
+		for (auto strInfo : m_declList.GetStringTable())
+		{
+			if (strInfo.varId == i)
+			{
+				stringSize = strInfo.stringSize;
+			}
+		}
+		m_localVars.Add(new CStringVariable(-100 - (i+1+strOffset), stringSize));
+	}
+
+	const size_t varOffset = m_nArgObjs;
+	auto objectTable = m_declList.GetObjectTable();
+	for (size_t i = 0; i < objectTable.size()-m_nArgObjs; i++)
+	{
+		auto obj = objectTable[i];
+		CVariantVariable* var = new CVariantVariable(-100 - (i + varOffset + 1));
+		if (((int)obj.flags & (int)SymFlags::vbArray) != 0)
+		{
+			var->SetIsArray(true);
+			var->SetElemCount(obj.elemCount);
+		}
+		else
+		{
+			if (obj.typedefId != -1)
+			{
+				var->SetIsStruct(true);
+				var->SetTypedef(m_script->GetStruct(obj.typedefId));
+			}
+		}
+		m_localVars.Add(var);
+	}
 }
+
 
 std::ostream& operator<<(std::ostream& out, const CFunction& o)
 {
@@ -122,53 +180,21 @@ std::ostream& operator<<(std::ostream& out, const CFunction& o)
 		out << "function" << ' ' << o.GetReturnType() << ' ' << o.GetName() << '(';
 	}
 	// print argument list
-	for (auto it = o.m_arguments.begin(); it != o.m_arguments.end(); ++it)
+	auto args = o.m_argVars.GetVariables();
+	for (auto it = args.begin(); it != args.end(); ++it)
 	{
-		out << (*it)->name;
-		if (it != o.m_arguments.cend() - 1)
+		out << **it;
+		if (it != args.cend() - 1)
 			out << ',';
 	}
 	out << ')' << std::endl;
 	
 	// print local variables
-	for (size_t i = 0; i < (o.m_nLocalNums - o.m_nArgNums); i++)
+	for (auto var : o.m_localVars.GetVariables())
 	{
-		out << "INT LclVarNum" << o.m_nArgNums + 1 + i << ';' << std::endl;
+		out << *var << ';' << std::endl;
 	}
-	for (size_t i = 0; i < (o.m_nLocalStrs - o.m_nArgStrs); i++)
-	{
-		out << "STRING LclVarStr" << o.m_nArgStrs + 1 + i;
-		for (auto strInfo : o.m_declList.GetStringTable())
-		{
-			if (strInfo.varId == i)
-			{
-				out << "[" << strInfo.stringSize << "]";
-			}
-		}
-		out << ';';
-		out << std::endl;
-	}
-	auto objectTable = o.m_declList.GetObjectTable();
-	size_t variantId = 1;
-	for (auto obj : objectTable)
-	{
-		if (((int)obj.flags & (int)SymFlags::vbArray) != 0)
-		{
-			out << "VARIANT LclVarObj" << variantId << "(" << obj.elemCount << ");" << std::endl;
-		}
-		else
-		{
-			if (obj.typedefId == -1)
-			{
-				out << "VARIANT LclVarObj" << variantId << ';' << std::endl;
-			}
-			else
-			{
-				out << "STRUCT_" << obj.typedefId + 1 << " LclVarObj" << variantId << ';' << std::endl;
-			}
-		}
-		variantId++;
-	}
+
 	// print function body
 	out << "begin" << std::endl;
 	

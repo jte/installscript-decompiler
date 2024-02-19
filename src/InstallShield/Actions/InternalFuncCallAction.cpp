@@ -33,7 +33,7 @@ void CInternalFuncCallAction::print(std::ostream& os) const
 	os << ")";
 }
 
-AbstractExpression* CInternalFuncCallAction::ToExpression() const
+AbstractExpression* CInternalFuncCallAction::ToExpression(SymbolTable* symTable) const
 {
 	const CInternalPrototype* p = dynamic_cast<const CInternalPrototype*>(m_script->GetFnById(m_functionId).prototype);
 	auto name = p->GetName();
@@ -47,10 +47,10 @@ AbstractExpression* CInternalFuncCallAction::ToExpression() const
 	std::vector<AbstractExpression*> args;
 	for (const auto& arg : m_arguments)
 	{
-		args.push_back(arg->ToExpression());
+		args.push_back(arg->ToExpression(symTable));
 	}
 
-	return new AssignExpression(new VariableExpression("GblVarObj0"), new FunctionCallExpression(ss.str(), args));
+	return new AssignExpression(new VariableExpression(symTable->GetByName("LAST_RESULT", EVariableType::Variant, true)), new FunctionCallExpression(ss.str(), args));
 }
 
 IArgument* CInternalFuncCallAction::ParseArgument(StreamPtr& filePtr)

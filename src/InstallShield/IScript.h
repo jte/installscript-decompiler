@@ -89,7 +89,7 @@ public:
 	}
 	static void DecryptBuffer(uint32_t* seed, std::vector<uint8_t>& buffer, uint8_t key);
 	CIScript(const std::vector<uint8_t>& script, HeaderKind hdrKind);
-	const CStruct& GetStruct(size_t id) const;
+	const CStruct* GetStruct(size_t id) const;
 	const std::vector<CStruct>& GetStructs() const
 	{
 		return m_structs;

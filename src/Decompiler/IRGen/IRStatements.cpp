@@ -14,7 +14,7 @@
 
 std::string AssignStatement::Dump() 
 {
-    return var->stringValue() + " = " + (rhs ? rhs->stringValue() : "null");
+    return (var ? var->stringValue() : "null") + " = " + (rhs ? rhs->stringValue() : "null");
 }
 
 std::string BranchStatement::Dump() 

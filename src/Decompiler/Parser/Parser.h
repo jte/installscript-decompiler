@@ -11,13 +11,13 @@
 #include <stdio.h>
 #include <vector>
 #include "../../InstallShield/ISBasicBlock.h"
-
+#include "Variables/SymbolTable.h"
 
 class AbstractExpression;
 class CAction;
 
 class Parser {
 public:
-    AbstractExpression* ParseCurrentExpression(CAction* act);
-    std::vector<AbstractExpression*> Parse(const std::vector<ISBasicBlock>& isBBs);
+    AbstractExpression* ParseCurrentExpression(CAction* act, SymbolTable* symTable);
+    std::vector<AbstractExpression*> Parse(const std::vector<ISBasicBlock>& isBBs, SymbolTable* symTable);
 };
