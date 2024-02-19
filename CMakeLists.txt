@@ -198,6 +198,19 @@ set(PARSER_FILES
     src/Decompiler/Parser/Parser.cpp
 )
 
+set(VARIABLES_FILES
+	src/Decompiler/Variables/Variable.h
+    src/Decompiler/Variables/NumberVariable.h
+	src/Decompiler/Variables/StringVariable.h
+	src/Decompiler/Variables/VariantVariable.h
+	src/Decompiler/Variables/SymbolTable.h
+	src/Decompiler/Variables/Variable.cpp
+    src/Decompiler/Variables/NumberVariable.cpp
+	src/Decompiler/Variables/StringVariable.cpp
+	src/Decompiler/Variables/VariantVariable.cpp
+	src/Decompiler/Variables/SymbolTable.cpp
+)
+
 set(DECOMPILER_FILES
     src/Decompiler/Decompiler.cpp
     src/Decompiler/Function.cpp
@@ -210,7 +223,7 @@ set(DECOMPILER_FILES
 
 source_group("Decompiler" FILES ${DECOMPILER_FILES})
 
-list(APPEND DECOMPILER_FILES ${CFG_FILES} ${IRGEN_FILES} ${PARSER_FILES})
+list(APPEND DECOMPILER_FILES ${CFG_FILES} ${IRGEN_FILES} ${PARSER_FILES} ${VARIABLES_FILES})
 
 #add_library(Decompiler ${FILES})
 
@@ -219,6 +232,7 @@ list(APPEND DECOMPILER_FILES ${CFG_FILES} ${IRGEN_FILES} ${PARSER_FILES})
 source_group("Decompiler/CFG" FILES ${CFG_FILES})
 source_group("Decompiler/IRGen" FILES ${IRGEN_FILES})
 source_group("Decompiler/Parser" FILES ${PARSER_FILES})
+source_group("Decompiler/Variables" FILES ${VARIABLES_FILES})
 
 set(ALL_SOURCE_FILES
 	${INSTALLSHIELD_FILES}
