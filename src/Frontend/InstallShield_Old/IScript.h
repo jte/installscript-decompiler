@@ -10,6 +10,9 @@
 //#include "ISBasicBlock.h"
 #include "HeaderKind.h"
 #include "Frontend.h"
+#include "ScriptStruct.h"
+#include "ScriptFunction.h"
+#include "ScriptPrototype.h"
 
 namespace oldis
 {
@@ -37,16 +40,16 @@ public:
 	{
 		return m_fns.at(id);
 	}
-	/**Function& GetFnByBBId(size_t addr)
+	ScriptFunction& GetFnByBBId(size_t addr)
 	{
-		auto fn = std::find_if(m_fns.begin(), m_fns.end(), [addr](const Function& fn)
+		auto fn = std::find_if(m_fns.begin(), m_fns.end(), [addr](const ScriptFunction& fn)
 			{
 				return fn.prototype->GetBBId() == addr;
 			});
 		if (fn == m_fns.end())
 			throw std::runtime_error("Function not found");
 		return *fn;
-	}*/
+	}
 	std::vector<ScriptFunction> GetFns() const override
 	{
 		return m_fns;
@@ -56,7 +59,7 @@ private:
 	std::vector<ScriptFunction> m_fns;
 	std::vector<uint8_t> m_script;
 	StreamPtr m_streamPtr;
-	//std::vector<CStruct> m_structs;
+	std::vector<ScriptStruct> m_structs;
 	//ActionFileHeaderOBS m_headerOBS = {};
 	//ActionFileHeaderaLuZ m_headerALUZ = {};
 	std::vector<ExternRecord> m_externs;
@@ -79,16 +82,16 @@ public:
 	//	return m_globalDeclList;
 	}
 	CIScript(const std::vector<uint8_t>& script, HeaderKind hdrKind);
-	//const CStruct* GetStruct(size_t id) const;
-	//const std::vector<CStruct>& GetStructs() const
-	//{
-	//	return m_structs;
-	//}
+	const ScriptStruct* GetStruct(size_t id) const;
+	const std::vector<ScriptStruct>& GetStructs() const
+	{
+		return m_structs;
+	}
 	HeaderKind GetHeaderKind() const
 	{
 		return m_hdrKind;
 	}
-	friend std::ostream& operator<<(std::ostream& out, const CIScript& o);
+
 	std::vector<ExternRecord> GetExterns() const
 	{
 		return m_externs;

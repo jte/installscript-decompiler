@@ -2,7 +2,7 @@
 
 #include "Variable.h"
 #include <optional>
-//#include "Struct/Struct.h"
+#include "ScriptStruct.h"
 #include <cstdint>
 
 class CVariantVariable : public CVariable
@@ -21,7 +21,7 @@ public:
 	{
 		m_elemCount = elemCount;
 	}
-	void SetTypedef(const void* pstruct)
+	void SetTypedef(const ScriptStruct* pstruct)
 	{
 		m_struct = pstruct;
 	}
@@ -42,7 +42,7 @@ protected:
 		}
 		else if (m_isStruct)
 		{
-			//os << m_struct->GetName() << " " << GetName();
+			os << m_struct->GetName() << " " << GetName();
 		}
 		else
 		{
@@ -50,7 +50,7 @@ protected:
 		}
 	}
 private:
-	const void* m_struct;
+	const ScriptStruct* m_struct;
 	std::optional<uint16_t> m_elemCount;
 	bool m_isArray;
 	bool m_isStruct;

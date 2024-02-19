@@ -126,7 +126,14 @@ void CIScript::ReadStructs(uint32_t tableOffset)
 	{
 		CStruct s(this);
 		s.Parse(ptr);
-		m_structs.push_back(s);
+		ScriptStruct scriptStruct;
+		scriptStruct.SetName(s.GetName());
+		scriptStruct.SetFrontend(this);
+		for (auto member : s.GetMembers())
+		{
+			scriptStruct.AddMember(ScriptStruct::CStructMember(member.name, member.repCount, member.type));
+		}
+		m_structs.push_back(scriptStruct);
 	}
 }
 
@@ -232,7 +239,7 @@ void CIScript::ReadBBsALUZ(uint32_t tableOffset)
 	}
 }
 
-const CStruct* CIScript::GetStruct(size_t id) const
+const ScriptStruct* CIScript::GetStruct(size_t id) const
 {
 	return &m_structs.at(id);
 }

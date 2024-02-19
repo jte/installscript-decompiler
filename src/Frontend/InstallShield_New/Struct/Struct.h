@@ -26,6 +26,10 @@ public:
 		m_script(script)
 	{}
 	const std::string GetName() const;
+	const std::vector<CStructMember> GetMembers() const
+	{
+		return m_members;
+	}
 	void Parse(StreamPtr& filePtr);
 	friend std::ostream& operator<<(std::ostream& out, const CStruct& o);
 };

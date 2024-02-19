@@ -11,6 +11,7 @@
 #include "HeaderKind.h"
 #include "Frontend.h"
 #include "ScriptPrototype.h"
+#include "ScriptStruct.h"
 
 namespace newis
 {
@@ -57,8 +58,8 @@ public:
 		return m_globalDeclList;
 	}
 	CIScript(const std::vector<uint8_t>& script, HeaderKind hdrKind);
-	const CStruct* GetStruct(size_t id) const;
-	const std::vector<CStruct>& GetStructs() const
+	const ScriptStruct* GetStruct(size_t id) const override;
+	const std::vector<ScriptStruct>& GetStructs() const override
 	{
 		return m_structs;
 	}
@@ -78,7 +79,7 @@ private:
 	std::vector<ScriptFunction> m_fns;
 	std::vector<uint8_t> m_script;
 	StreamPtr m_streamPtr;
-	std::vector<CStruct> m_structs;
+	std::vector<ScriptStruct> m_structs;
 	ActionFileHeaderOBS m_headerOBS = {};
 	ActionFileHeaderaLuZ m_headerALUZ = {};
 	std::vector<ExternRecord> m_externs;

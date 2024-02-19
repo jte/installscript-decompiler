@@ -74,7 +74,7 @@ void CDecompiler::AddGlobalVariables(const CDataDeclList& globals)
 	}
 
 	m_globalVars.GetByAddress(0, EVariableType::Variant, true)->SetName("LAST_RESULT");
-	/**for (auto extRecord : m_script.GetExterns())
+	/*for (auto extRecord : m_script.GetExterns())
 	{
 		if (extRecord.type == 1)
 		{
@@ -114,11 +114,11 @@ CFunction& CDecompiler::GetFunction(size_t address)
 
 std::ostream& operator<<(std::ostream& out, const CDecompiler& o)
 {
-	/**for (auto s : o.m_script.GetStructs())
+	for (auto s : o.m_frontend->GetStructs())
 	{
 		out << s << std::endl;
 	}
-	out << std::endl;*/
+	out << std::endl;
 	
 	for (auto global : o.m_globalVars.GetVariables())
 	{

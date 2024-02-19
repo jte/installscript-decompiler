@@ -54,11 +54,11 @@ void CIScript::ReadBBsOBS(uint32_t tableOffset)
 void CIScript::ReadBBsALUZ(uint32_t tableOffset)
 {
 }
-/**
-const CStruct* CIScript::GetStruct(size_t id) const
+
+const ScriptStruct* CIScript::GetStruct(size_t id) const
 {
 	return &m_structs.at(id);
-}*/
+}
 
 void CIScript::ReadExternTable(uint32_t tableOffset)
 {

@@ -160,7 +160,7 @@ void CFunction::SetVariables(const CDataDeclList& declList)
 			if (obj.typedefId != -1)
 			{
 				var->SetIsStruct(true);
-				//var->SetTypedef(m_script->GetStruct(obj.typedefId));
+				var->SetTypedef(m_script->GetStruct(obj.typedefId));
 			}
 		}
 		m_localVars.Add(var);
