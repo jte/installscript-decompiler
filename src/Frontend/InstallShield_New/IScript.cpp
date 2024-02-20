@@ -297,23 +297,23 @@ void CIScript::Read()
 
 void CIScript::print(std::ostream& os) const
 {
-	/**for (const auto& fn : o.m_fns)
+	for (const auto& fn : m_fns)
 	{
 		if (fn.prototype->GetIsExported() || fn.bbs.size() != 0)
 		{
-			out << *(fn.prototype);
-			out << fn.dataDeclList;
+			os << *(fn.prototype) << std::endl;
+			os << fn.dataDeclList << std::endl;
 			for (const auto& bb : fn.bbs)
 			{
 				for (const auto& act : bb.GetActions())
 				{
-					out << std::hex << bb.GetBBId() << std::dec << ": ";
-					out << *act << std::endl;
+					os << std::hex << bb.GetBBId() << std::dec << ": ";
+					os << *act << std::endl;
 				}
 			}
-			out << "\n\n" << std::endl;
+			os << "\n\n" << std::endl;
 		}
-	}*/
+	}
 }
 
 };

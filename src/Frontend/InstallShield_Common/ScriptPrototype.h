@@ -59,6 +59,8 @@ public:
 	{
 		return m_flags & (uint8_t)Flags::IsExported;
 	}
+	friend std::ostream& operator<<(std::ostream& out, const ScriptPrototype& o);
+	friend std::ostream& operator<<(std::ostream& out, const std::vector<ArgumentTypeInfo>& arguments);
 protected:
 	uint8_t m_flags; // CPrototype::Flags
 	std::vector<ArgumentTypeInfo> m_arguments;

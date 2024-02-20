@@ -10,6 +10,8 @@ set (ACTIONS_FILES
 	Actions/FuncPrologAction.cpp
 	Actions/InternalFuncCallAction.h
 	Actions/InternalFuncCallAction.cpp
+	Actions/ReturnEmptyAction.h
+	Actions/ReturnEmptyAction.cpp
 )
 
 set(INSTALLSHIELD_FILES

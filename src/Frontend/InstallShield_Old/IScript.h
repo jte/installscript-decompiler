@@ -56,27 +56,6 @@ public:
 		return m_fns;
 	}
 	void print(std::ostream& os) const override;
-private:
-	std::vector<ScriptFunction> m_fns;
-	std::vector<uint8_t> m_script;
-	StreamPtr m_streamPtr;
-	std::vector<ScriptStruct> m_structs;
-	//ActionFileHeaderOBS m_headerOBS = {};
-	//ActionFileHeaderaLuZ m_headerALUZ = {};
-	std::vector<ScriptExtern> m_externs;
-	HeaderKind m_hdrKind;
-	//CDataDeclList m_globalDeclList;
-
-	void ReadBBsOBS(uint32_t tableOffset);
-	void ReadBBsALUZ(uint32_t tableOffset);
-	void ReadHeader();
-	void ReadStructs(uint32_t tableOffset);
-	void ReadPrototypes(uint32_t tableOffset);
-	void ReadAddressResolve(uint32_t tableOffset);
-	void Read();
-
-	void ReadExternTable(uint32_t tableOffset);
-public:
 	const CDataDeclList& GetGlobalDeclList() const override
 	{
 		return CDataDeclList();
@@ -97,7 +76,38 @@ public:
 	{
 		return m_externs;
 	}
-	friend class CEndFuncAction;
+private:
+	struct SLoadableStringEntry
+	{
+		uint16_t stringId;
+		std::string name;
+	};
+	struct SLoadableNumberEntry
+	{
+		uint16_t numberId;
+		std::string name;
+	};
+	std::vector<ScriptFunction> m_fns;
+	std::vector<uint8_t> m_script;
+	std::vector<ScriptStruct> m_structs;
+	std::vector<ScriptExtern> m_externs;
+	std::vector<SLoadableStringEntry> m_loadableStrings;
+	std::vector<SLoadableNumberEntry> m_loadableNumbers;
+
+	StreamPtr m_streamPtr;
+	HeaderKind m_hdrKind;
+	uint16_t m_numEvents;
+	uint16_t m_globalNumberCount;
+
+	void Read();
+	
+	void ReadHeader();
+	void ReadGlobalStringTable(StreamPtr& ptr);
+	void ReadLoadableStringTable(StreamPtr& ptr);
+	void ReadLoadableNumberTable(StreamPtr& ptr);
+	void ReadStructs(StreamPtr& ptr);
+	void ReadPrototypes(StreamPtr& ptr);
+	void ReadEvents(StreamPtr& ptr);
 };
 
 };
