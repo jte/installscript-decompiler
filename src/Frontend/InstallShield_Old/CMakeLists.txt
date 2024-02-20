@@ -22,6 +22,16 @@ set (ACTIONS_FILES
 	Actions/ReturnFromProgramAction.cpp
 	Actions/UnaryAction.h
 	Actions/UnaryAction.cpp
+	Actions/NopAction.h
+	Actions/NopAction.cpp
+	Actions/AssignStringConstAction.h
+	Actions/AssignStringConstAction.cpp
+	Actions/ReturnAction.h
+	Actions/ReturnAction.cpp
+	Actions/GotoAction.h
+	Actions/GotoAction.cpp
+	Actions/LoadStringConstantAction.h
+	Actions/LoadStringConstantAction.cpp
 )
 
 set(INSTALLSHIELD_FILES

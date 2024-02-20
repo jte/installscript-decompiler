@@ -34,6 +34,8 @@ struct ExternRecord
 	{}
 };
 
+// TODO:we need to figure out how to associate prototypes
+// with functions when they are out of order (if it's possible)
 class CIScript : public ::CFrontend
 {
 public:

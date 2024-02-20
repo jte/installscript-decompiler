@@ -27,6 +27,12 @@ IArgument* CActionWithArgs::ParseArgument(StreamPtr& filePtr)
 	case 0x32:
 		return new vararg<ArgType::NumArg, false>(filePtr);
 		break;
+	case 0x52:
+		return new vararg<ArgType::StrArg, false>(filePtr);
+		break;
+	case 0x61:
+		return new CStrConst(filePtr);
+		break;
 	default:
 		throw std::runtime_error("Invalid argument type " + std::to_string(argId));
 	}

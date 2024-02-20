@@ -92,12 +92,19 @@ struct LocalPrototype
 	std::vector<ArgumentTypeInfo> args;
 };
 
-ScriptPrototype* ToScriptPrototype(const LocalPrototype& proto)
+ScriptPrototype* ToScriptPrototype(const LocalPrototype& proto, size_t funcId)
 {
 	ScriptPrototype* scriptProto = new ScriptPrototype;
 	//scriptProto->SetFlags((uint8_t)proto->GetFlags());
 	scriptProto->SetArguments(proto.args);
-	scriptProto->SetName(proto.FunctionName);
+	if (proto.FunctionName.empty())
+	{
+		scriptProto->SetName("Func_" + std::to_string(funcId));
+	}
+	else
+	{
+		scriptProto->SetName(proto.FunctionName);
+	}
 	scriptProto->SetReturnType((ScriptType)proto.ReturnType);
 	scriptProto->SetBBId(proto.EventIndex);
 
@@ -161,8 +168,8 @@ void CIScript::ReadPrototypes(StreamPtr& ptr)
 			arg.internalType = (ConcreteType)internalType;
 			proto.args.push_back(arg);
 		}
-
-		m_fns.push_back(ScriptFunction(ToScriptPrototype(proto)));
+		
+		m_fns.push_back(ScriptFunction(ToScriptPrototype(proto, i)));
 	}
 }
 
@@ -174,6 +181,8 @@ void CIScript::ReadStructs(StreamPtr& ptr)
 
 	for (size_t i = 0; i < count; i++)
 	{
+		ScriptStruct scriptStruct;
+
 		uint16_t packingNumber;
 		std::string structName;
 		uint16_t fieldsCount;
@@ -181,6 +190,8 @@ void CIScript::ReadStructs(StreamPtr& ptr)
 		ptr.Read(packingNumber);
 		structName = ptr.ReadInsString();
 		ptr.Read(fieldsCount);
+
+		scriptStruct.SetName(structName);
 
 		for (size_t j = 0; j < fieldsCount; j++)
 		{
@@ -191,13 +202,20 @@ void CIScript::ReadStructs(StreamPtr& ptr)
 			ptr.Read(type);
 			ptr.Read(size);
 			fieldName = ptr.ReadInsString();
+
+			// TODO: figure out elem count from size
+			ScriptStruct::CStructMember member(fieldName, 0, (ScriptType)type);
+
+			scriptStruct.AddMember(member);
 		}
+		m_structs.push_back(scriptStruct);
 	}
 }
 
 void CIScript::ReadEvents(StreamPtr& ptr)
 {
 	ScriptFunction* fn = nullptr;
+	size_t funcIdx = 0;
 
 	for (size_t i = 0; i < m_numEvents; i++)
 	{
@@ -209,10 +227,7 @@ void CIScript::ReadEvents(StreamPtr& ptr)
 		ISBasicBlock newBB;
 		newBB.SetBBId(i);
 
-		if (i == 0)
-		{
-			fn = &GetFnById(0);
-		}
+		fn = &GetFnById(funcIdx);
 
 		for (size_t j = 0; j < numActions; j++)
 		{
@@ -222,7 +237,9 @@ void CIScript::ReadEvents(StreamPtr& ptr)
 
 			if (CFuncPrologAction* funcProlog = dynamic_cast<CFuncPrologAction*>(newAct))
 			{
-				fn = &GetFnById(i);
+				funcIdx++;
+				fn = &GetFnById(funcIdx);
+				fn->prototype->SetBBId(i);
 				fn->dataDeclList = funcProlog->GetDataDeclList();
 			}
 			else
@@ -270,6 +287,12 @@ void CIScript::Read()
 
 void CIScript::print(std::ostream& os) const
 {
+	for (auto s : m_structs)
+	{
+		os << s << std::endl;
+	}
+	os << std::endl;
+
 	for (const auto& fn : m_fns)
 	{
 		if (fn.prototype->GetIsExported() || fn.bbs.size() != 0)

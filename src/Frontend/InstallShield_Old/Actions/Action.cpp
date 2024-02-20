@@ -8,6 +8,11 @@
 #include "IfAction.h"
 #include "ReturnFromProgramAction.h"
 #include "UnaryAction.h"
+#include "NopAction.h"
+#include "AssignStringConstAction.h"
+#include "ReturnAction.h"
+#include "GotoAction.h"
+#include "LoadStringConstantAction.h"
 
 namespace oldis
 {
@@ -27,12 +32,16 @@ CAction* CAction::FindFactory(size_t id, CIScript* script, StreamPtr& fileptr)
 {
 	switch (id)
 	{
+	case 0x13: return new CAssignStringConstAction(script, fileptr);
 	case 0x21: return new CAssignNumConstAction(script, fileptr);
 	case 0x22: return new CIfAction(script, fileptr);
 	case 0x2b: return new CReturnFromProgramAction(script, fileptr);
+	case 0x2c: return new CGotoAction(script, fileptr);
 	case 0xb5: return new CInternalFuncCallAction(script, fileptr);
 	case 0xb6: return new CFuncPrologAction(script, fileptr);
+	case 0xb7: return new CReturnAction(script, fileptr);
 	case 0xb8: return new CReturnEmptyAction(script, fileptr);
+	case 0x112: return new CLoadStringConstantAction(script, fileptr);
 	case 0x119: return new CBinaryAction<BinaryExprType::BinAdd>(script, fileptr);
 	case 0x11a: return new CBinaryAction<BinaryExprType::BinSub>(script, fileptr);
 	case 0x11b: return new CBinaryAction<BinaryExprType::BinMul>(script, fileptr);
@@ -47,6 +56,7 @@ CAction* CAction::FindFactory(size_t id, CIScript* script, StreamPtr& fileptr)
 	case 0x126: return new CBinaryAction<BinaryExprType::LogOr>(script, fileptr);
 	case 0x127: return new CBinaryAction<BinaryExprType::LogAnd>(script, fileptr);
 	case 0x128: return new CBinaryAction<BinaryExprType::CodeDefined>(script, fileptr);
+	case 0x12f: return new CNopAction(script, fileptr);
 	default: break;
 	}
 	throw std::runtime_error(std::string("No handler for action id ") + std::to_string(id) + std::string(" found"));
