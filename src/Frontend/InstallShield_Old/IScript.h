@@ -13,6 +13,7 @@
 #include "ScriptStruct.h"
 #include "ScriptFunction.h"
 #include "ScriptPrototype.h"
+#include "ScriptExtern.h"
 
 namespace oldis
 {
@@ -62,7 +63,7 @@ private:
 	std::vector<ScriptStruct> m_structs;
 	//ActionFileHeaderOBS m_headerOBS = {};
 	//ActionFileHeaderaLuZ m_headerALUZ = {};
-	std::vector<ExternRecord> m_externs;
+	std::vector<ScriptExtern> m_externs;
 	HeaderKind m_hdrKind;
 	//CDataDeclList m_globalDeclList;
 
@@ -92,7 +93,7 @@ public:
 		return m_hdrKind;
 	}
 
-	std::vector<ExternRecord> GetExterns() const
+	std::vector<ScriptExtern> GetExterns() const override
 	{
 		return m_externs;
 	}

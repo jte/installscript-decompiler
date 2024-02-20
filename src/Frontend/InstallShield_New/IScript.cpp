@@ -257,7 +257,7 @@ void CIScript::ReadExternTable(uint32_t tableOffset)
 		externTable.Read(address);
 		std::string name = externTable.ReadInsString();
 
-		m_externs.push_back(ExternRecord(type, name, address));
+		m_externs.push_back(ScriptExtern(type, name, address));
 	}
 }
 

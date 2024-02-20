@@ -31,6 +31,8 @@ set (SOURCES
 	ScriptPrototype.cpp
 	ScriptStruct.h
 	ScriptStruct.cpp
+	ScriptExtern.h
+	ScriptExtern.cpp
 )
 
 source_group("" FILES ${SOURCES})

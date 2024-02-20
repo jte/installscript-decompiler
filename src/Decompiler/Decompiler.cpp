@@ -74,13 +74,13 @@ void CDecompiler::AddGlobalVariables(const CDataDeclList& globals)
 	}
 
 	m_globalVars.GetByAddress(0, EVariableType::Variant, true)->SetName("LAST_RESULT");
-	/*for (auto extRecord : m_script.GetExterns())
+	for (auto extRecord : m_frontend->GetExterns())
 	{
-		if (extRecord.type == 1)
+		if (extRecord.GetType() == EScriptExternType::Variant)
 		{
-			m_globalVars.GetByAddress(extRecord.address, EVariableType::Variant, true)->SetName(extRecord.name);
+			m_globalVars.GetByAddress(extRecord.GetAddress(), EVariableType::Variant, true)->SetName(extRecord.GetName());
 		}
-	}*/
+	}
 }
 
 CFunction& CDecompiler::AddFunctionPrototype(ScriptPrototype* proto)

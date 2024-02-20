@@ -12,6 +12,7 @@
 #include "Frontend.h"
 #include "ScriptPrototype.h"
 #include "ScriptStruct.h"
+#include "ScriptExtern.h"
 
 namespace newis
 {
@@ -70,7 +71,7 @@ public:
 
 	void print(std::ostream& os) const override;
 	
-	std::vector<ExternRecord> GetExterns() const
+	std::vector<ScriptExtern> GetExterns() const override
 	{
 		return m_externs;
 	}
@@ -82,7 +83,7 @@ private:
 	std::vector<ScriptStruct> m_structs;
 	ActionFileHeaderOBS m_headerOBS = {};
 	ActionFileHeaderaLuZ m_headerALUZ = {};
-	std::vector<ExternRecord> m_externs;
+	std::vector<ScriptExtern> m_externs;
 	HeaderKind m_hdrKind;
 	CDataDeclList m_globalDeclList;
 
