@@ -16,10 +16,13 @@ CFuncPrologAction::CFuncPrologAction(CIScript* script, StreamPtr& filePtr) :
 	filePtr.Read(Reserved);
 	uint16_t stringTable_count;
 	filePtr.Read(stringTable_count);
+	m_declList.SetNumStrings(stringTable_count);
 	filePtr.ReadArray(m_stringTable, stringTable_count);
 	uint16_t zeros;
 	filePtr.Read(zeros);
-	filePtr.Read(m_numNumbers);
+	uint16_t numNumbers;
+	filePtr.Read(numNumbers);
+	m_declList.SetNumNumbers(numNumbers);
 	filePtr.Read(zeros);
 }
 

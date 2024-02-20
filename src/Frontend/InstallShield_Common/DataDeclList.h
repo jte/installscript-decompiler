@@ -66,6 +66,14 @@ public:
 	{
 		return m_objectTable;
 	}
+	void SetNumNumbers(uint16_t numNumbers)
+	{
+		m_numNumbers = numNumbers;
+	}
+	void SetNumStrings(uint16_t numStrings)
+	{
+		m_numStrings = numStrings;
+	}
 protected:
 	void ParseObjectTable(StreamPtr& ptr);
 	void ParseStringTable(StreamPtr& ptr);

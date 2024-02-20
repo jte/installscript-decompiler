@@ -96,8 +96,8 @@ private:
 
 	StreamPtr m_streamPtr;
 	HeaderKind m_hdrKind;
-	uint16_t m_numEvents;
-	uint16_t m_globalNumberCount;
+	uint16_t m_numEvents; // really numBBs
+	uint16_t m_globalNumberCount; // count of number variables
 
 	void Read();
 	

@@ -7,7 +7,7 @@ namespace oldis
 {
 
 CActionWithArgs::CActionWithArgs(CIScript* script, StreamPtr& filePtr) :
-	CAction(script)
+	CAction(script), m_numOperands(0)
 {
 	Parse(filePtr);
 }
@@ -22,6 +22,10 @@ IArgument* CActionWithArgs::ParseArgument(StreamPtr& filePtr)
 	{
 	case 0x41:
 		return new CNumConst(filePtr);
+		break;
+	case 0x42:
+	case 0x32:
+		return new vararg<ArgType::NumArg, false>(filePtr);
 		break;
 	default:
 		throw std::runtime_error("Invalid argument type " + std::to_string(argId));

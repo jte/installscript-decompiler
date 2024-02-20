@@ -34,7 +34,8 @@ enum class BinaryExprType
     BitShl,
     BitShr,
     LogAnd,
-    LogOr
+    LogOr,
+    CodeDefined
 };
 
 class CVariable;

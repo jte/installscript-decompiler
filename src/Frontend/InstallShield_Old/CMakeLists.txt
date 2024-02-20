@@ -12,6 +12,16 @@ set (ACTIONS_FILES
 	Actions/InternalFuncCallAction.cpp
 	Actions/ReturnEmptyAction.h
 	Actions/ReturnEmptyAction.cpp
+	Actions/AssignNumConstAction.h
+	Actions/AssignNumConstAction.cpp
+	Actions/BinaryAction.h
+	Actions/BinaryAction.cpp
+	Actions/IfAction.h
+	Actions/IfAction.cpp
+	Actions/ReturnFromProgramAction.h
+	Actions/ReturnFromProgramAction.cpp
+	Actions/UnaryAction.h
+	Actions/UnaryAction.cpp
 )
 
 set(INSTALLSHIELD_FILES

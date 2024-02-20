@@ -199,7 +199,7 @@ void CIScript::ReadEvents(StreamPtr& ptr)
 {
 	ScriptFunction* fn = nullptr;
 
-	for (size_t i = 0; i < /**m_numEvents*/1; i++)
+	for (size_t i = 0; i < m_numEvents; i++)
 	{
 		uint16_t Reserved;
 		uint16_t numActions;
@@ -211,7 +211,7 @@ void CIScript::ReadEvents(StreamPtr& ptr)
 
 		if (i == 0)
 		{
-			fn = &GetFnByBBId(0);
+			fn = &GetFnById(0);
 		}
 
 		for (size_t j = 0; j < numActions; j++)
@@ -222,8 +222,8 @@ void CIScript::ReadEvents(StreamPtr& ptr)
 
 			if (CFuncPrologAction* funcProlog = dynamic_cast<CFuncPrologAction*>(newAct))
 			{
-				fn = &GetFnByBBId(i);
-				//fn->dataDeclList = funcProlog->GetDataDeclList();
+				fn = &GetFnById(i);
+				fn->dataDeclList = funcProlog->GetDataDeclList();
 			}
 			else
 			{
