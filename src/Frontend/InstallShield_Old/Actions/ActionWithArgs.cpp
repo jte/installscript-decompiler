@@ -31,7 +31,7 @@ IArgument* CActionWithArgs::ParseArgument(StreamPtr& filePtr)
 	}
 	case 0x30: 
 	{
-		return new vararg<ArgType::VariantArg, false>(filePtr);
+		return new vararg<ArgType::NumArg, false>(filePtr);
 		break;
 	}
 	case 0x40: 
@@ -48,7 +48,7 @@ IArgument* CActionWithArgs::ParseArgument(StreamPtr& filePtr)
 	}
 	case 0x50:
 	{
-		return new vararg<ArgType::VariantArg, false>(filePtr);
+		return new vararg<ArgType::StrArg, false>(filePtr);
 		break;
 	}
 	case 0x60:

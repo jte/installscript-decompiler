@@ -14,7 +14,7 @@ CGotoAction::CGotoAction(CIScript* script, StreamPtr& filePtr) :
 
 void CGotoAction::print(std::ostream& os) const
 {
-	os << "GOTO " << m_bbIndex;
+	os << "GOTO " << std::hex << m_bbIndex << std::dec;
 }
 
 };

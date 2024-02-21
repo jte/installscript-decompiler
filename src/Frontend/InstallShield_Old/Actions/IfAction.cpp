@@ -22,7 +22,7 @@ CIfAction::CIfAction(CIScript* script, StreamPtr& filePtr) :
 
 void CIfAction::print(std::ostream& os) const
 {
-	os << "IF (label: " << (int)m_label << ", realAddress: " << m_realAddress << ") " << *(m_arguments[0]);
+	os << "IF (label: " << std::hex << (int)m_label << ", realAddress: " << m_realAddress << ") " << std::dec << *(m_arguments[0]);
 }
 
 
