@@ -13,6 +13,8 @@
 #include "ReturnAction.h"
 #include "GotoAction.h"
 #include "LoadStringConstantAction.h"
+#include "PropGetAction.h"
+#include "PropPutAction.h"
 
 namespace oldis
 {
@@ -57,6 +59,8 @@ CAction* CAction::FindFactory(size_t id, CIScript* script, StreamPtr& fileptr)
 	case 0x127: return new CBinaryAction<BinaryExprType::LogAnd>(script, fileptr);
 	case 0x128: return new CBinaryAction<BinaryExprType::CodeDefined>(script, fileptr);
 	case 0x12f: return new CNopAction(script, fileptr);
+	case 0x181: return new CPropGetAction(script, fileptr);
+	case 0x183: return new CPropPutAction(script, fileptr);
 	default: break;
 	}
 	throw std::runtime_error(std::string("No handler for action id ") + std::to_string(id) + std::string(" found"));

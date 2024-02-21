@@ -32,6 +32,10 @@ set (ACTIONS_FILES
 	Actions/GotoAction.cpp
 	Actions/LoadStringConstantAction.h
 	Actions/LoadStringConstantAction.cpp
+	Actions/PropGetAction.h
+	Actions/PropGetAction.cpp
+	Actions/PropPutAction.h
+	Actions/PropPutAction.cpp
 )
 
 set(INSTALLSHIELD_FILES
