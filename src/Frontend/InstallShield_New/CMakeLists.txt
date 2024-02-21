@@ -123,6 +123,8 @@ source_group("InstallShield/Wrapper" FILES ${WRAPPER_FILES})
 
 add_library(InstallShield_New STATIC ${INSTALLSHIELD_FILES})
 
+target_link_libraries(InstallShield_New InstallShield_Common)
+
 target_include_directories(InstallShield_New PRIVATE ${ISIS_BUILD_DIR}/src/Frontend/InstallShield_Common)
 target_include_directories(InstallShield_New PRIVATE ${ISIS_BUILD_DIR}/src/Frontend/InstallShield_New)
 target_include_directories(InstallShield_New PRIVATE ${ISIS_BUILD_DIR}/src/Decompiler)

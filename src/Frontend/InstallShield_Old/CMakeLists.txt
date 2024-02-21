@@ -52,6 +52,8 @@ source_group("InstallShield/Actions" FILES ${ACTIONS_FILES})
 
 add_library(InstallShield_Old STATIC ${INSTALLSHIELD_FILES})
 
+target_link_libraries(InstallShield_Old InstallShield_Common)
+
 target_include_directories(InstallShield_Old PRIVATE ${ISIS_BUILD_DIR}/src/Frontend/InstallShield_Common)
 target_include_directories(InstallShield_Old PRIVATE ${ISIS_BUILD_DIR}/src/Frontend/InstallShield_Old)
 target_include_directories(InstallShield_Old PRIVATE ${ISIS_BUILD_DIR}/src/Decompiler)
