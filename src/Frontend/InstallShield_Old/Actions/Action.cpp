@@ -15,6 +15,7 @@
 #include "LoadStringConstantAction.h"
 #include "PropGetAction.h"
 #include "PropPutAction.h"
+#include "PlaceholderAction.h"
 
 namespace oldis
 {
@@ -61,7 +62,7 @@ CAction* CAction::FindFactory(size_t id, CIScript* script, StreamPtr& fileptr)
 	case 0x12f: return new CNopAction(script, fileptr);
 	case 0x181: return new CPropGetAction(script, fileptr);
 	case 0x183: return new CPropPutAction(script, fileptr);
-	default: break;
+	default: return new CPlaceholderAction(script, fileptr);
 	}
 	throw std::runtime_error(std::string("No handler for action id ") + std::to_string(id) + std::string(" found"));
 }

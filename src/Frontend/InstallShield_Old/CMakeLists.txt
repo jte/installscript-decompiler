@@ -36,6 +36,8 @@ set (ACTIONS_FILES
 	Actions/PropGetAction.cpp
 	Actions/PropPutAction.h
 	Actions/PropPutAction.cpp
+	Actions/PlaceholderAction.h
+	Actions/PlaceholderAction.cpp
 )
 
 set(INSTALLSHIELD_FILES

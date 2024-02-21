@@ -151,11 +151,23 @@ void CIScript::ReadPrototypes(StreamPtr& ptr)
 
 		ptr.Read(proto.PrototypeType);
 		ptr.Read(proto.ReturnType);
-		proto.DllName = ptr.ReadInsString();
-		proto.FunctionName = ptr.ReadInsString();
-		ptr.Read(proto.EventIndex);
-		ptr.Read(proto.ParameterCount);
 
+		if (proto.PrototypeType == 2)
+		{ // Internal Prototype
+			
+			proto.DllName = ptr.ReadInsString();
+			proto.FunctionName = ptr.ReadInsString();
+			ptr.Read(proto.EventIndex);
+		}
+		else if (proto.PrototypeType == 1)
+		{ // DLL Prototype
+			uint16_t _unknown;
+			ptr.Read(_unknown);
+			proto.DllName = ptr.ReadInsString();
+			proto.FunctionName = ptr.ReadInsString();
+		}
+
+		ptr.Read(proto.ParameterCount);
 		for (size_t j = 0; j < proto.ParameterCount; j++)
 		{
 			uint16_t scriptType;
