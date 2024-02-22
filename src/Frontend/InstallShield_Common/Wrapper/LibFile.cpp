@@ -1,8 +1,5 @@
 #include "LibFile.h"
 
-namespace newis
-{
-
 LibFile::LibFile()
 {
 
@@ -52,5 +49,3 @@ std::vector<std::vector<uint8_t>> LibFile::GetScriptsContent(StreamPtr& filePtr)
 	}
 	return output;
 }
-
-};

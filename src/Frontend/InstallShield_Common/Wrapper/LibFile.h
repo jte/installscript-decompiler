@@ -3,10 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include "StreamPtr.h"
-
-namespace newis
-{
+#include "../StreamPtr.h"
 
 /**
 struct LibFileHeader
@@ -37,6 +34,4 @@ public:
 	LibFile();
 	bool Parse(StreamPtr& filePtr);
 	std::vector<std::vector<uint8_t>> GetScriptsContent(StreamPtr& filePtr);
-};
-
 };

@@ -100,11 +100,6 @@ set(STRUCT_FILES
     Struct/Struct.h
 )
 
-set(WRAPPER_FILES
-    Wrapper/LibFile.cpp
-    Wrapper/LibFile.h
-)
-
 set(INSTALLSHIELD_FILES
     IScript.cpp
     IScript.h
@@ -112,12 +107,11 @@ set(INSTALLSHIELD_FILES
 
 source_group("InstallShield" FILES ${INSTALLSHIELD_FILES})
 
-list(APPEND INSTALLSHIELD_FILES ${WRAPPER_FILES} ${STRUCT_FILES} ${PROTOTYPE_FILES} ${ACTIONS_FILES})
+list(APPEND INSTALLSHIELD_FILES ${STRUCT_FILES} ${PROTOTYPE_FILES} ${ACTIONS_FILES})
 
 source_group("InstallShield/Actions" FILES ${ACTIONS_FILES})
 source_group("InstallShield/Prototype" FILES ${PROTOTYPE_FILES})
 source_group("InstallShield/Struct" FILES ${STRUCT_FILES})
-source_group("InstallShield/Wrapper" FILES ${WRAPPER_FILES})
 
 
 

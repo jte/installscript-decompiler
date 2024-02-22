@@ -1,4 +1,3 @@
-//#include "IScript.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -8,7 +7,7 @@
 #include "Decompiler.h"
 #include <argparse/argparse.hpp>
 #include <string.h>
-//#include "Wrapper/LibFile.h"
+#include "Wrapper/LibFile.h"
 #include "StreamPtr.h"
 #include "HeaderKind.h"
 #include "Frontend.h"
@@ -153,8 +152,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	
-	//try
-	//{
+	try
+	{
 		std::cout << "Starting decompilation..." << std::endl;
 
 		std::vector<uint8_t> contents;
@@ -164,7 +163,6 @@ int main(int argc, char** argv)
 		{
 		case HeaderKind::OBL:
 			{
-			/*
 				LibFile libFile;
 				StreamPtr filePtr(contents);
 				libFile.Parse(filePtr);
@@ -176,7 +174,7 @@ int main(int argc, char** argv)
 					ProcessFile(of, file, GetHeaderKind(file), program["--show-decompiled"] == true, program["--show-actions"] == true);
 				}
 				of.close();
-				*/
+				
 			}
 			break;
 		case HeaderKind::Unrecognized:
@@ -192,11 +190,11 @@ int main(int argc, char** argv)
 			}
 		}
 		std::cout << "Successful decompilation." << std::endl;
-	//}
-	//catch (const std::exception& e)
-	//{
-	//	std::cerr << "Exception: " << e.what() << std::endl;
-	//	return 1;
-	//}
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Exception: " << e.what() << std::endl;
+		return 1;
+	}
 	return 0;
 }
