@@ -19,8 +19,8 @@ class BasicBlock;
 
 class ControlFlowGraph {
 private:
-    std::vector<BasicBlock*>* _bbInPredOrder;
-    std::vector<BasicBlock*>* _bbInPostOrder;
+    std::vector<BasicBlock*>* _bbInPredOrder = nullptr;
+    std::vector<BasicBlock*>* _bbInPostOrder = nullptr;
     std::map<BasicBlock*, int> _bbVisitedMap;
     std::map<BasicBlock*, std::set<BasicBlock*>>* _dominanceFrontier;
 

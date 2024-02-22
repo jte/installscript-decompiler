@@ -37,6 +37,10 @@ public:
     void AddStatement(AbstractStatement* statement);
     static void AddLink(BasicBlock* pred, BasicBlock* succ);
     std::string GetLabel();
+    int GetIndex() const
+    {
+        return _index;
+    }
 
     BasicBlock(int index, std::string label) : _index(index), _label(label), dominator(nullptr) {};
 };

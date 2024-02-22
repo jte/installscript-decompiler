@@ -10,6 +10,8 @@
 #define GraphVizPrinter_hpp
 
 #include <stdio.h>
+#include <string>
+#include <ostream>
 
 class ControlFlowGraph;
 
@@ -18,7 +20,7 @@ class GraphVizPrinter {
     ControlFlowGraph* _cfg;
 
 public:
-    void print();
+    void print(std::ostream& os, const std::string fnName);
     GraphVizPrinter(ControlFlowGraph* cfg) : _cfg(cfg) {}
 };
 

@@ -13,7 +13,7 @@ class CFrontend;
 class CDecompiler
 {
 public:
-	CDecompiler(/*const*/ CFrontend* script);
+	CDecompiler(/*const*/ CFrontend* script, const std::string cfgFile);
 	CFunction& AddFunctionPrototype(ScriptPrototype* proto);
 	CFunction& GetFunction(size_t address);
 	friend std::ostream& operator<<(std::ostream& out, const CDecompiler& o);
@@ -23,4 +23,5 @@ protected:
 private:
 	CFrontend* m_frontend;
 	SymbolTable m_globalVars;
+	std::string m_cfgFile;
 };

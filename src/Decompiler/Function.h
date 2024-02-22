@@ -44,7 +44,14 @@ public:
 	{
 		m_script = script;
 	}
-
+	void SetCfgFile(const std::string cfgFile)
+	{
+		m_cfgFile = cfgFile;
+	}
+	IRGenerator* GetIRGen() const
+	{
+		return m_gen;
+	}
 	friend std::ostream& operator<<(std::ostream& out, const CFunction& o);
 	void Construct(const std::vector<AbstractExpression*>& expressions);
 protected:
@@ -57,6 +64,7 @@ private:
 	ScriptType m_returnType;
 	uint32_t m_address;
 	std::string m_name;
+	std::string m_cfgFile;
 	size_t m_nArgNums = 0; 
 	size_t m_nArgStrs = 0; 
 	size_t m_nArgObjs = 0;

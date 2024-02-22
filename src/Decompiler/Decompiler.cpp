@@ -11,17 +11,18 @@
 #include <optional>
 #include "Frontend.h"
 #include "ScriptPrototype.h"
+#include "IRGen/IRGenerator.h"
 
-CDecompiler::CDecompiler(CFrontend* frontend) : m_frontend(frontend)
+CDecompiler::CDecompiler(CFrontend* frontend, const std::string cfgFile) : m_frontend(frontend), m_cfgFile(cfgFile)
 {
 	AddGlobalVariables(frontend->GetGlobalDeclList());
-
 	auto fns = frontend->GetFns();
 	for (const auto& fn : fns)
 	{
 		if (fn.bbs.size() == 0)
 			continue; // skip predefined funcs
 		auto& outFn = AddFunctionPrototype(fn.prototype);
+		outFn.SetCfgFile(m_cfgFile);
 		outFn.SetFrontend(frontend);
 		outFn.SetGlobalSymTable(&m_globalVars);
 		outFn.SetVariables(fn.dataDeclList);
@@ -66,7 +67,7 @@ void CDecompiler::AddGlobalVariables(const CDataDeclList& globals)
 			if (obj.typedefId != -1)
 			{
 				var->SetIsStruct(true);
-				//var->SetTypedef(m_script.GetStruct(obj.typedefId));
+				var->SetTypedef(m_frontend->GetStruct(obj.typedefId));
 			}
 		}
 		m_globalVars.Add(var);
@@ -130,5 +131,6 @@ std::ostream& operator<<(std::ostream& out, const CDecompiler& o)
 	{
 		out << fn << std::endl;
 	}
+
 	return out;
 }

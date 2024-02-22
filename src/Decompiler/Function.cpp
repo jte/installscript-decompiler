@@ -8,6 +8,7 @@
 #include "Variables/NumberVariable.h"
 #include "Variables/StringVariable.h"
 #include "Variables/VariantVariable.h"
+#include <fstream>
 
 uint32_t CFunction::GetAddress() const
 {
@@ -64,12 +65,11 @@ void CFunction::AddArgument(ArgumentTypeInfo typeInfo, size_t& nNums, size_t& nS
 void CFunction::Construct(const std::vector<AbstractExpression*>& expressions)
 {
 	m_gen = new IRGenerator;
-
-	for (std::vector<AbstractExpression*>::const_iterator it = expressions.begin(); it != expressions.end(); ++it)
+	auto expr = expressions.size() != 0 ? expressions[0] : nullptr;
+	while (expr)
 	{
-		auto expr = *it;
-		//std::cout << "Construct GenerateIR: " << expr->stringValue() << std::endl;
 		m_gen->GenerateIR(expr);
+		expr = expr->next;
 	}
 }
 
@@ -91,6 +91,7 @@ void PrintBB(std::ostream& out, BasicBlock *bb, std::map<BasicBlock*,bool>& visi
 				PrintBB(out, branchSt->firstBranchBB, visited, indentLvl + 1);
 				visited[branchSt->firstBranchBB] = true;
 				out << std::string(indentLvl, '\t') << "endif;" << std::endl;
+				PrintBB(out, branchSt->secondBranchBB, visited, indentLvl);
 			}
 			else
 			{
@@ -199,7 +200,7 @@ std::ostream& operator<<(std::ostream& out, const CFunction& o)
 	
 	if (o.m_gen->m_cfg)
 	{
-		//o.m_gen->m_cfg->CommitAllChanges(); throws error, probably because of abuse of cfg
+		o.m_gen->m_cfg->CommitAllChanges();
 		std::map<BasicBlock*, bool> visited;
 		for (const auto& bb : o.m_gen->m_cfg->basicBlocks) 
 		{
@@ -208,7 +209,10 @@ std::ostream& operator<<(std::ostream& out, const CFunction& o)
 	}
 	out << "end;" << std::endl;
 	
-	//o.m_gen->GetGraphVizPrinter().print();
-	
+	if (!o.m_cfgFile.empty())
+	{
+		std::ofstream ocfg(o.m_cfgFile.c_str(), std::ofstream::out | std::ofstream::app);
+		o.m_gen->GetGraphVizPrinter().print(ocfg, o.GetName());
+	}
 	return out;
 }

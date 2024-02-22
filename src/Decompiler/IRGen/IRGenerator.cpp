@@ -5,7 +5,7 @@ void IRGenerator::CreateConditionalBr(IfExpression* ifExp, BasicBlock* thenBB, B
 {
 	BasicBlock::AddLink(m_currentBB.top(), thenBB);
 	BasicBlock::AddLink(m_currentBB.top(), elseBB);
-	BasicBlock::AddLink(thenBB, elseBB);
+	//BasicBlock::AddLink(thenBB, elseBB);
 	BranchStatement* branchStmt = new BranchStatement(ifExp->conditionExp, thenBB, elseBB, ifExp->displayLabel);
 	m_currentBB.top()->AddStatement(branchStmt);
 }
@@ -58,25 +58,57 @@ void IRGenerator::Visit(AbortExpression* exp)
 	m_currentBB.top()->AddStatement(new AbortStatement(exp->displayLabel));
 }
 
+int IRGenerator::GenerateIR(AbstractExpression* exp)
+{
+	//std::cout << "GenerateIR: (BB_" << m_currentBB.top()->GetIndex() << ") " << exp->stringValue();
+	if (std::find(m_stopExp._Get_container().begin(), m_stopExp._Get_container().end(), exp) != m_stopExp._Get_container().end())
+	{
+		return 2;
+	}
+	if (m_visited[exp]) {
+		//std::cout << " -- VISITED" << std::endl;
+		return 0;
+	}
+	//std::cout << std::endl;
+	exp->Accept(this);
+	m_visited[exp] = true;
+	return 1;
+}
+
 void IRGenerator::Visit(IfExpression* exp) {
-	BasicBlock* thenBB = CreateBB("then");
-	BasicBlock* contBB = CreateBB("if_cont");
+	BasicBlock* thenBB = CreateBB(exp->stringValue() + " if_then");
+	BasicBlock* contBB = CreateBB(exp->stringValue() + " if_cont");
 
 	CreateConditionalBr(exp, thenBB, contBB);
 
 	m_currentBB.push(thenBB);
+	AbstractExpression* stopExp = exp->elseExp;
 	m_stopExp.push(exp->elseExp);
 	AbstractExpression* thenExp = exp->thenExp;
 	while (thenExp) {
-		if (thenExp == m_stopExp.top())
+		if (thenExp == stopExp)
 		{
 			m_stopExp.pop();
 			break;
 		}
-		GenerateIR(thenExp);
+		if (GenerateIR(thenExp) == 2)
+		{
+			break;
+		}
 		thenExp = thenExp->next;
 	}
+	BasicBlock::AddLink(m_currentBB.top(), contBB);
 	m_currentBB.pop();
+	m_currentBB.push(contBB);
+	AbstractExpression* next = stopExp;
+	while (next)
+	{
+		if (GenerateIR(next) == 2)
+		{
+			break;
+		}
+		next = next->next;
+	}
 }
 
 void IRGenerator::Visit(ForExpression* exp) {

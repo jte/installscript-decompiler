@@ -97,7 +97,7 @@ HeaderKind AnalyzeCompiledFile(const std::string filename, std::vector<uint8_t>&
 	return GetHeaderKind(contents);
 }
 
-void ProcessFile(std::ofstream& of, const std::vector<uint8_t>& file, HeaderKind hdrKind, bool showDecompiled, bool showActions)
+void ProcessFile(std::ofstream& of, const std::vector<uint8_t>& file, HeaderKind hdrKind, bool showDecompiled, bool showActions, const std::string cfgFile)
 {
 	CFrontend* frontend = nullptr; 
 	
@@ -112,7 +112,7 @@ void ProcessFile(std::ofstream& of, const std::vector<uint8_t>& file, HeaderKind
 
 	if (showDecompiled)
 	{
-		CDecompiler decompiler(frontend);
+		CDecompiler decompiler(frontend, cfgFile);
 		of << decompiler;
 	}
 	else if (showActions)
@@ -131,6 +131,10 @@ int main(int argc, char** argv)
 	program.add_argument("output_file")
 		.help("output file (.rul)");
 
+	program.add_argument("--output-cfg-file")
+		.help("outputs control flow graph in .dot format to specified file")
+		.default_value("");
+
 	auto& group = program.add_mutually_exclusive_group(true);
 	group.add_argument("--show-actions")
 		.help("show actions (disassembly)")
@@ -140,6 +144,7 @@ int main(int argc, char** argv)
 		.help("show decompilation")
 		.default_value(false)
 		.implicit_value(true);
+	
 
 	try 
 	{
@@ -171,7 +176,7 @@ int main(int argc, char** argv)
 				for (auto file : files)
 				{
 					// TODO: make output_file optional and output files to their respective output files by name (but replace extension to be .rul)
-					ProcessFile(of, file, GetHeaderKind(file), program["--show-decompiled"] == true, program["--show-actions"] == true);
+					ProcessFile(of, file, GetHeaderKind(file), program["--show-decompiled"] == true, program["--show-actions"] == true, program.get("--output-cfg-file"));
 				}
 				of.close();
 				
@@ -184,7 +189,7 @@ int main(int argc, char** argv)
 			{
 				std::ofstream of(program.get("output_file"), std::ifstream::binary);
 				
-				ProcessFile(of, contents, hdrKind, program["--show-decompiled"] == true, program["--show-actions"] == true);
+				ProcessFile(of, contents, hdrKind, program["--show-decompiled"] == true, program["--show-actions"] == true, program.get("--output-cfg-file"));
 				
 				of.close();
 			}

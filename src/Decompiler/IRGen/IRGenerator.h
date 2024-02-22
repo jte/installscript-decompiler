@@ -24,21 +24,7 @@ public:
 		m_currentBB.push(bb);
 		m_entryBB = bb;
 	}
-	bool GenerateIR(AbstractExpression* exp) {
-		size_t debug = 0;
-		if (dynamic_cast<IfExpression*>(exp))
-		{
-			debug = 1;
-		}
-//		std::cout << "GenerateIR: (" << m_currentBB.top()->stringValue() << ") " << exp->stringValue();
-		if (m_visited[exp]) {
-			//std::cout << " -- VISITED" << std::endl;
-			return false;
-		}
-		exp->Accept(this);
-		m_visited[exp] = true;
-		return true;
-	}
+	int GenerateIR(AbstractExpression* exp);
 	BasicBlock* CreateBB(std::string label);
 	void CreateConditionalBr(IfExpression* ifExp, BasicBlock* thenBB, BasicBlock* elseBB);
 	void CreateBr(GotoExpression* gotoExp, BasicBlock* targetBB);
