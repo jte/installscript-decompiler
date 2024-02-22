@@ -203,7 +203,7 @@ std::ostream& operator<<(std::ostream& out, const CFunction& o)
 		std::map<BasicBlock*, bool> visited;
 		for (const auto& bb : o.m_gen->m_cfg->basicBlocks) 
 		{
-			PrintBB(out, bb, visited, 0);
+			PrintBB(out, bb, visited, 1);
 		}
 	}
 	out << "end;" << std::endl;
