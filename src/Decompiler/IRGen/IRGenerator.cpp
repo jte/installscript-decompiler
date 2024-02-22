@@ -3,18 +3,18 @@
 
 void IRGenerator::CreateConditionalBr(IfExpression* ifExp, BasicBlock* thenBB, BasicBlock* elseBB)
 {
-	BasicBlock::AddLink(m_currentBB.top(), thenBB);
-	BasicBlock::AddLink(m_currentBB.top(), elseBB);
+	BasicBlock::AddLink(m_currentBB.back(), thenBB);
+	BasicBlock::AddLink(m_currentBB.back(), elseBB);
 	//BasicBlock::AddLink(thenBB, elseBB);
 	BranchStatement* branchStmt = new BranchStatement(ifExp->conditionExp, thenBB, elseBB, ifExp->displayLabel);
-	m_currentBB.top()->AddStatement(branchStmt);
+	m_currentBB.back()->AddStatement(branchStmt);
 }
 
 void IRGenerator::CreateBr(GotoExpression* gotoExp, BasicBlock* targetBB)
 {
-	BasicBlock::AddLink(m_currentBB.top(), targetBB);
+	BasicBlock::AddLink(m_currentBB.back(), targetBB);
 	BranchStatement* branchStmt = new BranchStatement(targetBB, gotoExp->displayLabel);
-	m_currentBB.top()->AddStatement(branchStmt);
+	m_currentBB.back()->AddStatement(branchStmt);
 }
 
 void IRGenerator::Visit(NumberExpression* exp) {
@@ -35,33 +35,33 @@ void IRGenerator::Visit(PropGetExpression* exp) {
 }
 
 void IRGenerator::Visit(AssignExpression* exp) {
-	m_currentBB.top()->AddStatement(new AssignStatement(exp->lhs, exp->rhs, exp->displayLabel));
+	m_currentBB.back()->AddStatement(new AssignStatement(exp->lhs, exp->rhs, exp->displayLabel));
 }
 
 void IRGenerator::Visit(ReturnExpression* exp)
 {
-	m_currentBB.top()->AddStatement(new ReturnStatement(exp->varExp, exp->displayLabel));
+	m_currentBB.back()->AddStatement(new ReturnStatement(exp->varExp, exp->displayLabel));
 }
 
 void IRGenerator::Visit(GotoExpression* exp)
 {
-	m_currentBB.top()->AddStatement(new GotoStatement(exp, exp->displayLabel, exp->targetLabel));
+	m_currentBB.back()->AddStatement(new GotoStatement(exp, exp->displayLabel, exp->targetLabel));
 }
 
 void IRGenerator::Visit(ExitExpression* exp)
 {
-	m_currentBB.top()->AddStatement(new ExitStatement(exp->displayLabel));
+	m_currentBB.back()->AddStatement(new ExitStatement(exp->displayLabel));
 }
 
 void IRGenerator::Visit(AbortExpression* exp)
 {
-	m_currentBB.top()->AddStatement(new AbortStatement(exp->displayLabel));
+	m_currentBB.back()->AddStatement(new AbortStatement(exp->displayLabel));
 }
 
 int IRGenerator::GenerateIR(AbstractExpression* exp)
 {
 	//std::cout << "GenerateIR: (BB_" << m_currentBB.top()->GetIndex() << ") " << exp->stringValue();
-	if (std::find(m_stopExp._Get_container().begin(), m_stopExp._Get_container().end(), exp) != m_stopExp._Get_container().end())
+	if (std::find(m_stopExp.begin(), m_stopExp.end(), exp) != m_stopExp.end())
 	{
 		return 2;
 	}
@@ -81,14 +81,14 @@ void IRGenerator::Visit(IfExpression* exp) {
 
 	CreateConditionalBr(exp, thenBB, contBB);
 
-	m_currentBB.push(thenBB);
+	m_currentBB.push_back(thenBB);
 	AbstractExpression* stopExp = exp->elseExp;
-	m_stopExp.push(exp->elseExp);
+	m_stopExp.push_back(exp->elseExp);
 	AbstractExpression* thenExp = exp->thenExp;
 	while (thenExp) {
 		if (thenExp == stopExp)
 		{
-			m_stopExp.pop();
+			m_stopExp.pop_back();
 			break;
 		}
 		if (GenerateIR(thenExp) == 2)
@@ -97,9 +97,9 @@ void IRGenerator::Visit(IfExpression* exp) {
 		}
 		thenExp = thenExp->next;
 	}
-	BasicBlock::AddLink(m_currentBB.top(), contBB);
-	m_currentBB.pop();
-	m_currentBB.push(contBB);
+	BasicBlock::AddLink(m_currentBB.back(), contBB);
+	m_currentBB.pop_back();
+	m_currentBB.push_back(contBB);
 	AbstractExpression* next = stopExp;
 	while (next)
 	{

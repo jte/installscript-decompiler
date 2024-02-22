@@ -5,7 +5,7 @@
 #include <set>
 #include <stdexcept>
 #include <iostream>
-#include <stack>
+#include <deque>
 #include <map>
 #include "Parser/Expressions.h"
 #include "CFG/ControlFlowGraph.h"
@@ -21,7 +21,7 @@ public:
 
 		BasicBlock* bb = CreateBB("entry");
 
-		m_currentBB.push(bb);
+		m_currentBB.push_back(bb);
 		m_entryBB = bb;
 	}
 	int GenerateIR(AbstractExpression* exp);
@@ -65,6 +65,6 @@ protected:
 private:
 	std::map<AbstractExpression*, bool> m_visited;
 	BasicBlock* m_entryBB;
-	std::stack<BasicBlock*> m_currentBB;
-	std::stack<AbstractExpression*> m_stopExp;
+	std::deque<BasicBlock*> m_currentBB;
+	std::deque<AbstractExpression*> m_stopExp;
 };
