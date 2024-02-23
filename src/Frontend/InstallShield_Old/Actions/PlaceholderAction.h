@@ -3,25 +3,28 @@
 #include "ActionWithArgs.h"
 #include "StreamPtr.h"
 #include "Parser/Expressions.h"
+#include <sstream>
 
 namespace oldis
 {
 
-	class CPlaceholderAction : public CActionWithArgs
+class CPlaceholderAction : public CActionWithArgs
+{
+protected:
+	void print(std::ostream& os) const override;
+	::AbstractExpression* ToExpression(::SymbolTable* symTable) const override
 	{
-	protected:
-		void print(std::ostream& os) const override;
-		::AbstractExpression* ToExpression(::SymbolTable* symTable) const override
+		std::vector<::AbstractExpression*> args;
+		for (auto arg : m_arguments)
 		{
-			std::vector<::AbstractExpression*> args;
-			for (auto arg : m_arguments)
-			{
-				args.push_back(arg->ToExpression(symTable));
-			}
-			return new AssignExpression(new VariableExpression(symTable->GetByAddress(0, EVariableType::Number, true)), new FunctionCallExpression("PlaceholderAction_0x" + std::to_string(m_actionId), args));
+			args.push_back(arg->ToExpression(symTable));
 		}
-	public:
-		CPlaceholderAction(CIScript* script, StreamPtr& filePtr);
-	};
+		std::stringstream ss;
+		ss << "PlaceholderAction_0x" << std::hex << m_actionId;
+		return new AssignExpression(new VariableExpression(symTable->GetByAddress(0, EVariableType::Number, true)), new FunctionCallExpression(ss.str(), args));
+	}
+public:
+	CPlaceholderAction(CIScript* script, StreamPtr& filePtr);
+};
 
 };
