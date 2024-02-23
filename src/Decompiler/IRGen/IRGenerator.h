@@ -50,6 +50,7 @@ public:
 	void Visit(ExitExpression* exp) override;
 	void Visit(PropPutExpression* exp) override;
 	void Visit(PropGetExpression* exp) override;
+	void Visit(StringConstantExpression* exp) override;
 
 	// not implemented, because visits only expressions
 	virtual void Visit(BranchStatement* stmt) override {};

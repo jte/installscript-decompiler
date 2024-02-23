@@ -6,22 +6,17 @@
 namespace oldis
 {
 
-	class CLoadStringConstantAction : public CActionWithArgs
+class CLoadStringConstantAction : public CActionWithArgs
+{
+public:
+	CLoadStringConstantAction(CIScript* script, StreamPtr& filePtr);
+protected:
+	void print(std::ostream& os) const override;
+	::AbstractExpression* ToExpression(::SymbolTable* symTable) const override
 	{
-	public:
-		CLoadStringConstantAction(CIScript* script, StreamPtr& filePtr);
-	protected:
-		void print(std::ostream& os) const override;
-		::AbstractExpression* ToExpression(::SymbolTable* symTable) const override
-		{
-			std::vector<::AbstractExpression*> args;
-			for (auto arg : m_arguments)
-			{
-				args.push_back(arg->ToExpression(symTable));
-			}
-			return new AssignExpression(new VariableExpression(symTable->GetByAddress(0, EVariableType::Number, true)), new FunctionCallExpression("LoadStringConstant", args));
-		}
-	private:
-	};
+		return new AssignExpression(m_arguments[2]->ToExpression(symTable), new StringConstantExpression(m_arguments[1]->ToExpression(symTable)));
+	}
+private:
+};
 
 };

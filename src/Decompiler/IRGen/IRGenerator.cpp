@@ -35,6 +35,11 @@ void IRGenerator::Visit(PropGetExpression* exp) {
 
 }
 
+void IRGenerator::Visit(StringConstantExpression* exp)
+{
+
+}
+
 void IRGenerator::Visit(AssignExpression* exp) {
 	m_currentBB.back()->AddStatement(new AssignStatement(exp->lhs, exp->rhs, exp->displayLabel));
 }

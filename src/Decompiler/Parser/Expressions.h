@@ -274,6 +274,18 @@ public:
     void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
 };
 
+class StringConstantExpression : public AbstractExpression
+{
+public:
+    AbstractExpression* expr;
+
+    std::string stringValue() override { return "@" + dynamic_cast<StringExpression*>(expr)->value; };
+
+
+    StringConstantExpression(AbstractExpression* expr) : expr(expr) {}
+    void Accept(AbstractVisitor* visitor) override { visitor->Visit(this); }
+};
+
 class NopExpression : public AbstractExpression
 {
 public:
