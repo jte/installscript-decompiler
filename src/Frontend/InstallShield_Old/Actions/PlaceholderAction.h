@@ -18,7 +18,7 @@ namespace oldis
 			{
 				args.push_back(arg->ToExpression(symTable));
 			}
-			return new AssignExpression(new VariableExpression(symTable->GetByAddress(0, EVariableType::Number, true)), new FunctionCallExpression("PlaceholderAction", args));
+			return new AssignExpression(new VariableExpression(symTable->GetByAddress(0, EVariableType::Number, true)), new FunctionCallExpression("PlaceholderAction_0x" + std::to_string(m_actionId), args));
 		}
 	public:
 		CPlaceholderAction(CIScript* script, StreamPtr& filePtr);
