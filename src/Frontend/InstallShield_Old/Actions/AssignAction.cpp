@@ -1,9 +1,9 @@
-#include "AssignNumConstAction.h"
+#include "AssignAction.h"
 
 namespace oldis
 {
 
-CAssignNumConstAction::CAssignNumConstAction(CIScript* script, StreamPtr& filePtr) :
+CAssignAction::CAssignAction(CIScript* script, StreamPtr& filePtr) :
 	CActionWithArgs(script)
 {
 	Parse(filePtr);
@@ -12,7 +12,7 @@ CAssignNumConstAction::CAssignNumConstAction(CIScript* script, StreamPtr& filePt
 	ParseArguments(filePtr);
 }
 
-void CAssignNumConstAction::print(std::ostream& os) const
+void CAssignAction::print(std::ostream& os) const
 {
 	os << *(m_arguments[0]) << " = " << *(m_arguments[1]);
 }

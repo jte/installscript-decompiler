@@ -12,8 +12,8 @@ set (ACTIONS_FILES
 	Actions/InternalFuncCallAction.cpp
 	Actions/ReturnEmptyAction.h
 	Actions/ReturnEmptyAction.cpp
-	Actions/AssignNumConstAction.h
-	Actions/AssignNumConstAction.cpp
+	Actions/AssignAction.h
+	Actions/AssignAction.cpp
 	Actions/BinaryAction.h
 	Actions/BinaryAction.cpp
 	Actions/IfAction.h
@@ -24,8 +24,6 @@ set (ACTIONS_FILES
 	Actions/UnaryAction.cpp
 	Actions/NopAction.h
 	Actions/NopAction.cpp
-	Actions/AssignStringConstAction.h
-	Actions/AssignStringConstAction.cpp
 	Actions/ReturnAction.h
 	Actions/ReturnAction.cpp
 	Actions/GotoAction.h
@@ -38,6 +36,12 @@ set (ACTIONS_FILES
 	Actions/PropPutAction.cpp
 	Actions/PlaceholderAction.h
 	Actions/PlaceholderAction.cpp
+	Actions/EnableAction.h
+	Actions/EnableAction.cpp
+	Actions/DisableAction.h
+	Actions/DisableAction.cpp
+	Actions/SetTitleAction.h
+	Actions/SetTitleAction.cpp
 )
 
 set(INSTALLSHIELD_FILES

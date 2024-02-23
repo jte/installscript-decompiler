@@ -17,6 +17,18 @@ CInternalFuncCallAction::CInternalFuncCallAction(CIScript* script, StreamPtr& fi
 	ParseArguments(filePtr);
 }
 
+::AbstractExpression* CInternalFuncCallAction::ToExpression(::SymbolTable* symTable) const
+{
+	auto proto = m_script->GetFnByBBId(m_eventIndex).prototype;
+	auto protoName = proto->GetName();
+	std::vector<::AbstractExpression*> args;
+	for (auto arg : m_arguments)
+	{
+		args.push_back(arg->ToExpression(symTable));
+	}
+	return new AssignExpression(new VariableExpression(symTable->GetByAddress(0, EVariableType::Number, true)), new FunctionCallExpression(protoName, args));
+}
+
 void CInternalFuncCallAction::print(std::ostream& os) const
 {
 	auto proto = m_script->GetFnByBBId(m_eventIndex).prototype;

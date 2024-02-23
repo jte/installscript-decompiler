@@ -5,6 +5,8 @@
 
 enum class EScriptExternType
 {
+	Number,
+	String,
 	Variant
 };
 
@@ -17,6 +19,14 @@ public:
 		if (type == 1)
 		{
 			m_type = EScriptExternType::Variant;
+		}
+		else if (type == 2)
+		{
+			m_type = EScriptExternType::Number;
+		}
+		else if (type == 3)
+		{
+			m_type = EScriptExternType::String;
 		}
 	}
 	void SetName(const std::string& name)

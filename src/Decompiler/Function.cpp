@@ -9,6 +9,7 @@
 #include "Variables/StringVariable.h"
 #include "Variables/VariantVariable.h"
 #include <fstream>
+#include "InstallShield_Old/IScript.h"
 
 uint32_t CFunction::GetAddress() const
 {
@@ -122,6 +123,12 @@ void CFunction::SetGlobalSymTable(SymbolTable* symTable)
 
 void CFunction::SetVariables(const CDataDeclList& declList)
 {
+	if (dynamic_cast<oldis::CIScript*>(m_script))
+	{
+		m_nArgNums = 0;
+		m_nArgStrs = 0;
+		m_nArgObjs = 0;
+	}
 	m_nLocalNums = declList.GetNumNumbers();
 	m_nLocalStrs = declList.GetNumStrings();
 	

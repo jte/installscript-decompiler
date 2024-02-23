@@ -45,6 +45,8 @@ void CIScript::ReadGlobalStringTable(StreamPtr& ptr)
 
 	ptr.Read(count);
 	ptr.ReadArray(table, count);
+
+	m_globalDeclList.SetNumStrings(m_globalDeclList.GetNumStrings() + count);
 }
 
 void CIScript::ReadLoadableStringTable(StreamPtr& ptr)
@@ -61,7 +63,10 @@ void CIScript::ReadLoadableStringTable(StreamPtr& ptr)
 		entry.name = ptr.ReadInsString();
 
 		m_loadableStrings.push_back(entry);
+		m_externs.push_back(ScriptExtern(3, entry.name, entry.stringId));
 	}
+
+	m_globalDeclList.SetNumStrings(m_globalDeclList.GetNumStrings() + count);
 }
 
 void CIScript::ReadLoadableNumberTable(StreamPtr& ptr)
@@ -78,7 +83,10 @@ void CIScript::ReadLoadableNumberTable(StreamPtr& ptr)
 		entry.name = ptr.ReadInsString();
 
 		m_loadableNumbers.push_back(entry);
+		m_externs.push_back(ScriptExtern(2, entry.name, entry.numberId));
 	}
+
+	m_globalDeclList.SetNumNumbers(m_globalDeclList.GetNumNumbers() + count);
 }
 
 struct LocalPrototype
@@ -289,6 +297,7 @@ void CIScript::Read()
 		ReadGlobalStringTable(m_streamPtr);
 		ReadLoadableStringTable(m_streamPtr);
 		m_streamPtr.Read(m_globalNumberCount);
+		m_globalDeclList.SetNumNumbers(m_globalDeclList.GetNumNumbers() + m_globalNumberCount);
 		ReadLoadableNumberTable(m_streamPtr);
 		ReadStructs(m_streamPtr);
 		ReadPrototypes(m_streamPtr);

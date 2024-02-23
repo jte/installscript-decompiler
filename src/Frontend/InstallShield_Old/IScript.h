@@ -60,8 +60,7 @@ public:
 	void print(std::ostream& os) const override;
 	const CDataDeclList& GetGlobalDeclList() const override
 	{
-		return CDataDeclList();
-	//	return m_globalDeclList;
+		return m_globalDeclList;
 	}
 	CIScript(const std::vector<uint8_t>& script, HeaderKind hdrKind);
 	const ScriptStruct* GetStruct(size_t id) const;
@@ -100,6 +99,7 @@ private:
 	HeaderKind m_hdrKind;
 	uint16_t m_numEvents; // really numBBs
 	uint16_t m_globalNumberCount; // count of number variables
+	CDataDeclList m_globalDeclList;
 
 	void Read();
 	

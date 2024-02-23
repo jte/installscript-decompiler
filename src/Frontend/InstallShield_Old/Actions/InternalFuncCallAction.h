@@ -14,6 +14,7 @@ protected:
 	uint16_t m_eventIndex;
 
 	void print(std::ostream& os) const override;
+	::AbstractExpression* ToExpression(::SymbolTable* symTable) const override;
 public:
 	CInternalFuncCallAction(CIScript* script, StreamPtr& filePtr);
 };

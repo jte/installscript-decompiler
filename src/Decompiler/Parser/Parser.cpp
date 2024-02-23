@@ -15,10 +15,26 @@
 #include <cassert>
 #include "Function.h"
 #include "ISBasicBlock.h"
+#include "InstallShield_Old/Actions/IfAction.h"
+#include "InstallShield_Old/Actions/GotoAction.h"
 
 AbstractExpression* Parser::ParseCurrentExpression(CAction* act, SymbolTable* symTable) {
     auto expr = act->ToExpression(symTable);
     return expr;
+}
+
+size_t GetBBById(const std::vector<ISBasicBlock>& isBBs, size_t bbId)
+{
+    size_t foundBB = -1;
+    for (size_t bbIndex = 0; bbIndex < isBBs.size(); bbIndex++)
+    {
+        if (isBBs[bbIndex].GetBBId() == bbId)
+        {
+            foundBB = bbIndex;
+            break;
+        }
+    }
+    return foundBB;
 }
 
 std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& isBBs, SymbolTable* symTable) {
@@ -96,6 +112,72 @@ std::vector<AbstractExpression*> Parser::Parse(const std::vector<ISBasicBlock>& 
             {
                 auto targetOffset = gotoAct->GetLabelOffset();
                 auto gacts = isBBs[i + targetOffset].GetActions();
+                auto gact = gacts[0];
+                auto targetExpr = map[gact];
+
+                if (!targetExpr)
+                {
+                    throw std::runtime_error("Invalid goto target expression found");
+                }
+
+                auto gotoExpr = dynamic_cast<GotoExpression*>(expressions[gotoExprs[lastGotoExpr]]);
+                gotoExpr->targetExp = targetExpr;
+
+                // Set label if not already set
+                if (targetExpr->displayLabel == "")
+                    targetExpr->displayLabel = "label_" + std::to_string(labelCounter++);
+                gotoExpr->targetLabel = targetExpr->displayLabel;
+
+                lastGotoExpr++;
+            }
+            else if (auto ifOldAct = dynamic_cast<oldis::CIfAction*>(act))
+            {
+                auto elseOffset = ifOldAct->GetContinueBranch();
+                size_t foundBB = GetBBById(isBBs, elseOffset);
+
+                if (foundBB == -1)
+                {
+                    throw std::runtime_error("Invalid bb address for continue branch in if");
+                }
+
+                auto elseExpr = map[isBBs[foundBB].GetActions()[0]];
+
+                if (!elseExpr)
+                {
+                    throw std::runtime_error("Invalid else expression found");
+                }
+
+                AbstractExpression* thenExpr = nullptr;
+
+                // check required because of potential empty ifs
+                if (actId + 1 < acts.size())
+                {
+                    thenExpr = map[acts[actId + 1]];
+
+                    if (!thenExpr)
+                    {
+                        throw std::runtime_error("Invalid then expression found");
+                    }
+                }
+
+                auto ifExpr = dynamic_cast<IfExpression*>(expressions[ifExprs[lastIfExpr]]);
+                ifExpr->thenExp = thenExpr;
+                ifExpr->elseExp = elseExpr;
+
+                lastIfExpr++;
+            }
+            else if (auto gotoOldAct = dynamic_cast<oldis::CGotoAction*>(act))
+            {
+                auto targetOffset = gotoOldAct->GetTarget();
+
+                size_t foundBB = GetBBById(isBBs, targetOffset);
+
+                if (foundBB == -1)
+                {
+                    throw std::runtime_error("Invalid bb address for target address in goto");
+                }
+
+                auto gacts = isBBs[foundBB].GetActions();
                 auto gact = gacts[0];
                 auto targetExpr = map[gact];
 

@@ -12,6 +12,7 @@
 #include "Frontend.h"
 #include "ScriptPrototype.h"
 #include "IRGen/IRGenerator.h"
+#include "InstallShield_New/IScript.h"
 
 CDecompiler::CDecompiler(CFrontend* frontend, const std::string cfgFile) : m_frontend(frontend), m_cfgFile(cfgFile)
 {
@@ -74,12 +75,26 @@ void CDecompiler::AddGlobalVariables(const CDataDeclList& globals)
 		variantId++;
 	}
 
-	m_globalVars.GetByAddress(0, EVariableType::Variant, true)->SetName("LAST_RESULT");
+	if (dynamic_cast<newis::CIScript*>(m_frontend))
+	{
+		m_globalVars.GetByAddress(0, EVariableType::Variant, true)->SetName("LAST_RESULT");
+		m_globalVars.GetByAddress(1, EVariableType::Variant, true)->SetName("NOTHING");
+		m_globalVars.GetByAddress(2, EVariableType::Variant, true)->SetName("Err");
+	}
+		
 	for (auto extRecord : m_frontend->GetExterns())
 	{
-		if (extRecord.GetType() == EScriptExternType::Variant)
+		switch (extRecord.GetType())
 		{
-			m_globalVars.GetByAddress(extRecord.GetAddress(), EVariableType::Variant, true)->SetName(extRecord.GetName());
+			case EScriptExternType::Variant:
+				m_globalVars.GetByAddress(extRecord.GetAddress(), EVariableType::Variant, true)->SetName(extRecord.GetName());
+			break;
+			case EScriptExternType::Number:
+				m_globalVars.GetByAddress(extRecord.GetAddress(), EVariableType::Number, true)->SetName(extRecord.GetName());
+			break;
+			case EScriptExternType::String:
+				m_globalVars.GetByAddress(extRecord.GetAddress(), EVariableType::String, true)->SetName(extRecord.GetName());
+			break;
 		}
 	}
 }

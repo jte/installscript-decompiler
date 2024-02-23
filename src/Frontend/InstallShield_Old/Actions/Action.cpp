@@ -3,19 +3,21 @@
 #include "FuncPrologAction.h"
 #include "ReturnEmptyAction.h"
 #include "IScript.h"
-#include "AssignNumConstAction.h"
+#include "AssignAction.h"
 #include "BinaryAction.h"
 #include "IfAction.h"
 #include "ReturnFromProgramAction.h"
 #include "UnaryAction.h"
 #include "NopAction.h"
-#include "AssignStringConstAction.h"
 #include "ReturnAction.h"
 #include "GotoAction.h"
 #include "LoadStringConstantAction.h"
 #include "PropGetAction.h"
 #include "PropPutAction.h"
 #include "PlaceholderAction.h"
+#include "EnableAction.h"
+#include "DisableAction.h"
+#include "SetTitleAction.h"
 
 namespace oldis
 {
@@ -35,8 +37,11 @@ CAction* CAction::FindFactory(size_t id, CIScript* script, StreamPtr& fileptr)
 {
 	switch (id)
 	{
-	case 0x13: return new CAssignStringConstAction(script, fileptr);
-	case 0x21: return new CAssignNumConstAction(script, fileptr);
+	case 0x01: return new CEnableAction(script, fileptr);
+	case 0x02: return new CDisableAction(script, fileptr);
+	case 0x04: return new CSetTitleAction(script, fileptr);
+	case 0x13: return new CAssignAction(script, fileptr);
+	case 0x21: return new CAssignAction(script, fileptr);
 	case 0x22: return new CIfAction(script, fileptr);
 	case 0x2b: return new CReturnFromProgramAction(script, fileptr);
 	case 0x2c: return new CGotoAction(script, fileptr);
