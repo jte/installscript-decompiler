@@ -1,5 +1,6 @@
 #include "IRGenerator.h"
 #include "IRStatements.h"
+#include <algorithm>
 
 void IRGenerator::CreateConditionalBr(IfExpression* ifExp, BasicBlock* thenBB, BasicBlock* elseBB)
 {
