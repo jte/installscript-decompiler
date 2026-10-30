@@ -50,7 +50,14 @@ Programs installed with InstallShield keep their script at
 
 ## Command line
 
-Requires [Rust](https://rustup.rs).
+Ready-made builds for Windows and Linux (x86-64, no dependencies) are on the
+[releases page](https://github.com/jte/installscript-decompiler/releases/latest):
+
+```sh
+installscript-decompiler setup.inx setup.rul
+```
+
+To build it yourself, install [Rust](https://rustup.rs).
 
 ```sh
 cargo build --release -p cli
