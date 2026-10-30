@@ -1,0 +1,17 @@
+// Compiled with InstallShield 2026 (Compile.exe 32.0.0.68):
+//   Compile.exe /Q externs.rul /Oexterns.inx
+// Only the object file (externs.obs) is kept: it is the one that records the
+// externals by name.
+
+external NUMBER extNumber;
+external STRING extString;
+external VARIANT extVariant;
+
+export prototype UseExterns();
+
+function UseExterns()
+begin
+    extNumber = 7;
+    extString = "text";
+    extVariant = extNumber;
+end;

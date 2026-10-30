@@ -1,0 +1,5 @@
+# The structurer recurses once per nested or consecutive `if` (the CLI runs on
+# a 64 MiB thread for the same reason). Give the wasm shadow stack the same
+# headroom.
+[target.wasm32-unknown-unknown]
+rustflags = ["-C", "link-arg=-zstack-size=67108864"]

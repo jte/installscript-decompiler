@@ -1,0 +1,8 @@
+[package]
+name = "decompiler"
+version = "0.1.0"
+edition = "2024"
+description = "Decompiler for compiled InstallShield InstallScript (.inx, .obs, .obl, .ins)"
+license = "MIT"
+
+[dependencies]

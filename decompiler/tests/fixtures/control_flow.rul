@@ -1,0 +1,81 @@
+// Compiled with InstallShield 2026 (Compile.exe 32.0.0.68):
+//   Compile.exe /Q control_flow.rul /Ocontrol_flow.inx
+// which leaves both control_flow.obs and the linked control_flow.inx.
+
+typedef POINT
+begin
+    NUMBER x;
+    NUMBER y;
+end;
+
+NUMBER gCount;
+STRING gName[64];
+STRING gPath;
+VARIANT gObj;
+POINT gPt;
+
+prototype NUMBER Add(NUMBER, NUMBER);
+prototype STRING Greet(STRING);
+prototype Loops(NUMBER);
+prototype NUMBER Branchy(NUMBER, BYREF STRING);
+prototype NUMBER Kernel32.GetTickCount();
+
+function NUMBER Add(a, b)
+begin
+    return a + b;
+end;
+
+function STRING Greet(who)
+    STRING s;
+begin
+    s = "Hello, " + who + "!\n";
+    return s;
+end;
+
+function Loops(n)
+    NUMBER i, total;
+begin
+    total = 0;
+    for i = 1 to n
+        total = total + i * 2;
+    endfor;
+    while (total > 10)
+        total = total / 2;
+    endwhile;
+    gCount = total;
+end;
+
+function NUMBER Branchy(n, out)
+begin
+    if (n = 0) then
+        out = "zero";
+        return 0;
+    elseif (n < 0) then
+        out = "negative";
+    else
+        if (n > 100 && n != 200) then
+            out = "big";
+        else
+            out = "small";
+        endif;
+    endif;
+    switch (n)
+    case 1:
+        out = out + "one";
+    case 2, 3:
+        out = out + "two-three";
+    default:
+        out = out + "?";
+    endswitch;
+    return -1;
+end;
+
+program
+    gName = Greet("World");
+    gCount = Add(2, 3);
+    Loops(gCount);
+    Branchy(gCount, gPath);
+    gPt.x = 10;
+    gPt.y = gPt.x - 3;
+    gCount = Kernel32.GetTickCount();
+endprogram

@@ -1,0 +1,12 @@
+// Cloudflare deployment config: serves the static site in dist/ (built by
+// `npm run build`). Deploy with `npm run deploy`.
+{
+  "name": "installscript-decompiler",
+  "compatibility_date": "2026-10-23",
+  "assets": {
+    "directory": "./dist"
+  },
+  "observability": {
+    "enabled": false
+  }
+}

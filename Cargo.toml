@@ -1,0 +1,6 @@
+[workspace]
+resolver = "3"
+members = ["decompiler", "cli", "web"]
+
+[profile.release]
+lto = true

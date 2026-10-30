@@ -1,0 +1,9 @@
+{
+  "name": "installscript-decompiler-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "deploy": "node build.mjs && npx wrangler@4 deploy"
+  }
+}

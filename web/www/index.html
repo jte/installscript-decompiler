@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>InstallScript Decompiler Online — Decompile InstallShield setup.inx</title>
+  <meta name="description" content="Free online InstallScript decompiler. Turn compiled InstallShield scripts (setup.inx, .obs, .obl, setup.ins) back into readable .rul source — runs in your browser, nothing is uploaded.">
+  <meta name="theme-color" content="#0b0d12">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="InstallScript Decompiler">
+  <meta property="og:title" content="InstallScript Decompiler Online — Decompile InstallShield setup.inx">
+  <meta property="og:description" content="Turn compiled InstallShield scripts back into readable InstallScript source, right in your browser. Free, open source, nothing is uploaded.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "InstallScript Decompiler",
+    "description": "Decompile compiled InstallShield InstallScript (setup.inx, .obs, .obl, setup.ins) in the browser.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any (runs in the browser)",
+    "browserRequirements": "Requires JavaScript and WebAssembly",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "codeRepository": "https://github.com/jte/installscript-decompiler",
+    "featureList": [
+      "Decompile InstallShield setup.inx (InstallShield 6 and later)",
+      "Decompile .obs script objects and .obl script libraries",
+      "Decompile InstallShield 5 setup.ins",
+      "Action (bytecode) disassembly",
+      "Control-flow graphs in Graphviz DOT",
+      "Runs locally — files are never uploaded"
+    ]
+  }
+  </script>
+  <!-- Cloudflare Web Analytics beacon token (dashboard → Web Analytics → site → JS snippet).
+       Leave empty to disable. Not needed if the site is on Cloudflare Pages with analytics enabled. -->
+  <meta name="cf-beacon-token" content="">
+  <meta name="github-repo" content="jte/installscript-decompiler">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='9' width='22' height='20' rx='4' fill='%236d7cff'/%3E%3Ccircle cx='25' cy='7' r='5' fill='%2322d3ee'/%3E%3C/svg%3E">
+  <script>
+    // Apply a saved theme before first paint to avoid a flash.
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+
+  <nav class="nav">
+    <a class="brand" href="./">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
+        <rect x="3" y="9" width="22" height="20" rx="4" fill="url(#g)"/>
+        <path d="M8 16h8M8 21h12" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+        <circle cx="25" cy="7" r="5" fill="#22d3ee"/>
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#4f6bff"/></linearGradient></defs>
+      </svg>
+      InstallScript Decompiler
+    </a>
+    <div class="nav-right">
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle light/dark theme" title="Toggle theme">
+      <svg class="sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
+      <svg class="moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg>
+    </button>
+    <a class="gh-button" id="gh-link" href="https://github.com/jte/installscript-decompiler" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      <span>GitHub</span>
+      <span class="stars" id="gh-stars" hidden>
+        <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M8 .25a.75.75 0 01.67.42l1.88 3.81 4.2.61a.75.75 0 01.42 1.28l-3.04 2.96.72 4.19a.75.75 0 01-1.09.79L8 12.33l-3.76 1.98a.75.75 0 01-1.09-.79l.72-4.19L.83 6.37a.75.75 0 01.42-1.28l4.2-.61L7.33.67A.75.75 0 018 .25z"/></svg>
+        <span id="gh-star-count"></span>
+      </span>
+    </a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <span class="badge"><span class="dot"></span>Open source · Rust + WebAssembly</span>
+    <h1>Decompile<br><span class="grad">InstallScript</span></h1>
+    <p>Drop a compiled InstallShield script — <code>setup.inx</code>, <code>.obs</code>, <code>.obl</code> or <code>setup.ins</code> — and get readable <code>.rul</code> source back. Everything runs in your browser; your file is never uploaded.</p>
+  </header>
+
+  <main class="app">
+    <section class="panel controls">
+      <label id="drop" class="drop">
+        <input id="file" type="file" hidden>
+        <svg class="drop-icon" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>
+        <span class="drop-title">Drop a compiled script</span>
+        <span class="drop-sub">setup.inx · .obs · .obl · setup.ins</span>
+        <span id="file-info" class="file-info"></span>
+      </label>
+
+      <div class="group">
+        <div class="group-label">Output</div>
+        <div class="modes">
+          <label class="mode">
+            <input type="radio" name="mode" value="decompile" checked>
+            <span><b>Decompile</b><small>Reconstruct InstallScript source (.rul)</small></span>
+          </label>
+          <label class="mode">
+            <input type="radio" name="mode" value="disassemble">
+            <span><b>Disassemble</b><small>Action listing per function</small></span>
+          </label>
+          <label class="mode">
+            <input type="radio" name="mode" value="cfg">
+            <span><b>Control flow</b><small>Graphviz DOT of every function</small></span>
+          </label>
+        </div>
+      </div>
+
+      <p class="hint">Installed programs keep a copy of their script in <code>C:\Program Files (x86)\InstallShield Installation Information\{GUID}\setup.inx</code>.</p>
+
+      <div class="actions">
+        <button id="run" class="primary" disabled>Run</button>
+        <button id="cancel" class="ghost" hidden>Cancel</button>
+      </div>
+    </section>
+
+    <section class="panel result">
+      <div class="toolbar">
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span id="status" class="status">Choose a file to begin</span>
+        <button id="copy" class="ghost small" disabled>Copy</button>
+        <button id="download" class="ghost small" disabled>Download</button>
+      </div>
+      <div class="code" id="code">
+        <pre class="gutter" id="gutter" aria-hidden="true"></pre>
+        <pre class="output" id="output"><span class="placeholder">// Decompiled source will appear here.</span></pre>
+      </div>
+    </section>
+  </main>
+
+  <section class="features">
+    <div class="feature">
+      <div class="f-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z M9 12l2 2 4-4"/></svg>
+      </div>
+      <h3>Private by design</h3>
+      <p>The decompiler is compiled to WebAssembly and runs in a background worker. No server ever sees your script.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h10M4 17h6 M17 14l3 3-3 3"/></svg>
+      </div>
+      <h3>Old and new InstallShield</h3>
+      <p>Encrypted <code>setup.inx</code> from InstallShield 6 onwards, <code>.obs</code> objects, <code>.obl</code> libraries and InstallShield 5 <code>setup.ins</code>.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M6 4v6a4 4 0 004 4h8M14 10l4 4-4 4 M6 20h.01"/></svg>
+      </div>
+      <h3>Structured output</h3>
+      <p>Recovers typedefs, globals, prototypes, local variables and <code>if</code> blocks, with names for exported functions and externs.</p>
+    </div>
+  </section>
+
+  <section class="faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">Frequently asked questions</h2>
+    <details>
+      <summary>What is an InstallScript decompiler?</summary>
+      <p>InstallShield installers are driven by scripts written in InstallScript (<code>.rul</code> files). The installer ships them compiled — usually as an encrypted <code>setup.inx</code>. A decompiler reads that compiled form and reconstructs InstallScript source you can read, so you can see what an installer does before or after running it.</p>
+    </details>
+    <details>
+      <summary>Where do I find setup.inx?</summary>
+      <p>Programs installed with InstallShield keep a copy under <code>C:\Program Files (x86)\InstallShield Installation Information\{product GUID}\setup.inx</code>. For an installer you haven't run, extract <code>setup.exe</code> (or look next to it on the installation media) — <code>setup.inx</code> sits alongside <code>data1.cab</code> and <code>setup.ini</code>. Older InstallShield 5 installers use <code>setup.ins</code> instead.</p>
+    </details>
+    <details>
+      <summary>Which files are supported?</summary>
+      <p>Compiled setup scripts (<code>setup.inx</code>) from InstallShield 6 and later, compiled script objects (<code>.obs</code>), script libraries (<code>.obl</code>, each member is decompiled in turn) and InstallShield 5 scripts (<code>setup.ins</code>). Scripts compiled with debug information are not supported yet.</p>
+    </details>
+    <details>
+      <summary>Is my file uploaded anywhere?</summary>
+      <p>No. The decompiler is written in Rust and compiled to WebAssembly; it runs inside your browser in a background worker. Your file never leaves your computer.</p>
+    </details>
+    <details>
+      <summary>Why does the output look different from the original source?</summary>
+      <p>Compilation throws away comments, formatting and the names of local variables and non-exported functions, so those come back as generated names like <code>LclVarNum1</code> or <code>Func_2047</code>. Loops come back as <code>goto</code>s. Decompilation is not perfect — if a file produces wrong output, please <a href="https://github.com/jte/installscript-decompiler/issues/new" target="_blank" rel="noopener">open an issue</a>.</p>
+    </details>
+    <details>
+      <summary>Can I use it from the command line?</summary>
+      <p>Yes. The same decompiler is available as an open-source command-line tool — see the <a href="https://github.com/jte/installscript-decompiler" target="_blank" rel="noopener">GitHub repository</a>.</p>
+    </details>
+  </section>
+
+  <footer class="footer">
+    <span>InstallScript Decompiler — open source, built with Rust &amp; WebAssembly.</span>
+    <span class="links">
+      <a href="https://github.com/jte/installscript-decompiler" target="_blank" rel="noopener">Source on GitHub</a>
+      <a href="https://github.com/jte/installscript-decompiler/issues/new" target="_blank" rel="noopener">Report an issue</a>
+    </span>
+  </footer>
+</body>
+</html>
