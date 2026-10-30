@@ -4,8 +4,9 @@ A decompiler for InstallShield's InstallScript, written in Rust. The earlier C++
 version is kept at the [`cpp-final`](https://github.com/jte/installscript-decompiler/tree/cpp-final)
 tag.
 
-It runs as a static website (the decompiler compiled to WebAssembly, so files
-never leave the browser) and as a command-line tool.
+It runs as a static website at <https://installscript-decompiler.com> (the
+decompiler compiled to WebAssembly, so files never leave the browser) and as a
+command-line tool.
 
 ## Supported input
 

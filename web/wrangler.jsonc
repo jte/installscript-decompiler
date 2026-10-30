@@ -6,6 +6,11 @@
   "assets": {
     "directory": "./dist"
   },
+  // Served at the apex of the installscript-decompiler.com zone in the same
+  // Cloudflare account; deploying creates the DNS record and certificate.
+  "routes": [
+    { "pattern": "installscript-decompiler.com", "custom_domain": true }
+  ],
   "observability": {
     "enabled": false
   }

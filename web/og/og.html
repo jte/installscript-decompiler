@@ -1,0 +1,49 @@
+<!doctype html>
+<!--
+  Source of www/og.png, the link preview image (1200x630). Regenerate with:
+    msedge --headless --disable-gpu --hide-scrollbars --window-size=1200,630 --screenshot=og.png og.html
+-->
+<html lang="en">
+<meta charset="utf-8">
+<title>og</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(520px 360px at 240px 120px, rgba(124, 108, 255, 0.28), transparent 70%),
+      radial-gradient(480px 340px at 1060px 60px, rgba(34, 211, 238, 0.16), transparent 70%),
+      #0b0d12;
+    color: #e8ebf3;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    position: relative;
+  }
+  .brand { position: absolute; left: 80px; top: 74px; display: flex; align-items: center; gap: 18px; font-size: 28px; font-weight: 600; }
+  .logo { position: relative; width: 38px; height: 38px; }
+  .logo .box { position: absolute; left: 0; bottom: 0; width: 30px; height: 27px; border-radius: 7px; background: #6d7cff; }
+  .logo .dot { position: absolute; right: 0; top: 0; width: 14px; height: 14px; border-radius: 50%; background: #22d3ee; }
+  h1 { position: absolute; left: 76px; top: 170px; font-size: 86px; font-weight: 900; line-height: 1.04; letter-spacing: -1.5px; }
+  h1 .grad { background: linear-gradient(90deg, #7c6cff, #22d3ee); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { position: absolute; left: 80px; top: 384px; width: 640px; font-size: 29px; line-height: 1.38; color: #8b93a7; }
+  .pills { position: absolute; left: 80px; top: 522px; display: flex; gap: 14px; }
+  .pill { border: 1px solid #2a3040; border-radius: 999px; padding: 9px 18px; font-size: 22px; color: #c9cfdc; }
+  pre {
+    position: absolute; right: 70px; top: 372px; padding: 22px 26px;
+    background: #0e1118; border: 1px solid #262c3a; border-radius: 14px;
+    font: 19px/1.62 "Cascadia Mono", Consolas, monospace; color: #e8ebf3;
+  }
+  .kw { color: #c792ea; } .fn { color: #82aaff; } .str { color: #a5e075; } .num { color: #f78c6c; }
+</style>
+<body>
+  <div class="brand"><span class="logo"><span class="box"></span><span class="dot"></span></span>InstallScript Decompiler</div>
+  <h1>Decompile InstallShield<br><span class="grad">setup.inx scripts</span></h1>
+  <p class="sub">setup.inx · .obs · .obl · .ins · runs in your browser · nothing uploaded</p>
+  <div class="pills"><span class="pill">Free</span><span class="pill">Open source</span><span class="pill">Rust + WebAssembly</span></div>
+<pre><span class="kw">function</span> <span class="fn">OnBegin</span>()
+<span class="kw">begin</span>
+  <span class="kw">if</span> (CMDLINE % <span class="str">"/silent"</span>) <span class="kw">then</span>
+    <span class="fn">Disable</span>(DIALOGCACHE);
+  <span class="kw">endif</span>;
+<span class="kw">end</span>;</pre>
+</body>
+</html>

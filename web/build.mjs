@@ -10,7 +10,30 @@ const web = path.dirname(fileURLToPath(import.meta.url));
 const www = path.join(web, "www");
 const dist = path.join(web, "dist");
 
-execSync("wasm-pack build . --target web --release --out-dir www/pkg", { cwd: web, stdio: "inherit" });
+const has = (cmd) => {
+  try {
+    execSync(`${cmd} --version`, { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+if (has("wasm-pack")) {
+  execSync("wasm-pack build . --target web --release --out-dir www/pkg", { cwd: web, stdio: "inherit" });
+} else {
+  // Same output without wasm-pack; wasm-bindgen-cli must match the
+  // wasm-bindgen version in Cargo.lock.
+  const root = path.dirname(web);
+  execSync("cargo build --release --target wasm32-unknown-unknown -p installscript-decompiler-web", {
+    cwd: root,
+    stdio: "inherit",
+  });
+  execSync(
+    "wasm-bindgen --target web --out-dir web/www/pkg target/wasm32-unknown-unknown/release/installscript_decompiler_web.wasm",
+    { cwd: root, stdio: "inherit" },
+  );
+}
 
 fs.rmSync(dist, { recursive: true, force: true });
 fs.cpSync(www, dist, {
