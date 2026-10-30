@@ -91,7 +91,14 @@ impl Ctx<'_> {
                     return Err("PropPut needs at least two operands".into());
                 }
                 let last = a.args.len() - 1;
-                let accessors = (1..last).map(arg).collect::<Result<Vec<_>>>()?;
+                let mut accessors = Vec::new();
+                for i in 1..last {
+                    // An array element is written with an empty member name.
+                    match arg(i)? {
+                        Expr::Str(s) if s.is_empty() => {}
+                        e => accessors.push(e),
+                    }
+                }
                 Stmt::Assign(Expr::PropPut(b(arg(0)?), accessors), arg(last)?)
             }
             Op::PropPutRef => Stmt::Assign(Expr::SetRef(b(arg(0)?)), arg(1)?),

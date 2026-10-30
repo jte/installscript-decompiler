@@ -58,6 +58,9 @@ pub fn parse(data: &[u8]) -> Result<Script> {
         structs,
         externs,
         globals,
+        debug_section: Default::default(),
+        debug: None,
+        debug_note: None,
     })
 }
 
@@ -128,11 +131,7 @@ fn read_prototypes(s: &mut Stream) -> Result<Vec<Function>> {
             return_type,
             bb_id,
         };
-        fns.push(Function {
-            decls: DataDeclList::default(),
-            proto,
-            bbs: Vec::new(),
-        });
+        fns.push(Function::new(proto));
     }
     Ok(fns)
 }

@@ -1,4 +1,7 @@
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use clap::{ArgGroup, Parser};
 use decompiler::Mode;
@@ -28,6 +31,25 @@ struct Cli {
     /// Write the control flow graph of every function in .dot format to this file
     #[arg(long)]
     output_cfg_file: Option<PathBuf>,
+
+    /// Debug symbols (.dbg) the script was compiled with, to restore the
+    /// original names. By default a .dbg next to the input file is used.
+    #[arg(long, value_name = "DBG_FILE")]
+    debug_symbols: Option<PathBuf>,
+}
+
+/// A `.dbg` next to the input: the file name the script records, or the
+/// input's own name with a `.dbg` extension.
+fn find_debug_symbols(input: &Path, data: &[u8]) -> Option<PathBuf> {
+    let dir = input.parent().unwrap_or(Path::new(""));
+    let recorded = decompiler::debug_symbols_path(data).and_then(|p| {
+        let name = p.rsplit(['\\', '/']).next()?.to_string();
+        Some(dir.join(name))
+    });
+    recorded
+        .into_iter()
+        .chain([input.with_extension("dbg")])
+        .find(|p| p.is_file())
 }
 
 fn main() {
@@ -53,15 +75,40 @@ fn run() -> i32 {
         }
     };
 
+    let symbols_path = args
+        .debug_symbols
+        .clone()
+        .or_else(|| find_debug_symbols(&args.input_file, &data));
+    let symbols = match &symbols_path {
+        Some(path) => match fs::read(path) {
+            Ok(d) => {
+                println!("Using debug symbols from {}", path.display());
+                Some(d)
+            }
+            Err(e) => {
+                eprintln!("Failed to open the debug symbols file: {e}");
+                return 1;
+            }
+        },
+        None => None,
+    };
+    let symbols = symbols.as_deref();
+
     let (output, cfg) = if args.show_actions {
-        (decompiler::run(&data, Mode::Disassemble), None)
+        (
+            decompiler::run_with_symbols(&data, symbols, Mode::Disassemble),
+            None,
+        )
     } else if args.output_cfg_file.is_some() {
-        match decompiler::decompile_with_cfg(&data) {
+        match decompiler::decompile_with_cfg(&data, symbols) {
             Ok(d) => (Ok(d.source), Some(d.dot)),
             Err(e) => (Err(e), None),
         }
     } else {
-        (decompiler::run(&data, Mode::Decompile), None)
+        (
+            decompiler::run_with_symbols(&data, symbols, Mode::Decompile),
+            None,
+        )
     };
 
     let output = match output {

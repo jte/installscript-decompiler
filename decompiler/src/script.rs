@@ -2,8 +2,10 @@
 //! frontend ([`crate::newis`]) and the `.ins` frontend ([`crate::oldis`]).
 
 use std::fmt::{self, Write};
+use std::ops::Range;
 
 use crate::Result;
+use crate::debug::{self, DebugInfo};
 use crate::expr::BinOp;
 use crate::stream::Stream;
 use crate::types::{ArgumentTypeInfo, ScriptType, VarType};
@@ -357,6 +359,23 @@ pub struct Function {
     pub decls: DataDeclList,
     pub proto: Prototype,
     pub bbs: Vec<BasicBlock>,
+    /// Indices of the function's actions among all actions of the script,
+    /// prolog included; what debug symbols refer to.
+    pub actions: Range<u32>,
+    /// Index into the script's [`DebugInfo::functions`].
+    pub debug: Option<usize>,
+}
+
+impl Function {
+    pub fn new(proto: Prototype) -> Self {
+        Function {
+            decls: DataDeclList::default(),
+            proto,
+            bbs: Vec::new(),
+            actions: 0..0,
+            debug: None,
+        }
+    }
 }
 
 pub struct Script {
@@ -365,6 +384,12 @@ pub struct Script {
     pub structs: Vec<ScriptStruct>,
     pub externs: Vec<Extern>,
     pub globals: DataDeclList,
+    /// What the script itself says about debug symbols.
+    pub debug_section: debug::Section,
+    /// Symbols in use, embedded or supplied separately.
+    pub debug: Option<DebugInfo>,
+    /// Why available symbols are not in use, for the output's header.
+    pub debug_note: Option<String>,
 }
 
 impl Script {

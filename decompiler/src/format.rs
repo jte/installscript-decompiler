@@ -10,8 +10,10 @@ pub enum HeaderKind {
     Obs,
     /// Compiled setup script (`setup.inx`), stored encrypted.
     ALuZ,
-    /// Compiled setup script with debug info, stored encrypted.
-    KUtZ,
+    /// Debug symbols (`.dbg`) that the compiler's `/G` switch writes next to
+    /// the script: source path, variable and function names, line numbers.
+    /// Not encrypted. The original decompiler took `kUtZ` for a script.
+    Dbg,
     /// Script library (`.obl`), a container of `.obs` files.
     Obl,
     /// InstallShield 5 and earlier script (`setup.ins`).
@@ -24,7 +26,7 @@ impl HeaderKind {
             HeaderKind::Unrecognized => "unrecognized",
             HeaderKind::Obs => "compiled script object (.obs)",
             HeaderKind::ALuZ => "compiled setup script (.inx)",
-            HeaderKind::KUtZ => "compiled setup script with debug info (.inx)",
+            HeaderKind::Dbg => "debug symbols (.dbg)",
             HeaderKind::Obl => "script library (.obl)",
             HeaderKind::Ins => "InstallShield 5 script (.ins)",
         }
@@ -46,7 +48,7 @@ pub fn decrypt(seed: &mut u32, buffer: &mut [u8], key: u8) {
 }
 
 /// Identifies `contents`. Encrypted scripts are decrypted in place, so
-/// whenever the result is `ALuZ` or `KUtZ` the buffer holds plaintext.
+/// whenever the result is `ALuZ` the buffer holds plaintext.
 pub fn header_kind(contents: &mut [u8]) -> HeaderKind {
     match magic(contents) {
         None => return HeaderKind::Unrecognized,
@@ -54,13 +56,13 @@ pub fn header_kind(contents: &mut [u8]) -> HeaderKind {
         Some(m) if &m == b"pOdA" => return HeaderKind::Obl,
         Some(m) if &m == b"aLuZ" => return HeaderKind::ALuZ,
         Some([0xb8, 0xc9, 0x0c, 0x00]) => return HeaderKind::Ins,
+        Some(m) if &m == b"kUtZ" => return HeaderKind::Dbg,
         Some(_) => {}
     }
     let mut seed = 0;
     decrypt(&mut seed, contents, 0xf1);
     match magic(contents) {
         Some(m) if &m == b"aLuZ" => HeaderKind::ALuZ,
-        Some(m) if &m == b"kUtZ" => HeaderKind::KUtZ,
         _ => HeaderKind::Unrecognized,
     }
 }
@@ -126,6 +128,18 @@ mod tests {
         assert_ne!(buf, plain);
         assert_eq!(header_kind(&mut buf), HeaderKind::ALuZ);
         assert_eq!(buf, plain);
+    }
+
+    #[test]
+    fn debug_symbols_are_plaintext() {
+        // Start of a .dbg written by `Compile.exe /G`.
+        let mut dbg = b"kUtZ\0opyright (c) 1990-2002 InstallShield".to_vec();
+        assert_eq!(header_kind(&mut dbg), HeaderKind::Dbg);
+        assert!(
+            crate::run(&dbg, crate::Mode::Decompile)
+                .unwrap_err()
+                .contains(".dbg")
+        );
     }
 
     #[test]

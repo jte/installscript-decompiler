@@ -2,6 +2,7 @@
 //! `setup.inx`) and script objects (`.obs`).
 
 use crate::Result;
+use crate::debug;
 use crate::expr::BinOp;
 use crate::format::HeaderKind;
 use crate::script::{
@@ -49,6 +50,9 @@ struct ALuZHeader {
     prototypes_table: u32,
     typedefs_table: u32,
     bbs_table: u32,
+    /// Where the compiler records debug symbols; 0 if built without them.
+    /// InstallShield 6 headers have text here, so it is range-checked.
+    debug_section: u32,
 }
 
 const ALUZ_HEADER_SIZE: usize = 124;
@@ -64,6 +68,7 @@ impl ALuZHeader {
             prototypes_table: u32_at(108)?,
             typedefs_table: u32_at(112)?,
             bbs_table: u32_at(116)?,
+            debug_section: u32_at(120)?,
         })
     }
 }
@@ -75,6 +80,9 @@ pub fn parse(data: &[u8], kind: HeaderKind) -> Result<Script> {
         structs: Vec::new(),
         externs: Vec::new(),
         globals: DataDeclList::default(),
+        debug_section: debug::Section::None,
+        debug: None,
+        debug_note: None,
     };
     match kind {
         HeaderKind::Obs => {
@@ -101,11 +109,24 @@ pub fn parse(data: &[u8], kind: HeaderKind) -> Result<Script> {
                 .map(|_| table.u32())
                 .collect::<Result<Vec<_>>>()?;
             read_bbs(data, &addrs, &mut script.fns)?;
-        }
-        HeaderKind::KUtZ => {
-            return Err(
-                "Scripts compiled with debug information (kUtZ) are not supported yet.".into(),
-            );
+            let offset = h.debug_section as usize;
+            if (ALUZ_HEADER_SIZE..data.len()).contains(&offset) {
+                script.debug_section = debug::read_section(data, offset);
+                match &script.debug_section {
+                    debug::Section::Embedded(info) => {
+                        let info = info.clone();
+                        if !debug::attach(&mut script, info) {
+                            script.debug_note =
+                                Some("The embedded debug symbols don't match the code.".into());
+                        }
+                    }
+                    debug::Section::Unreadable(e) => {
+                        script.debug_note =
+                            Some(format!("The embedded debug symbols could not be read: {e}"));
+                    }
+                    _ => {}
+                }
+            }
         }
         _ => return Err("Not an InstallShield 6+ script.".into()),
     }
@@ -232,25 +253,26 @@ fn read_prototypes(data: &[u8], offset: u32) -> Result<Vec<Function>> {
         } else {
             return Err(format!("Unknown prototype found (flags {flags:#x})"));
         };
-        fns.push(Function {
-            decls: DataDeclList::default(),
-            proto,
-            bbs: Vec::new(),
-        });
+        fns.push(Function::new(proto));
     }
     Ok(fns)
 }
 
 fn read_bbs(data: &[u8], addrs: &[u32], fns: &mut [Function]) -> Result<()> {
     let mut current: Option<usize> = None;
+    // Index of the block's first action among all actions, as debug symbols
+    // count them.
+    let mut action = 0u32;
     for (i, &addr) in addrs.iter().enumerate() {
         // A function starts at the block its prototype names. The `program`
         // block has no prolog, so this is the only way to see where it begins.
         if let Ok(f) = Script::fn_index_by_bb_id(fns, i) {
             current = Some(f);
+            fns[f].actions = action..action;
         }
         let mut s = Stream::at(data, addr as usize);
         let count = s.u16()?;
+        action = action.saturating_add(count as u32);
         let mut bb = BasicBlock {
             id: addr,
             actions: Vec::new(),
@@ -267,6 +289,7 @@ fn read_bbs(data: &[u8], addrs: &[u32], fns: &mut [Function]) -> Result<()> {
         }
         if let Some(f) = current {
             fns[f].bbs.push(bb);
+            fns[f].actions.end = action;
         }
     }
     Ok(())

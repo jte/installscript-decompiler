@@ -1,0 +1,44 @@
+// Compiled with InstallShield 2026 (Compile.exe 32.0.0.68), once with each
+// debug switch:
+//   Compile.exe /Q /G debug.rul /Odebug.inx            (debug.inx, debug.dbg)
+//   Compile.exe /Q /GI debug.rul /Odebug_embedded.inx  (debug_embedded.inx)
+
+#include "debug_inc.h"
+
+typedef POINT
+begin
+    NUMBER x;
+    NUMBER y;
+end;
+
+NUMBER gCount;
+STRING gName[32];
+
+prototype NUMBER First(NUMBER, STRING);
+prototype Locals(STRING, VARIANT);
+
+function NUMBER First(nParam, szParam)
+    NUMBER nLocal;
+    STRING szLocal;
+begin
+    nLocal = nParam + 1;
+    szLocal = szParam;
+    Helper(nLocal);
+    return nLocal;
+end;
+
+function Locals(szA, vA)
+    STRING szSized[20];
+    POINT pt;
+    NUMBER nArr(3);
+begin
+    szSized = szA;
+    pt.x = 1;
+    nArr(0) = pt.x;
+    vA = nArr(0);
+end;
+
+program
+    gCount = First(1, gName);
+    Locals("a", 1);
+endprogram

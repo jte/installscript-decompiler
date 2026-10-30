@@ -7,7 +7,7 @@ globalThis.__isDecompilerPanic = (msg) => { lastPanic = msg; };
 
 const ready = init();
 
-self.onmessage = async ({ data: { id, bytes, mode } }) => {
+self.onmessage = async ({ data: { id, bytes, symbols, mode } }) => {
   try {
     await ready;
   } catch (e) {
@@ -18,7 +18,7 @@ self.onmessage = async ({ data: { id, bytes, mode } }) => {
   lastPanic = null;
   const t0 = performance.now();
   try {
-    const output = run(new Uint8Array(bytes), mode);
+    const output = run(new Uint8Array(bytes), symbols ? new Uint8Array(symbols) : undefined, mode);
     postMessage({ id, ok: true, output, ms: performance.now() - t0 });
   } catch (e) {
     const fatal = lastPanic !== null || e instanceof WebAssembly.RuntimeError || e instanceof RangeError;

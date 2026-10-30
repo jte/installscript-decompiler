@@ -18,16 +18,17 @@ pub fn start() {
     std::panic::set_hook(Box::new(|info| report_panic(&info.to_string())));
 }
 
-/// Run `data` (a compiled InstallScript file) through the pipeline.
+/// Run `data` (a compiled InstallScript file) through the pipeline, with the
+/// contents of its `.dbg` file in `symbols` if there is one.
 ///
 /// `mode` is one of `"decompile"`, `"disassemble"`, `"cfg"`.
 #[wasm_bindgen]
-pub fn run(data: &[u8], mode: &str) -> Result<String, JsError> {
+pub fn run(data: &[u8], symbols: Option<Vec<u8>>, mode: &str) -> Result<String, JsError> {
     let mode = match mode {
         "decompile" => Mode::Decompile,
         "disassemble" => Mode::Disassemble,
         "cfg" => Mode::Cfg,
         other => return Err(JsError::new(&format!("unknown mode {other:?}"))),
     };
-    decompiler::run(data, mode).map_err(|e| JsError::new(&e))
+    decompiler::run_with_symbols(data, symbols.as_deref(), mode).map_err(|e| JsError::new(&e))
 }

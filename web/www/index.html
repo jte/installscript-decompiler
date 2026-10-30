@@ -83,10 +83,10 @@
   <main class="app">
     <section class="panel controls">
       <label id="drop" class="drop">
-        <input id="file" type="file" hidden>
+        <input id="file" type="file" multiple hidden>
         <svg class="drop-icon" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>
         <span class="drop-title">Drop a compiled script</span>
-        <span class="drop-sub">setup.inx · .obs · .obl · setup.ins</span>
+        <span class="drop-sub">setup.inx · .obs · .obl · setup.ins — plus its .dbg, if you have it</span>
         <span id="file-info" class="file-info"></span>
       </label>
 
@@ -166,7 +166,7 @@
     </details>
     <details>
       <summary>Which files are supported?</summary>
-      <p>Compiled setup scripts (<code>setup.inx</code>) from InstallShield 6 and later, compiled script objects (<code>.obs</code>), script libraries (<code>.obl</code>, each member is decompiled in turn) and InstallShield 5 scripts (<code>setup.ins</code>). Scripts compiled with debug information are not supported yet.</p>
+      <p>Compiled setup scripts (<code>setup.inx</code>) from InstallShield 6 and later, compiled script objects (<code>.obs</code>), script libraries (<code>.obl</code>, each member is decompiled in turn) and InstallShield 5 scripts (<code>setup.ins</code>). Drop a script together with its debug symbols (<code>.dbg</code>) to get the original names of functions and variables back.</p>
     </details>
     <details>
       <summary>Is my file uploaded anywhere?</summary>
@@ -174,7 +174,7 @@
     </details>
     <details>
       <summary>Why does the output look different from the original source?</summary>
-      <p>Compilation throws away comments, formatting and the names of local variables and non-exported functions, so those come back as generated names like <code>LclVarNum1</code> or <code>Func_2047</code>. Loops come back as <code>goto</code>s. Decompilation is not perfect — if a file produces wrong output, please <a href="https://github.com/jte/installscript-decompiler/issues/new" target="_blank" rel="noopener">open an issue</a>.</p>
+      <p>Compilation throws away comments, formatting and the names of local variables and non-exported functions, so those come back as generated names like <code>LclVarNum1</code> or <code>Func_2047</code>. Loops come back as <code>goto</code>s. Scripts compiled with debug information keep the names: they are restored automatically when embedded in <code>setup.inx</code>, or when you add the <code>.dbg</code> file the script was built with. Decompilation is not perfect — if a file produces wrong output, please <a href="https://github.com/jte/installscript-decompiler/issues/new" target="_blank" rel="noopener">open an issue</a>.</p>
     </details>
     <details>
       <summary>Can I use it from the command line?</summary>

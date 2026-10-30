@@ -17,6 +17,7 @@ const copyBtn = $("#copy");
 const downloadBtn = $("#download");
 
 let file = null;       // { name, bytes: Uint8Array }
+let symbols = null;    // the script's .dbg: { name, bytes: Uint8Array }
 let worker = null;
 let job = null;        // { id, timer, mode }
 let nextId = 1;
@@ -112,13 +113,13 @@ function describeHeader(bytes) {
   if (startsWith(bytes, ascii("pOdA"))) return { ok: true, text: "Script library (.obl)" };
   if (startsWith(bytes, ascii("aLuZ"))) return { ok: true, text: "Compiled setup script" };
   if (startsWith(bytes, [0xb8, 0xc9, 0x0c, 0x00])) return { ok: true, text: "InstallShield 5 script (.ins)" };
+  if (startsWith(bytes, ascii("kUtZ"))) return { ok: false, text: "Debug symbols (.dbg): add the setup.inx they belong to" };
   // setup.inx is encrypted; decrypt the signature.
   const head = Array.from(bytes.slice(0, 4), (b, i) => {
     const x = b ^ 0xf1;
     return ((((x >> 2) | (x << 6)) & 0xff) - (i % 0x47)) & 0xff;
   });
   if (startsWith(head, ascii("aLuZ"))) return { ok: true, text: "Compiled setup script (.inx)" };
-  if (startsWith(head, ascii("kUtZ"))) return { ok: false, text: "Setup script with debug info (not supported yet)" };
   return { ok: false, text: "Not a compiled InstallScript file" };
 }
 
@@ -126,20 +127,46 @@ function formatSize(n) {
   return n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`;
 }
 
-async function loadFile(f) {
-  if (!f) return;
-  const bytes = new Uint8Array(await f.arrayBuffer());
-  file = { name: f.name, bytes };
-  const header = describeHeader(bytes);
+const isSymbols = (bytes) => startsWith(bytes, ascii("kUtZ"));
+
+// Takes a script, its .dbg, or both. A .dbg on its own goes with the script
+// already loaded; a new script drops the symbols of the previous one.
+async function loadFiles(list) {
+  const loaded = await Promise.all(
+    [...list].map(async (f) => ({ name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) })),
+  );
+  const dbg = loaded.find((f) => isSymbols(f.bytes));
+  const script = loaded.find((f) => !isSymbols(f.bytes));
+  if (script) {
+    file = script;
+    symbols = dbg ?? null;
+  } else if (dbg && file) {
+    symbols = dbg;
+  } else if (dbg) {
+    file = dbg; // Reported as "Debug symbols, not a script".
+    symbols = null;
+  } else {
+    return;
+  }
+  showFileInfo();
+  start();
+}
+
+function showFileInfo() {
+  const header = describeHeader(file.bytes);
   fileInfo.innerHTML = "";
   const name = document.createElement("strong");
-  name.textContent = f.name;
+  name.textContent = file.name;
   const info = document.createElement("span");
-  info.textContent = ` · ${formatSize(bytes.length)} · ${header.text}`;
+  info.textContent = ` · ${formatSize(file.bytes.length)} · ${header.text}`;
   info.className = header.ok ? "" : "warn";
   fileInfo.append(name, info);
+  if (symbols) {
+    const sym = document.createElement("span");
+    sym.textContent = ` · with debug symbols from ${symbols.name}`;
+    fileInfo.append(sym);
+  }
   drop.classList.add("has-file");
-  start();
 }
 
 function start() {
@@ -155,9 +182,11 @@ function start() {
 
   setBusy(true);
   setStatus("Working…");
-  // Copy the buffer so the original stays usable for re-runs.
+  // Copy the buffers so the originals stay usable for re-runs.
   const bytes = file.bytes.slice().buffer;
-  worker.postMessage({ id, bytes, mode: job.mode }, [bytes]);
+  const symbolBytes = symbols?.bytes.slice().buffer ?? null;
+  const transfer = symbolBytes ? [bytes, symbolBytes] : [bytes];
+  worker.postMessage({ id, bytes, symbols: symbolBytes, mode: job.mode }, transfer);
 }
 
 function cancel(silent = false) {
@@ -244,7 +273,7 @@ function outputName() {
 
 // --- wiring -----------------------------------------------------------------
 
-fileInput.addEventListener("change", () => loadFile(fileInput.files[0]));
+fileInput.addEventListener("change", () => loadFiles(fileInput.files));
 
 for (const ev of ["dragenter", "dragover"]) {
   drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); });
@@ -254,7 +283,7 @@ for (const ev of ["dragleave", "drop"]) {
 }
 drop.addEventListener("drop", (e) => {
   e.preventDefault();
-  loadFile(e.dataTransfer.files[0]);
+  loadFiles(e.dataTransfer.files);
 });
 // Dropping a file anywhere else shouldn't navigate away.
 window.addEventListener("dragover", (e) => e.preventDefault());

@@ -3,6 +3,7 @@
 use std::fmt::Write;
 
 use crate::Result;
+use crate::debug;
 use crate::ir;
 use crate::lower::{self, Ctx};
 use crate::script::{DataDeclList, Format, Function, ObjectVarInfo, Script};
@@ -65,7 +66,42 @@ fn add_globals(script: &Script, syms: &mut Symbols, table: TableId) -> Result<()
     for e in &script.externs {
         rename(e.address as i32, e.ty, &e.name)?;
     }
+    if let Some(info) = &script.debug {
+        name_from_symbols(syms, &[table], &info.globals, |v| v.address);
+    }
     Ok(())
+}
+
+/// Renames the variables of `tables` after debug symbols. Names are listed per
+/// type in slot order; `slot` gives a variable's position in that list. The
+/// compiler's temporaries come after the declared variables and have no
+/// names. A type with more names than variables is left alone, since the
+/// symbols can't belong to this code.
+fn name_from_symbols(
+    syms: &mut Symbols,
+    tables: &[TableId],
+    names: &debug::Names,
+    slot: impl Fn(&Variable) -> i32,
+) {
+    for ty in [VarType::Number, VarType::String, VarType::Variant] {
+        let names = names.of(ty);
+        let vars: Vec<_> = tables
+            .iter()
+            .flat_map(|&t| syms.table_vars(t).iter().copied())
+            .filter(|&v| syms.vars[v].ty == ty)
+            .collect();
+        if names.len() > vars.len() {
+            continue;
+        }
+        for v in vars {
+            let name = usize::try_from(slot(&syms.vars[v]))
+                .ok()
+                .and_then(|i| names.get(i));
+            if let Some(name) = name {
+                syms.vars[v].name = name.clone();
+            }
+        }
+    }
 }
 
 struct FunctionOut {
@@ -90,15 +126,18 @@ fn add_locals(
             Variable::new(-100 - (i + 1 + nums) as i32, Decl::Number),
         );
     }
+    // The string and object tables list the parameters too, ahead of the
+    // locals. (The original decompiler indexed them from 0, giving each local
+    // the declaration of the slot before it.)
     for i in 0..(decls.num_strings as usize).saturating_sub(strs) {
-        let size = decls.string_size(i);
+        let size = decls.string_size(i + strs);
         syms.add(
             locals,
             Variable::new(-100 - (i + 1 + strs) as i32, Decl::String { size }),
         );
     }
     for i in 0..decls.objects.len().saturating_sub(objs) {
-        let decl = variant_decl(&decls.objects[i], script)?;
+        let decl = variant_decl(&decls.objects[i + objs], script)?;
         syms.add(locals, Variable::new(-100 - (i + 1 + objs) as i32, decl));
     }
     Ok(())
@@ -130,6 +169,10 @@ fn function(
         counts = [0; 3];
     }
     add_locals(script, syms, locals, &f.decls, counts)?;
+    if let Some(df) = debug_function(script, f) {
+        // Parameters and locals share one numbering, from -101 down.
+        name_from_symbols(syms, &[args, locals], &df.vars, |v| -v.address - 101);
+    }
 
     let nodes = lower::lower_function(
         &Ctx {
@@ -149,8 +192,12 @@ fn function(
     })
 }
 
+fn debug_function<'a>(script: &'a Script, f: &Function) -> Option<&'a debug::DebugFunction> {
+    script.debug.as_ref()?.functions.get(f.debug?)
+}
+
 fn function_name(f: &Function) -> String {
-    if f.proto.is_exported() {
+    if f.proto.is_exported() || f.debug.is_some() {
         f.proto.name.clone()
     } else {
         String::new()
@@ -163,6 +210,35 @@ pub fn decompile(script: &Script) -> Result<Decompiled> {
     add_globals(script, &mut syms, globals)?;
 
     let mut source = String::new();
+    match (&script.debug, &script.debug_section) {
+        (Some(info), _) => {
+            let files: Vec<_> = (0..info.files.len() as u16)
+                .filter_map(|i| info.file_name(i))
+                .collect();
+            let _ = writeln!(
+                source,
+                "// Names restored from debug symbols. Source files: {}\n",
+                files.join(", ")
+            );
+        }
+        (None, debug::Section::External(path)) => {
+            let _ = writeln!(
+                source,
+                "// Compiled with debug symbols in {path}\n\
+                 // Supply that .dbg file to restore the original names."
+            );
+        }
+        _ => {}
+    }
+    if let Some(note) = &script.debug_note {
+        let _ = writeln!(source, "// {note}");
+    }
+    if script.debug.is_none()
+        && (script.debug_note.is_some()
+            || matches!(script.debug_section, debug::Section::External(_)))
+    {
+        source.push('\n');
+    }
     for s in &script.structs {
         s.write(&mut source, &script.structs);
         source.push('\n');
@@ -184,6 +260,14 @@ pub fn decompile(script: &Script) -> Result<Decompiled> {
         };
         match function(script, &mut syms, globals, f) {
             Ok(mut out) => {
+                if let Some((file, first, last)) = script
+                    .debug
+                    .as_ref()
+                    .zip(debug_function(script, f))
+                    .and_then(|(info, df)| df.location(info))
+                {
+                    let _ = writeln!(out.header, "// {file}, lines {first}-{last}");
+                }
                 let arg_list: Vec<String> = syms
                     .table_vars(out.args)
                     .iter()
