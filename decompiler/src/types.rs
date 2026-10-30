@@ -27,6 +27,8 @@ impl fmt::Display for ScriptType {
             11 => "BINARY",
             12 => "WSTRING",
             13 => "WPOINTER",
+            // Newer InstallShield versions; used in ISRT's SHELLEXECUTEINFO.
+            14 => "int32",
             n => return write!(f, "UNKNOWN_TYPE_{n}"),
         };
         f.write_str(name)

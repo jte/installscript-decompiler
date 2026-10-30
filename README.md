@@ -16,6 +16,21 @@ command-line tool.
 - `.obl` — script libraries; every member script is decompiled in turn
 - `setup.ins` — InstallShield 5 and earlier
 
+## Output
+
+The output is InstallScript the InstallShield compiler accepts: prototypes,
+declarations, `program … endprogram`, and function bodies with `if`/`elseif`/
+`else`, `while`, `repeat … until` and `for` rebuilt from the compiled jumps.
+Values the compiler parked in temporaries and in `LAST_RESULT` are folded back
+into the expressions that use them, only where that provably means the same.
+
+Checked against the compiler (InstallShield 2014 and 2026): the sample
+projects, the bundled installers and the test fixtures recompile from the
+decompiled source, and small self-contained scripts recompile to the same
+code. What can't be recompiled: the `BindVariable` calls the compiler
+generates for system variables, and a few InstallShield 6 scripts that pass a
+VARIANT where the newer compiler insists on a STRING variable.
+
 ### Debug symbols
 
 Scripts compiled with debug information carry the original names of

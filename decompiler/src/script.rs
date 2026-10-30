@@ -128,6 +128,11 @@ pub mod proto_flags {
     pub const IS_INTERNAL_FUNCTION: u8 = 2;
     pub const IS_PREDEFINED_FUNCTION: u8 = 4;
     pub const IS_EXPORTED: u8 = 8;
+    /// A DLL function with the `cdecl` calling convention. InstallShield 6
+    /// let these take extra arguments without being declared variadic.
+    pub const IS_CDECL: u8 = 0x10;
+    /// Takes extra arguments after the declared ones (`...`).
+    pub const IS_VARIADIC: u8 = 0x80;
 }
 
 #[derive(Clone, Debug)]
@@ -261,6 +266,11 @@ pub fn quote(s: &str) -> String {
             '\t' => out.push_str("\\t"),
             '\\' => out.push_str("\\\\"),
             '"' => out.push_str("\\\""),
+            // The compiler takes octal escapes (not hex); a raw control
+            // character such as NUL would end the line or the literal.
+            c if (c as u32) < 0x20 || c == '\x7f' => {
+                let _ = write!(out, "\\{:03o}", c as u32);
+            }
             c => out.push(c),
         }
     }
@@ -309,6 +319,9 @@ pub enum Op {
         target: u16,
     },
     Assign,
+    /// Ties an external system variable (`args[0]`) to an id (`args[1]`);
+    /// the result is left in `LAST_RESULT`.
+    BindVariable,
     AddressOf,
     Binary(BinOp),
     Unary(char),
@@ -476,6 +489,7 @@ impl Script {
             Op::Goto => format!("goto {};", arg(0)),
             Op::OldGoto { target } => format!("GOTO {target:x}"),
             Op::Assign => format!("{} = {}", arg(0), arg(1)),
+            Op::BindVariable => format!("BindVariable({}, {})", arg(0), arg(1)),
             Op::AddressOf => format!("{} = &{}", arg(0), arg(1)),
             Op::Binary(op) => {
                 if a.args.len() == 4 {

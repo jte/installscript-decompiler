@@ -13,10 +13,19 @@ pub type TableId = usize;
 #[derive(Clone, Debug)]
 pub enum Decl {
     Number,
-    String { size: Option<u16> },
+    String {
+        size: Option<u16>,
+    },
     Variant,
-    VariantArray { count: u16 },
-    Struct { type_name: String },
+    Object,
+    /// `count` 0 is an array sized at run time.
+    Array {
+        element: &'static str,
+        count: u16,
+    },
+    Struct {
+        type_name: String,
+    },
 }
 
 #[derive(Clone, Debug)]
@@ -25,6 +34,10 @@ pub struct Variable {
     pub name: String,
     pub ty: VarType,
     pub decl: Decl,
+    /// Named after debug symbols, so declared in the source.
+    pub named: bool,
+    /// Declared `external`: defined by another script object.
+    pub external: bool,
 }
 
 pub fn is_global_address(address: i32) -> bool {
@@ -58,6 +71,8 @@ impl Variable {
             name: format!("{scope}Var{kind}{index}"),
             ty,
             decl,
+            named: false,
+            external: false,
         }
     }
 
@@ -73,7 +88,9 @@ impl fmt::Display for Variable {
             Decl::String { size: Some(n) } => write!(f, "STRING {}[{n}]", self.name),
             Decl::String { size: None } => write!(f, "STRING {}", self.name),
             Decl::Variant => write!(f, "VARIANT {}", self.name),
-            Decl::VariantArray { count } => write!(f, "VARIANT {}({count})", self.name),
+            Decl::Object => write!(f, "OBJECT {}", self.name),
+            Decl::Array { element, count: 0 } => write!(f, "{element} {}()", self.name),
+            Decl::Array { element, count } => write!(f, "{element} {}({count})", self.name),
             Decl::Struct { type_name } => write!(f, "{type_name} {}", self.name),
         }
     }

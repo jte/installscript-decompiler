@@ -3,8 +3,8 @@
 
 use crate::Result;
 use crate::expr::{Expr, Node, Stmt};
-use crate::script::{Action, Arg, BasicBlock, Format, Op, Script};
-use crate::types::VarType;
+use crate::script::{Action, Arg, BasicBlock, Format, Op, Script, proto_flags};
+use crate::types::{ConcreteType, ScriptType, VarType};
 use crate::vars::{Symbols, TableId, is_global_address};
 
 pub struct Ctx<'a> {
@@ -49,7 +49,8 @@ impl Ctx<'_> {
         let args = |n: usize| (0..n).map(arg).collect::<Result<Vec<_>>>();
         let b = Box::new;
         let stmt = match &a.op {
-            Op::Nop | Op::ReturnNop => Stmt::Assign(self.last_result()?, self.last_result()?),
+            // The original decompiler printed these as `LAST_RESULT = LAST_RESULT;`.
+            Op::Nop | Op::ReturnNop => Stmt::Nop,
             Op::Abort => Stmt::Abort,
             Op::Exit => Stmt::Exit,
             Op::Marker(_) => Stmt::Nop,
@@ -75,7 +76,29 @@ impl Ctx<'_> {
             Op::GetByte => Stmt::Assign(arg(0)?, Expr::ArrayAccess(b(arg(1)?), b(arg(2)?))),
             Op::Call { .. } | Op::OldCall { .. } => {
                 let name = self.script.callee_name(&a.op)?.to_string();
-                Stmt::Assign(self.last_result()?, Expr::Call(name, args(a.args.len())?))
+                let mut args = args(a.args.len())?;
+                // Arguments for BYREF parameters must stay variables, and so
+                // must strings passed to a DLL (the compiler wants a string
+                // variable or a literal there).
+                if let Op::Call { fn_id } = a.op {
+                    let proto = &self.script.fn_by_id(fn_id as usize)?.proto;
+                    let dll = proto.flags & proto_flags::IS_DLL_FUNCTION != 0;
+                    for (arg, p) in args.iter_mut().zip(&proto.args) {
+                        let dll_string = dll
+                            && matches!(p.script_type, ScriptType::STRING | ScriptType::WSTRING);
+                        if dll_string
+                            || matches!(
+                                p.internal_type,
+                                ConcreteType::NumberPointer
+                                    | ConcreteType::StringPointer
+                                    | ConcreteType::ObjectPointer
+                            )
+                        {
+                            *arg = Expr::Ref(b(std::mem::replace(arg, Expr::Number(0))));
+                        }
+                    }
+                }
+                Stmt::Assign(self.last_result()?, Expr::Call(name, args))
             }
             Op::Return => Stmt::Return(if a.args.is_empty() {
                 None
@@ -91,26 +114,27 @@ impl Ctx<'_> {
                     return Err("PropPut needs at least two operands".into());
                 }
                 let last = a.args.len() - 1;
-                let mut accessors = Vec::new();
-                for i in 1..last {
-                    // An array element is written with an empty member name.
-                    match arg(i)? {
-                        Expr::Str(s) if s.is_empty() => {}
-                        e => accessors.push(e),
-                    }
-                }
+                let accessors = (1..last).map(arg).collect::<Result<Vec<_>>>()?;
                 Stmt::Assign(Expr::PropPut(b(arg(0)?), accessors), arg(last)?)
             }
             Op::PropPutRef => Stmt::Assign(Expr::SetRef(b(arg(0)?)), arg(1)?),
             Op::PropGet => {
-                let mut accessors = Vec::new();
-                for i in 1..a.args.len() {
-                    match arg(i)? {
-                        Expr::Str(s) if s.is_empty() => {}
-                        e => accessors.push(e),
-                    }
-                }
+                let accessors = (1..a.args.len()).map(arg).collect::<Result<Vec<_>>>()?;
                 Stmt::Assign(self.last_result()?, Expr::PropGet(b(arg(0)?), accessors))
+            }
+            // `BindVariable(var, handler)`: the operand is the handler's
+            // prototype index.
+            Op::BindVariable => {
+                let handler = match a.args.get(1) {
+                    Some(Arg::Num(id)) => {
+                        Expr::Function(self.script.fn_by_id(*id as usize)?.proto.name.clone())
+                    }
+                    _ => arg(1)?,
+                };
+                Stmt::Assign(
+                    self.last_result()?,
+                    Expr::Call("BindVariable".into(), vec![Expr::Ref(b(arg(0)?)), handler]),
+                )
             }
             Op::OldProp(_) => return Ok(None),
             Op::LoadStringConst => Stmt::Assign(arg(2)?, Expr::StringConstant(b(arg(1)?))),

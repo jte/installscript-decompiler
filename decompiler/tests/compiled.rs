@@ -10,68 +10,62 @@ fn decompile(bytes: &[u8]) -> String {
 const DEBUG_INX: &[u8] = include_bytes!("fixtures/debug.inx");
 const DEBUG_DBG: &[u8] = include_bytes!("fixtures/debug.dbg");
 
-/// `debug.rul` decompiled with its debug symbols.
-const WITH_SYMBOLS: &str = "\
-// Names restored from debug symbols. Source files: debug_inc.h, debug.rul
+/// `debug.rul` decompiled with its debug symbols: the source, but for
+/// comments and the struct's name.
+const WITH_SYMBOLS: &str =
+    "// Names restored from debug symbols. Source files: debug_inc.h, debug.rul
 
 typedef STRUCT_1
-\tbegin
-\t\tLONG x;
-\t\tLONG y;
-\tend;
+	begin
+		LONG x;
+		LONG y;
+	end;
 
+INT gFromHeader;
+INT gCount;
+STRING gName[32];
 
-INT gFromHeader
-INT gCount
-STRING gName[32]
-VARIANT LAST_RESULT
-VARIANT NOTHING
-VARIANT Err
+prototype LONG Helper(LONG);
+prototype LONG First(LONG, STRING);
+prototype LONG Locals(STRING, VARIANT);
 
 // debug_inc.h, lines 9-10
-function LONG Helper(INT nArg)
+function LONG Helper(nArg)
 begin
-\tgFromHeader = nArg;
-\treturn;
+	gFromHeader = nArg;
+	return;
 end;
 
 // debug.rul, lines 24-28
-function LONG First(INT nParam,STRING szParam)
+function LONG First(nParam, szParam)
 INT nLocal;
 STRING szLocal;
 begin
-\tnLocal = nParam + 1;
-\tszLocal = szParam;
-\tLAST_RESULT = Helper(nLocal);
-\tLAST_RESULT = LAST_RESULT;
-\treturn nLocal;
+	nLocal = nParam + 1;
+	szLocal = szParam;
+	Helper(nLocal);
+	return nLocal;
 end;
 
 // debug.rul, lines 35-39
-function LONG Locals(STRING szA,VARIANT vA)
-INT LclVarNum1;
+function LONG Locals(szA, vA)
 STRING szSized[20];
 STRUCT_1 pt;
-VARIANT nArr(3);
+NUMBER nArr(3);
 begin
-\tszSized = szA;
-\tpt.x = 1;
-\tLAST_RESULT = pt.x;
-\tLclVarNum1 = LAST_RESULT;
-\tnArr(0) = LclVarNum1;
-\tLAST_RESULT = nArr(0);
-\tvA = LAST_RESULT;
-\treturn;
+	szSized = szA;
+	pt.x = 1;
+	nArr(0) = pt.x;
+	vA = nArr(0);
+	return;
 end;
 
 // debug.rul, lines 42-44
-function VOID program()
-begin
-\tLAST_RESULT = First(1, gName);
-\tgCount = LAST_RESULT;
-\tLAST_RESULT = Locals(\"a\", 1);
-\texit;
-end;
+program
+	gCount = First(1, gName);
+	Locals(\"a\", 1);
+	exit;
+endprogram
 
 ";
 
@@ -96,10 +90,10 @@ fn missing_debug_symbols_are_pointed_out() {
         "// Compiled with debug symbols in C:\\Projects\\installscript-decompiler\\target\\dbgfix\\debug.dbg\n\
          // Supply that .dbg file to restore the original names.\n\n"
     ));
-    assert!(out.contains("\nfunction LONG Func_1(INT LclVarNum1,STRING LclVarStr1)\n"));
+    assert!(out.contains("\nfunction LONG Func_1(LclVarNum1, LclVarStr1)\n"));
     // Local declarations come out right without symbols too.
     assert!(
-        out.contains("\nSTRING LclVarStr2[20];\nSTRUCT_1 LclVarObj2;\nVARIANT LclVarObj3(3);\n")
+        out.contains("\nSTRING LclVarStr2[20];\nSTRUCT_1 LclVarObj2;\nNUMBER LclVarObj3(3);\n")
     );
 }
 
@@ -131,13 +125,12 @@ fn externals_keep_their_names_and_types() {
     let out = decompile(include_bytes!("fixtures/externs.obs"));
     assert_eq!(
         out,
-        "
-INT extNumber
-STRING extString
-VARIANT LAST_RESULT
-VARIANT NOTHING
-VARIANT Err
-VARIANT extVariant
+        "\
+external INT extNumber;
+external STRING extString;
+external VARIANT extVariant;
+
+export prototype LONG UseExterns();
 
 function LONG UseExterns()
 begin
@@ -152,35 +145,83 @@ end;
 }
 
 const PROGRAM: &str = "\
-function VOID program()
-begin
-\tLAST_RESULT = Func_1(\"World\");
-\tGblVarStr0 = LAST_RESULT;
-\tLAST_RESULT = Func_0(2, 3);
-\tGblVarNum0 = LAST_RESULT;
-\tLAST_RESULT = Func_2(GblVarNum0);
-\tLAST_RESULT = Func_6(GblVarNum0, GblVarStr1);
+program
+\tGblVarStr0 = Func_1(\"World\");
+\tGblVarNum0 = Func_0(2, 3);
+\tFunc_2(GblVarNum0);
+\tFunc_6(GblVarNum0, GblVarStr1);
 \tGblVarObj{pt}.x = 10;
-\tLAST_RESULT = GblVarObj{pt}.x;
-\tGblVarNum1 = LAST_RESULT;
+\tGblVarNum1 = GblVarObj{pt}.x;
 \tGblVarNum1 = GblVarNum1 - 3;
 \tGblVarObj{pt}.y = GblVarNum1;
-\tLAST_RESULT = Kernel32.GetTickCount();
-\tGblVarNum0 = LAST_RESULT;
+\tGblVarNum0 = Kernel32.GetTickCount();
 \texit;
+endprogram
+";
+
+/// `control_flow.rul` as decompiled: its loops and `if`/`elseif` chains come
+/// back as such, the `&&` and the `case 2, 3:` included.
+const FUNCTIONS: &str = "\
+prototype LONG Func_0(LONG, LONG);
+prototype STRING Func_1(STRING);
+prototype LONG Func_2(LONG);
+prototype LONG Func_6(LONG, BYREF STRING);
+prototype LONG Kernel32.GetTickCount();
+";
+
+const BODIES: &str = "\
+function LONG Func_0(LclVarNum1, LclVarNum2)
+begin
+\treturn LclVarNum1 + LclVarNum2;
+end;
+
+function STRING Func_1(LclVarStr1)
+begin
+\treturn \"Hello, \" + LclVarStr1 + \"!\\n\";
+end;
+
+function LONG Func_2(LclVarNum1)
+INT LclVarNum2;
+INT LclVarNum3;
+begin
+\tLclVarNum3 = 0;
+\tfor LclVarNum2 = 1 to LclVarNum1
+\t\tLclVarNum3 = LclVarNum3 + (LclVarNum2 * 2);
+\tendfor;
+\twhile (LclVarNum3 > 10)
+\t\tLclVarNum3 = LclVarNum3 / 2;
+\tendwhile;
+\tGblVarNum0 = LclVarNum3;
+\treturn;
+end;
+
+function LONG Func_6(LclVarNum1, LclVarStr1)
+begin
+\tif (LclVarNum1 == 0) then
+\t\tLclVarStr1 = \"zero\";
+\t\treturn 0;
+\telseif (LclVarNum1 < 0) then
+\t\tLclVarStr1 = \"negative\";
+\telseif ((LclVarNum1 > 100) && (LclVarNum1 != 200)) then
+\t\tLclVarStr1 = \"big\";
+\telse
+\t\tLclVarStr1 = \"small\";
+\tendif;
+\tif (LclVarNum1 == 1) then
+\t\tLclVarStr1 = LclVarStr1 + \"one\";
+\telseif ((LclVarNum1 == 2) || (LclVarNum1 == 3)) then
+\t\tLclVarStr1 = LclVarStr1 + \"two-three\";
+\telse
+\t\tLclVarStr1 = LclVarStr1 + \"?\";
+\tendif;
+\treturn -1;
 end;
 ";
 
 fn check_control_flow(out: &str, pt: &str) {
-    // `n > 100 && n != 200`
-    assert!(out.contains(
-        "\tLclVarNum2 = LclVarNum2 && LclVarNum3;\n\tif LclVarNum2 then\n\t\tLclVarStr1 = \"big\";"
-    ));
-    // `case 2, 3:`
-    assert!(out.contains("\tLclVarNum2 = LclVarNum2 || LclVarNum3;\n\tif LclVarNum2 then\n\t\tLclVarStr1 = LclVarStr1 + \"two-three\";"));
-    // The program block is its own function rather than the tail of the last one.
-    assert!(out.contains("\treturn -1;\nend;\n"));
-    assert!(out.contains(&format!("{}\n", PROGRAM.replace("{pt}", pt))));
+    assert!(out.contains(FUNCTIONS), "{out}");
+    assert!(out.contains(BODIES), "{out}");
+    assert!(out.contains(&PROGRAM.replace("{pt}", pt)), "{out}");
 }
 
 #[test]
@@ -190,16 +231,10 @@ fn repeat_until_loop() {
         "\
 begin
 \tLclVarNum2 = 0;
-\tlabel_1:
-\tLclVarNum1 = LclVarNum1 - 1;
-\tLclVarNum2 = LclVarNum2 + 1;
-\tLclVarNum3 = LclVarNum1 <= 0;
-\tLclVarNum4 = LclVarNum2 == 10;
-\tLclVarNum3 = LclVarNum3 || LclVarNum4;
-\tif !LclVarNum3 then
-\t\tgoto label_1;
-\tendif;
-\tLAST_RESULT = LAST_RESULT;
+\trepeat
+\t\tLclVarNum1 = LclVarNum1 - 1;
+\t\tLclVarNum2 = LclVarNum2 + 1;
+\tuntil ((LclVarNum1 <= 0) || (LclVarNum2 == 10));
 \treturn LclVarNum2;
 end;
 "
@@ -217,7 +252,7 @@ fn linked_setup_script() {
 fn object_file() {
     let out = decompile(include_bytes!("fixtures/control_flow.obs"));
     assert!(out.starts_with("typedef POINT\n"));
-    assert!(out.contains("\nPOINT GblVarObj4\n"));
+    assert!(out.contains("\nPOINT GblVarObj4;\n"));
     check_control_flow(&out, "4");
 }
 
@@ -234,4 +269,42 @@ fn damaged_debug_symbols_do_not_panic() {
             let _ = run(&data, Mode::Decompile);
         }
     }
+}
+
+#[test]
+fn features() {
+    let out = decompile(include_bytes!("fixtures/features.inx"));
+    // A DLL's STRING parameter is declared plainly.
+    assert!(
+        out.contains("prototype LONG Kernel32.lstrlenA(STRING);\n"),
+        "{out}"
+    );
+    // The empty last case keeps the statement every case jumps to.
+    assert!(
+        out.contains(
+            "\
+\telseif (LclVarNum1 == 3) then
+\tendif;
+\treturn 0;
+end;"
+        ),
+        "{out}"
+    );
+    // The NUL is escaped, in octal as the compiler wants.
+    assert!(out.contains("\tLclVarStr1 = \"a\\000b\";\n"), "{out}");
+    // BYREF arguments stay variables.
+    assert!(
+        out.contains(
+            "\
+\tLclVarNum1 = 0;
+\tLclVarStr1 = \"\";
+\tFunc_5(LclVarNum1, LclVarStr1);"
+        ),
+        "{out}"
+    );
+    // A member called with an argument.
+    assert!(
+        out.contains("\tGblVarStr0 = GblVarObj3.Item(\"key\");\n"),
+        "{out}"
+    );
 }

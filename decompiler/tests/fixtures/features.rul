@@ -1,0 +1,51 @@
+// Compiled with InstallShield 2026 (Compile.exe 32.0.0.68):
+//   Compile.exe /Q features.rul /Ofeatures.inx
+// Each function exercises something the decompiler once got wrong.
+
+prototype NUMBER Pick(NUMBER);
+prototype Fill(BYREF NUMBER, BYREF STRING);
+prototype UseFill();
+prototype NUMBER Kernel32.lstrlenA(STRING);
+
+NUMBER gN;
+STRING gS;
+OBJECT gObj;
+
+// A switch whose last case is empty: its jump target used to be dropped.
+function NUMBER Pick(n)
+begin
+    switch (n)
+    case 1:
+        return 10;
+    case 2:
+        return 20;
+    case 3:
+    endswitch;
+    return 0;
+end;
+
+// A string holding a NUL character.
+function Fill(nOut, szOut)
+begin
+    nOut = 5;
+    szOut = "a\0b";
+end;
+
+// Variables passed BYREF must stay variables.
+function UseFill()
+    NUMBER nTmp;
+    STRING szTmp;
+begin
+    nTmp = 0;
+    szTmp = "";
+    Fill(nTmp, szTmp);
+end;
+
+program
+    UseFill();
+    gN = Pick(gN) + Kernel32.lstrlenA(gS);
+    // Folds into one long line that has to be wrapped.
+    gS = "The quick brown fox jumps over the lazy dog. " + gS + "The quick brown fox jumps over the lazy dog. " + gS + "The quick brown fox jumps over the lazy dog. " + gS;
+    // A member called with an argument.
+    gS = gObj.Item("key");
+endprogram

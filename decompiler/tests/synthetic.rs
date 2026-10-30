@@ -175,19 +175,18 @@ fn new_format(obs: bool) -> Vec<u8> {
 }
 
 const MAIN_BODY: &str = "\
-function INT Main(STRING LclVarStr1)
+export prototype INT Main(STRING);
+prototype LONG KERNEL32.GetTickCount();
+
+function INT Main(LclVarStr1)
 INT LclVarNum1;
 STRING LclVarStr2;
 begin
 \tlabel_1:
-\tLAST_RESULT = KERNEL32.GetTickCount();
-\tLclVarNum1 = LAST_RESULT;
-\tLclVarNum1 = LclVarNum1 == 0;
-\tif LclVarNum1 then
+\tif (KERNEL32.GetTickCount() == 0) then
 \t\tLclVarStr2 = \"a\\\"b\\\\c\\n\";
 \tendif;
 \tgoto label_1;
-\treturn LclVarNum1;
 end;
 
 ";
@@ -196,9 +195,8 @@ end;
 fn inx_decompiles() {
     let out = run(&new_format(false), Mode::Decompile).unwrap();
     let expected = format!(
-        "typedef STRUCT_1\n\tbegin\n\t\tLONG a;\n\t\tSTRING b[10];\n\tend;\n\n\n\
-         INT GblVarNum0\nINT GblVarNum1\nSTRING GblVarStr0[50]\n\
-         VARIANT LAST_RESULT\nVARIANT NOTHING\nVARIANT Err(4)\n\n{MAIN_BODY}"
+        "typedef STRUCT_1\n\tbegin\n\t\tLONG a;\n\t\tSTRING b[10];\n\tend;\n\n\
+         INT GblVarNum0;\nINT GblVarNum1;\nSTRING GblVarStr0[50];\n\n{MAIN_BODY}"
     );
     assert_eq!(out, expected);
 }
@@ -207,9 +205,8 @@ fn inx_decompiles() {
 fn obs_decompiles_with_externs() {
     let out = run(&new_format(true), Mode::Decompile).unwrap();
     let expected = format!(
-        "typedef POINT\n\tbegin\n\t\tLONG a;\n\t\tSTRING b[10];\n\tend;\n\n\n\
-         INT GblVarNum0\nINT MyNum\nSTRING GblVarStr0[50]\n\
-         VARIANT LAST_RESULT\nVARIANT NOTHING\nVARIANT Err(4)\n\n{MAIN_BODY}"
+        "typedef POINT\n\tbegin\n\t\tLONG a;\n\t\tSTRING b[10];\n\tend;\n\n\
+         INT GblVarNum0;\nexternal INT MyNum;\nSTRING GblVarStr0[50];\n\n{MAIN_BODY}"
     );
     assert_eq!(out, expected);
 }
@@ -316,17 +313,16 @@ fn ins_script() -> Vec<u8> {
 #[test]
 fn ins_decompiles() {
     let out = run(&ins_script(), Mode::Decompile).unwrap();
-    let expected = "\n\
-INT GblVarNum0
-INT GblVarNum1
-STRING GblVarStr0
-STRING SRCDIR
+    let expected = "\
+INT GblVarNum0;
+INT GblVarNum1;
+STRING GblVarStr0;
+STRING SRCDIR;
 
 function INT Func_0()
 begin
 \tGblVarNum1 = 7;
-\tGblVarNum0 = MyFunc(5);
-\tGblVarNum0 = GblVarNum0;
+\tMyFunc(5);
 end;
 
 function INT MyFunc(INT LclVarNum1)
@@ -335,11 +331,10 @@ INT LclVarNum2;
 STRING LclVarStr1;
 begin
 \tlabel_1:
-\tif LclVarNum1 then
+\tif (LclVarNum1) then
 \t\tLclVarStr1 = @ID_TITLE;
 \tendif;
 \tgoto label_1;
-\treturn LclVarNum2;
 end;
 
 ";

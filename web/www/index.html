@@ -183,7 +183,7 @@
     </details>
     <details>
       <summary>Why does the output look different from the original source?</summary>
-      <p>Compilation throws away comments, formatting and the names of local variables and non-exported functions, so those come back as generated names like <code>LclVarNum1</code> or <code>Func_2047</code>. Loops come back as <code>goto</code>s. Scripts compiled with debug information keep the names: they are restored automatically when embedded in <code>setup.inx</code>, or when you add the <code>.dbg</code> file the script was built with. Decompilation is not perfect — if a file produces wrong output, please <a href="https://github.com/jte/installscript-decompiler/issues/new" target="_blank" rel="noopener">open an issue</a>.</p>
+      <p>Compilation throws away comments, formatting and the names of local variables and non-exported functions, so those come back as generated names like <code>LclVarNum1</code> or <code>Func_2047</code>. <code>if</code>/<code>elseif</code>/<code>else</code>, <code>while</code>, <code>repeat</code> and <code>for</code> are rebuilt from the jumps the compiler leaves behind; a <code>switch</code> comes back as an <code>if</code>/<code>elseif</code> chain, and anything without a structured form stays a <code>goto</code>. Scripts compiled with debug information keep the names: they are restored automatically when embedded in <code>setup.inx</code>, or when you add the <code>.dbg</code> file the script was built with. Decompilation is not perfect — if a file produces wrong output, please <a href="https://github.com/jte/installscript-decompiler/issues/new" target="_blank" rel="noopener">open an issue</a>.</p>
     </details>
     <details>
       <summary>Can I use it from the command line?</summary>

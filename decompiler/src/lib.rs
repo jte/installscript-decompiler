@@ -12,7 +12,9 @@ pub mod lower;
 pub mod newis;
 pub mod oldis;
 pub mod script;
+pub mod simplify;
 pub mod stream;
+pub mod structure;
 pub mod types;
 pub mod vars;
 

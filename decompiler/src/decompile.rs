@@ -1,4 +1,5 @@
-//! Assembles the decompiled `.rul` source: typedefs, globals, then functions.
+//! Assembles the decompiled `.rul` source: typedefs, globals, prototypes,
+//! then functions.
 
 use std::fmt::Write;
 
@@ -6,20 +7,35 @@ use crate::Result;
 use crate::debug;
 use crate::ir;
 use crate::lower::{self, Ctx};
-use crate::script::{DataDeclList, Format, Function, ObjectVarInfo, Script};
-use crate::types::{ConcreteType, VarType};
-use crate::vars::{Decl, Symbols, TableId, Variable};
+use crate::script::{DataDeclList, Format, Function, ObjectVarInfo, Op, Script, proto_flags};
+use crate::simplify;
+use crate::structure;
+use crate::types::{ConcreteType, ScriptType, VarType};
+use crate::vars::{Decl, Symbols, TableId, VarId, Variable};
 
 pub struct Decompiled {
     pub source: String,
     pub dot: String,
 }
 
+/// The low bits of the flags are a COM `VARTYPE`: the element type of an
+/// array, and `VT_DISPATCH` (9) for an `OBJECT` or a struct.
 fn variant_decl(obj: &ObjectVarInfo, script: &Script) -> Result<Decl> {
+    let vt = obj.flags & 0xff;
     if obj.is_array() {
-        return Ok(Decl::VariantArray { count: obj.extra });
+        // Every numeric type (NUMBER, BOOL, INT, HWND, LIST…) is stored as 3.
+        let element = match vt {
+            3 => "NUMBER",
+            8 => "STRING",
+            _ => "VARIANT",
+        };
+        return Ok(Decl::Array {
+            element,
+            count: obj.extra,
+        });
     }
     match obj.typedef_id() {
+        -1 if vt == 9 && script.format == Format::New => Ok(Decl::Object),
         -1 => Ok(Decl::Variant),
         id => {
             let s = usize::try_from(id)
@@ -53,18 +69,27 @@ fn add_globals(script: &Script, syms: &mut Symbols, table: TableId) -> Result<()
         syms.add(table, Variable::new(i as i32, variant_decl(obj, script)?));
     }
 
-    let mut rename = |address: i32, ty: VarType, name: &str| -> Result<()> {
+    let mut rename = |address: i32, ty: VarType, name: &str, external: bool| -> Result<()> {
         let v = syms.by_address(table, address, ty, true)?;
         syms.vars[v].name = name.to_string();
+        syms.vars[v].external = external;
         Ok(())
     };
     if script.format == Format::New {
-        rename(0, VarType::Variant, "LAST_RESULT")?;
-        rename(1, VarType::Variant, "NOTHING")?;
-        rename(2, VarType::Variant, "Err")?;
+        rename(0, VarType::Variant, "LAST_RESULT", false)?;
+        rename(1, VarType::Variant, "NOTHING", false)?;
+        rename(2, VarType::Variant, "Err", false)?;
     }
     for e in &script.externs {
-        rename(e.address as i32, e.ty, &e.name)?;
+        // `.ins` externs are InstallShield 5 system variables, which have no
+        // `external` declaration.
+        let builtin = e.ty == VarType::Variant && BUILTIN_GLOBALS.contains(&e.name.as_str());
+        rename(
+            e.address as i32,
+            e.ty,
+            &e.name,
+            script.format == Format::New && !builtin,
+        )?;
     }
     if let Some(info) = &script.debug {
         name_from_symbols(syms, &[table], &info.globals, |v| v.address);
@@ -97,15 +122,16 @@ fn name_from_symbols(
             let name = usize::try_from(slot(&syms.vars[v]))
                 .ok()
                 .and_then(|i| names.get(i));
-            if let Some(name) = name {
+            // Compiler temporaries can be listed with an empty name.
+            if let Some(name) = name.filter(|n| !n.is_empty()) {
                 syms.vars[v].name = name.clone();
+                syms.vars[v].named = true;
             }
         }
     }
 }
 
 struct FunctionOut {
-    header: String,
     nodes: Vec<crate::expr::Node>,
     cfg: ir::Cfg,
     args: TableId,
@@ -147,6 +173,7 @@ fn function(
     script: &Script,
     syms: &mut Symbols,
     globals: TableId,
+    last_result: Option<VarId>,
     f: &Function,
 ) -> Result<FunctionOut> {
     let args = syms.new_table(Some(globals));
@@ -174,7 +201,7 @@ fn function(
         name_from_symbols(syms, &[args, locals], &df.vars, |v| -v.address - 101);
     }
 
-    let nodes = lower::lower_function(
+    let mut nodes = lower::lower_function(
         &Ctx {
             script,
             syms,
@@ -182,14 +209,106 @@ fn function(
         },
         &f.bbs,
     )?;
+    // Only unnamed locals: a name from debug symbols means the source had
+    // the variable, and a sized string truncates what is stored in it.
+    let syms_ref = &*syms;
+    let foldable = |v: VarId| {
+        let var = &syms_ref.vars[v];
+        !var.is_global()
+            && !var.named
+            && !matches!(var.decl, Decl::String { size: Some(_) })
+            && !syms_ref.table_vars(args).contains(&v)
+    };
+    simplify::fold_temporaries(&mut nodes, foldable, last_result);
     let cfg = ir::build(&nodes);
     Ok(FunctionOut {
-        header: String::new(),
         nodes,
         cfg,
         args,
         locals,
     })
+}
+
+/// The variable that receives call results.
+fn last_result_var(script: &Script, syms: &Symbols, globals: TableId) -> Option<VarId> {
+    match script.format {
+        Format::New => syms
+            .by_name(globals, "LAST_RESULT", VarType::Variant, true)
+            .ok(),
+        Format::Old => syms.by_address(globals, 0, VarType::Number, true).ok(),
+    }
+}
+
+/// A prototype's type. `VARIANT` and `OBJECT` compile to the same code;
+/// `VARIANT` is the one that also accepts numbers and strings.
+fn proto_type(t: ScriptType) -> String {
+    match t.0 {
+        10 => "VARIANT".into(),
+        _ => t.to_string(),
+    }
+}
+
+/// Functions some call passes more arguments than they declare.
+fn called_with_extra_args(script: &Script) -> Vec<bool> {
+    let mut extra = vec![false; script.fns.len()];
+    for f in &script.fns {
+        for a in f.bbs.iter().flat_map(|bb| &bb.actions) {
+            if let Op::Call { fn_id } = a.op
+                && let Some(callee) = script.fns.get(fn_id as usize)
+                && a.args.len() > callee.proto.args.len()
+            {
+                extra[fn_id as usize] = true;
+            }
+        }
+    }
+    extra
+}
+
+/// `prototype` line for a function the script defines or a DLL function.
+fn prototype(f: &Function, name: &str, variadic: bool) -> String {
+    let mut args: Vec<String> = f
+        .proto
+        .args
+        .iter()
+        .map(|a| {
+            // A DLL's STRING parameter is stored the same either way.
+            let dll_string = f.proto.flags & proto_flags::IS_DLL_FUNCTION != 0
+                && a.internal_type == ConcreteType::StringPointer;
+            let byref = !dll_string
+                && matches!(
+                    a.internal_type,
+                    ConcreteType::NumberPointer
+                        | ConcreteType::StringPointer
+                        | ConcreteType::ObjectPointer
+                );
+            format!(
+                "{}{}",
+                if byref { "BYREF " } else { "" },
+                proto_type(a.script_type)
+            )
+        })
+        .collect();
+    if variadic || f.proto.flags & proto_flags::IS_VARIADIC != 0 {
+        args.push("...".into());
+    }
+    format!(
+        "{}prototype {}{} {name}({});",
+        if f.proto.is_exported() { "export " } else { "" },
+        if f.proto.flags & proto_flags::IS_CDECL != 0 {
+            "cdecl "
+        } else {
+            ""
+        },
+        proto_type(f.proto.return_type),
+        args.join(", ")
+    )
+}
+
+/// Globals every InstallScript 6+ script has without declaring them.
+const BUILTIN_GLOBALS: [&str; 3] = ["LAST_RESULT", "NOTHING", "Err"];
+
+fn is_program(script: &Script, f: &Function) -> bool {
+    script.format == Format::New && f.proto.is_exported() && f.proto.name == "program"
 }
 
 fn debug_function<'a>(script: &'a Script, f: &Function) -> Option<&'a debug::DebugFunction> {
@@ -243,49 +362,109 @@ pub fn decompile(script: &Script) -> Result<Decompiled> {
         s.write(&mut source, &script.structs);
         source.push('\n');
     }
-    source.push('\n');
+    let mut any = false;
     for &v in syms.table_vars(globals) {
-        let _ = writeln!(source, "{}", syms.vars[v]);
+        let var = &syms.vars[v];
+        if script.format == Format::New
+            && var.ty == VarType::Variant
+            && var.address < 3
+            && BUILTIN_GLOBALS.contains(&var.name.as_str())
+        {
+            continue;
+        }
+        // Defined in another script object: `.obs` files list these.
+        let external = if var.external { "external " } else { "" };
+        let _ = writeln!(source, "{external}{var};");
+        any = true;
     }
-    source.push('\n');
+    if any {
+        source.push('\n');
+    }
 
-    let mut dot = String::new();
-    let mut unnamed = 0;
-    for f in script.fns.iter().filter(|f| !f.bbs.is_empty()) {
+    let defined = |f: &&Function| !f.bbs.is_empty();
+    let display_name = |f: &Function| {
         let name = function_name(f);
-        let display = if name.is_empty() {
+        if name.is_empty() {
             format!("Func_{}", f.proto.bb_id)
         } else {
-            name.clone()
-        };
-        match function(script, &mut syms, globals, f) {
-            Ok(mut out) => {
+            name
+        }
+    };
+    if script.format == Format::New {
+        let extra = called_with_extra_args(script);
+        let mut any = false;
+        for (i, f) in script.fns.iter().enumerate() {
+            let dll = f.proto.flags & proto_flags::IS_DLL_FUNCTION != 0;
+            if (dll || defined(&f)) && !is_program(script, f) {
+                let name = if dll {
+                    f.proto.name.clone()
+                } else {
+                    display_name(f)
+                };
+                let _ = writeln!(source, "{}", prototype(f, &name, extra[i]));
+                any = true;
+            }
+        }
+        if any {
+            source.push('\n');
+        }
+    }
+
+    let last_result = last_result_var(script, &syms, globals);
+    let mut dot = String::new();
+    let mut unnamed = 0;
+    for f in script.fns.iter().filter(defined) {
+        let name = function_name(f);
+        let display = display_name(f);
+        match function(script, &mut syms, globals, last_result, f) {
+            Ok(out) => {
                 if let Some((file, first, last)) = script
                     .debug
                     .as_ref()
                     .zip(debug_function(script, f))
                     .and_then(|(info, df)| df.location(info))
                 {
-                    let _ = writeln!(out.header, "// {file}, lines {first}-{last}");
+                    let _ = writeln!(source, "// {file}, lines {first}-{last}");
                 }
-                let arg_list: Vec<String> = syms
-                    .table_vars(out.args)
-                    .iter()
-                    .map(|&v| syms.vars[v].to_string())
-                    .collect();
-                let _ = writeln!(
-                    out.header,
-                    "function {} {display}({})",
-                    f.proto.return_type,
-                    arg_list.join(",")
-                );
-                source.push_str(&out.header);
-                for &v in syms.table_vars(out.locals) {
-                    let _ = writeln!(source, "{};", syms.vars[v]);
+                let program = is_program(script, f);
+                if program {
+                    source.push_str("program\n");
+                } else {
+                    // Types are in the prototype; `.ins` scripts keep the
+                    // typed form the original decompiler printed.
+                    let params: Vec<String> = syms
+                        .table_vars(out.args)
+                        .iter()
+                        .map(|&v| match script.format {
+                            Format::New => syms.vars[v].name.clone(),
+                            Format::Old => syms.vars[v].to_string(),
+                        })
+                        .collect();
+                    let return_type = match script.format {
+                        Format::New => proto_type(f.proto.return_type),
+                        Format::Old => f.proto.return_type.to_string(),
+                    };
+                    let _ = writeln!(
+                        source,
+                        "function {return_type} {display}({})",
+                        params.join(", ")
+                    );
+                    // Temporaries that folding emptied out need no
+                    // declaration.
+                    let used = simplify::mentioned_vars(&out.nodes);
+                    for &v in syms.table_vars(out.locals) {
+                        if syms.vars[v].named || used.binary_search(&v).is_ok() {
+                            let _ = writeln!(source, "{};", syms.vars[v]);
+                        }
+                    }
+                    source.push_str("begin\n");
                 }
-                source.push_str("begin\n");
-                out.cfg.write_body(&mut source, &out.nodes, &syms);
-                source.push_str("end;\n\n");
+                structure::write_body(&mut source, &out.cfg, &out.nodes, &syms, last_result);
+                source.push_str(if program {
+                    "endprogram\n\n"
+                } else {
+                    "end;\n\n"
+                });
 
                 let dot_name = if name.is_empty() {
                     unnamed += 1;

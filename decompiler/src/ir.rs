@@ -105,7 +105,6 @@ impl Gen<'_> {
         let mut t = then;
         while let Some(i) = t {
             if Some(i) == else_ {
-                self.stop.pop();
                 break;
             }
             if let Visit::Stopped = self.generate(i) {
@@ -113,6 +112,10 @@ impl Gen<'_> {
             }
             t = self.next(i);
         }
+        // The original only popped this on reaching `else_`, so an empty or
+        // stopped `then` left it behind and the `else` statement, with its
+        // label, was never emitted.
+        self.stop.pop();
         let cur = self.cur();
         self.link(cur, cont_bb);
         self.current.pop();
