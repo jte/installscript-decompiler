@@ -6,10 +6,12 @@
   "assets": {
     "directory": "./dist"
   },
-  // Served at the apex of the installscript-decompiler.com zone in the same
-  // Cloudflare account; deploying creates the DNS record and certificate.
+  // Served at the installscript-decompiler.com zone in the same Cloudflare
+  // account; deploying creates the DNS records and certificates. A redirect
+  // rule in the dashboard sends www to the apex before the Worker runs.
   "routes": [
-    { "pattern": "installscript-decompiler.com", "custom_domain": true }
+    { "pattern": "installscript-decompiler.com", "custom_domain": true },
+    { "pattern": "www.installscript-decompiler.com", "custom_domain": true }
   ],
   "observability": {
     "enabled": false
