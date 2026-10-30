@@ -3,6 +3,7 @@
 
 use crate::Result;
 use crate::expr::{Expr, Node, Stmt};
+use crate::is5_builtins;
 use crate::script::{Action, Arg, BasicBlock, Format, Op, Script, proto_flags};
 use crate::types::{ConcreteType, ScriptType, VarType};
 use crate::vars::{Symbols, TableId, is_global_address};
@@ -105,10 +106,18 @@ impl Ctx<'_> {
             } else {
                 Some(arg(0)?)
             }),
-            Op::Builtin { name, used } => Stmt::Assign(
-                self.last_result()?,
-                Expr::Call(name.to_string(), args(*used)?),
-            ),
+            Op::Builtin { name, used } => {
+                let mut args = args(*used)?;
+                // InstallShield 5 built-ins write to some of their arguments.
+                if self.script.format == Format::Old {
+                    for (i, arg) in args.iter_mut().enumerate() {
+                        if is5_builtins::is_output(name, i) {
+                            *arg = Expr::Ref(b(std::mem::replace(arg, Expr::Number(0))));
+                        }
+                    }
+                }
+                Stmt::Assign(self.last_result()?, Expr::Call(name.to_string(), args))
+            }
             Op::PropPut => {
                 if a.args.len() < 2 {
                     return Err("PropPut needs at least two operands".into());

@@ -8,6 +8,7 @@ pub mod decompile;
 pub mod expr;
 pub mod format;
 pub mod ir;
+pub mod is5_builtins;
 pub mod lower;
 pub mod newis;
 pub mod oldis;

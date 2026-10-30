@@ -2,6 +2,7 @@
 
 use crate::Result;
 use crate::expr::BinOp;
+use crate::is5_builtins;
 use crate::script::{
     Action, Arg, BasicBlock, DataDeclList, Extern, Format, Function, Op, Prototype, Script,
     ScriptStruct, StructMember, proto_flags,
@@ -92,19 +93,24 @@ fn read_prototypes(s: &mut Stream) -> Result<Vec<Function>> {
     let mut fns = Vec::new();
     for i in 0..count {
         let kind = s.u8()?;
-        let return_type = ScriptType(s.u8()?);
+        let _reserved = s.u8()?;
         let mut name = String::new();
-        let mut bb_id = 0xffff;
+        let bb_id = 0xffff;
+        // Script functions have no stored return type; they return a number.
+        let mut return_type = ScriptType(4);
+        let mut flags = proto_flags::IS_EXPORTED;
         match kind {
             2 => {
                 let _dll = s.ins_string()?;
                 name = s.ins_string()?;
-                bb_id = s.u16()?;
+                // Always 0; the body is found through the calls instead.
+                let _bb_id = s.u16()?;
             }
             1 => {
-                let _unknown = s.u16()?;
-                let _dll = s.ins_string()?;
-                name = s.ins_string()?;
+                return_type = ScriptType(s.u16()? as u8);
+                let dll = s.ins_string()?;
+                name = format!("{dll}.{}", s.ins_string()?);
+                flags |= proto_flags::IS_DLL_FUNCTION;
             }
             _ => {}
         }
@@ -112,7 +118,14 @@ fn read_prototypes(s: &mut Stream) -> Result<Vec<Function>> {
         let args = (0..n)
             .map(|_| {
                 let script_type = ScriptType(s.u16()? as u8);
-                let internal_type = ConcreteType::from_u8(s.u16()? as u8);
+                // How the value is passed; not the codes of later versions.
+                let internal_type = match s.u16()? {
+                    2 => ConcreteType::StringPointer,
+                    3 => ConcreteType::NumberPointer,
+                    4 => ConcreteType::String,
+                    5 => ConcreteType::Number,
+                    t => ConcreteType::Invalid(t as u8),
+                };
                 Ok(ArgumentTypeInfo {
                     script_type,
                     internal_type,
@@ -125,7 +138,7 @@ fn read_prototypes(s: &mut Stream) -> Result<Vec<Function>> {
         // .ins prototypes carry no export flag; mark them all so the functions
         // keep their names.
         let proto = Prototype {
-            flags: proto_flags::IS_EXPORTED,
+            flags,
             args,
             name,
             return_type,
@@ -136,8 +149,20 @@ fn read_prototypes(s: &mut Stream) -> Result<Vec<Function>> {
     Ok(fns)
 }
 
-fn read_events(s: &mut Stream, num_events: u16, fns: &mut [Function]) -> Result<()> {
-    let mut func = 0usize;
+/// A function body: the blocks from one prolog to the next.
+struct Body {
+    start: u16,
+    decls: DataDeclList,
+    bbs: Vec<BasicBlock>,
+}
+
+fn read_events(s: &mut Stream, num_events: u16, fns: &mut Vec<Function>) -> Result<()> {
+    // The code before the first prolog is the program block.
+    let mut bodies = vec![Body {
+        start: 0,
+        decls: DataDeclList::default(),
+        bbs: Vec::new(),
+    }];
     for i in 0..num_events {
         let _reserved = s.u16()?;
         let count = s.u16()?;
@@ -145,23 +170,58 @@ fn read_events(s: &mut Stream, num_events: u16, fns: &mut [Function]) -> Result<
             id: i as u32,
             actions: Vec::new(),
         };
-        if func >= fns.len() {
-            return Err(format!("Function #{func} not found"));
-        }
         for _ in 0..count {
             match parse_action(s, fns)? {
-                Parsed::Prolog(decls) => {
-                    func += 1;
-                    let f = fns
-                        .get_mut(func)
-                        .ok_or_else(|| format!("Function #{func} not found"))?;
-                    f.proto.bb_id = i;
-                    f.decls = decls;
-                }
+                Parsed::Prolog(decls) => bodies.push(Body {
+                    start: i,
+                    decls,
+                    bbs: Vec::new(),
+                }),
                 Parsed::Action(a) => bb.actions.push(a),
             }
         }
-        fns[func].bbs.push(bb);
+        bodies.last_mut().unwrap().bbs.push(bb);
+    }
+
+    // Prototypes are in declaration order and bodies in definition order;
+    // each call names both the prototype and the block its body starts at.
+    let mut proto_at = std::collections::HashMap::new();
+    for a in bodies
+        .iter()
+        .flat_map(|b| &b.bbs)
+        .flat_map(|bb| &bb.actions)
+    {
+        if let Op::OldCall { proto, event } = a.op {
+            proto_at.entry(event).or_insert(proto as usize);
+        }
+    }
+    for (k, body) in bodies.into_iter().enumerate() {
+        let attach = |f: &mut Function| {
+            f.proto.bb_id = body.start;
+            f.decls = body.decls;
+            f.bbs = body.bbs;
+        };
+        match proto_at.get(&body.start) {
+            Some(&p) if k > 0 && fns.get(p).is_some_and(|f| f.bbs.is_empty()) => {
+                attach(&mut fns[p]);
+            }
+            _ => {
+                let name = if k == 0 {
+                    "program".to_string()
+                } else {
+                    format!("Func_{}", fns.len())
+                };
+                let mut f = Function::new(Prototype {
+                    flags: proto_flags::IS_EXPORTED,
+                    args: Vec::new(),
+                    name,
+                    return_type: ScriptType(if k == 0 { 8 } else { 4 }),
+                    bb_id: 0xffff,
+                });
+                attach(&mut f);
+                fns.push(f);
+            }
+        }
     }
     Ok(())
 }
@@ -238,6 +298,9 @@ fn parse_action(s: &mut Stream, fns: &[Function]) -> Result<Parsed> {
     let id = s.u16()?;
     let action = |op, args| Ok(Parsed::Action(Action { op, args }));
     let binary = match id {
+        // String `+` and the path operator `^`.
+        0x124 => Some(BinOp::Add),
+        0x125 => Some(BinOp::BitXor),
         0x119 => Some(BinOp::Add),
         0x11a => Some(BinOp::Sub),
         0x11b => Some(BinOp::Mul),
@@ -255,31 +318,24 @@ fn parse_action(s: &mut Stream, fns: &[Function]) -> Result<Parsed> {
         _ => None,
     };
     if let Some(op) = binary {
-        let n = if id == 0x128 { 4 } else { 3 };
-        return action(Op::Binary(op), parse_args(s, n)?);
+        if id == 0x128 {
+            // DEST = LHS code RHS: comparisons, with the operator as a code.
+            let mut args = parse_args(s, 4)?;
+            let op = match args[2] {
+                Arg::Num(1) => BinOp::Lt,
+                Arg::Num(2) => BinOp::Gt,
+                Arg::Num(3) => BinOp::Lte,
+                Arg::Num(4) => BinOp::Gte,
+                Arg::Num(5) => BinOp::Eq,
+                Arg::Num(6) => BinOp::Neq,
+                _ => return action(Op::Binary(op), args),
+            };
+            args.remove(2);
+            return action(Op::Binary(op), args);
+        }
+        return action(Op::Binary(op), parse_args(s, 3)?);
     }
     match id {
-        0x01 => action(
-            Op::Builtin {
-                name: "Enable",
-                used: 1,
-            },
-            parse_args(s, 1)?,
-        ),
-        0x02 => action(
-            Op::Builtin {
-                name: "Disable",
-                used: 1,
-            },
-            parse_args(s, 1)?,
-        ),
-        0x04 => action(
-            Op::Builtin {
-                name: "SetTitle",
-                used: 1,
-            },
-            parse_args(s, 3)?,
-        ),
         0x13 | 0x21 => action(Op::Assign, parse_args(s, 2)?),
         0x22 => {
             let label = s.u8()?;
@@ -322,28 +378,56 @@ fn parse_action(s: &mut Stream, fns: &[Function]) -> Result<Parsed> {
         0x12f => action(Op::Nop, Vec::new()),
         0x181 => action(Op::OldProp("PropGet"), parse_args(s, 5)?),
         0x183 => action(Op::OldProp("PropPut"), parse_args(s, 5)?),
+        // A call to a DLL function, by prototype index.
         0xb4 => {
             let _marker = s.u8()?;
             let proto = s.u16()?;
             let args = parse_args(s, arg_count(fns, proto)?)?;
-            action(Op::Placeholder(id), args)
+            action(Op::Call { fn_id: proto }, args)
         }
+        // Sprintf(dest, format, ...) and SprintfBox(type, title, format, ...).
         0x103 | 0x104 => {
-            let skipped = if id == 0x103 { 2 } else { 3 };
             let _marker = s.u8()?;
             let n = s.u16()? as usize;
-            parse_args(s, skipped)?;
-            let n = n
-                .checked_sub(skipped)
-                .ok_or_else(|| format!("Invalid operand count in action {id:#x}"))?;
-            action(Op::Placeholder(id), parse_args(s, n)?)
+            let name = if id == 0x103 { "Sprintf" } else { "SprintfBox" };
+            action(Op::Builtin { name, used: n }, parse_args(s, n)?)
         }
-        0x16d | 0x20 => Err(format!("Unimplemented action {id:#x}")),
+        // Marks where a `switch` starts; the cases follow as `if`s.
+        0x129 => action(Op::Nop, Vec::new()),
+        0x159 => action(Op::Abort, Vec::new()),
+        // AskOptions(type, message, text, BYREF check, ...): a count of
+        // text/check pairs after the two fixed arguments.
+        0x20 => {
+            let _marker = s.u8()?;
+            let pairs = s.u16()? as usize;
+            let n = 2 + 2 * pairs;
+            action(
+                Op::Builtin {
+                    name: "AskOptions",
+                    used: n,
+                },
+                parse_args(s, n)?,
+            )
+        }
+        0x16d => Err(format!(
+            "Unimplemented action {id:#x} at offset {:#x}",
+            s.pos() - 2
+        )),
         _ => {
             let n = NUM_OPERANDS
                 .get(id as usize)
                 .ok_or_else(|| format!("Unknown action id {id:#x}"))?;
-            action(Op::Placeholder(id), parse_args(s, (n & 0x0f) as usize)?)
+            let args = parse_args(s, (n & 0x0f) as usize)?;
+            match is5_builtins::name(id) {
+                Some(name) => action(
+                    Op::Builtin {
+                        name,
+                        used: args.len(),
+                    },
+                    args,
+                ),
+                None => action(Op::Placeholder(id), args),
+            }
         }
     }
 }

@@ -283,17 +283,19 @@ fn ins_script() -> Vec<u8> {
     b.u16(0);
     b.u16(2);
     b.u8(0).u8(3).u16(0);
-    b.u8(2).u8(3).s("").s("MyFunc").u16(1).u16(1).u16(3).u16(6);
+    b.u8(2).u8(3).s("").s("MyFunc").u16(1).u16(1).u16(3).u16(5);
 
-    b.u16(0).u16(3);
+    b.u16(0).u16(4);
     b.u16(0x13);
     o_num_var(&mut b, 1);
     o_num_const(&mut b, 7);
     b.u16(0xb5).u8(0).u16(1).u8(0).u16(1);
     o_num_const(&mut b, 5);
+    // abort
+    b.u16(0x159);
     b.u16(0x2b);
 
-    b.u16(0).u16(3);
+    b.u16(0).u16(6);
     b.u16(0xb6).u16(0).u16(1).u16(0).u16(0).u16(2).u16(0);
     b.u16(0x22).u8(0).u16(2).u8(0x95);
     o_num_var(&mut b, -101);
@@ -302,6 +304,21 @@ fn ins_script() -> Vec<u8> {
     o_num_const(&mut b, 0);
     o_str_const(&mut b, "ID_TITLE");
     o_str_var(&mut b, -101);
+    // String `+`.
+    b.u16(0x124);
+    o_str_var(&mut b, -101);
+    o_str_var(&mut b, -101);
+    o_str_const(&mut b, "!");
+    // A comparison whose operator (5, `==`) is an operand.
+    b.u16(0x128);
+    o_num_var(&mut b, -102);
+    o_num_var(&mut b, -101);
+    o_num_const(&mut b, 5);
+    o_num_const(&mut b, 3);
+    // A built-in: MessageBox.
+    b.u16(0x2a);
+    o_str_var(&mut b, -101);
+    o_num_var(&mut b, -102);
 
     b.u16(0).u16(2);
     b.u16(0x2c).u8(0x70).u16(1);
@@ -319,23 +336,23 @@ INT GblVarNum1;
 STRING GblVarStr0;
 STRING SRCDIR;
 
-function INT Func_0()
-begin
-\tGblVarNum1 = 7;
-\tMyFunc(5);
-end;
+prototype LONG MyFunc(INT);
 
-function INT MyFunc(INT LclVarNum1)
-INT LclVarNum1;
+function LONG MyFunc(LclVarNum1)
 INT LclVarNum2;
-STRING LclVarStr1;
 begin
 \tlabel_1:
 \tif (LclVarNum1) then
-\t\tLclVarStr1 = @ID_TITLE;
+\t\tMessageBox(@ID_TITLE + \"!\", LclVarNum1 == 3);
 \tendif;
 \tgoto label_1;
 end;
+
+program
+\tGblVarNum1 = 7;
+\tMyFunc(5);
+\tabort;
+endprogram
 
 ";
     assert_eq!(out, expected);

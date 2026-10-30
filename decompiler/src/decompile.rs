@@ -190,11 +190,6 @@ fn function(
         counts[slot] += 1;
         syms.add(args, Variable::new(-100 - counts[slot] as i32, decl));
     }
-    // .ins locals are numbered from the start of the frame, overlapping the
-    // parameters.
-    if script.format == Format::Old {
-        counts = [0; 3];
-    }
     add_locals(script, syms, locals, &f.decls, counts)?;
     if let Some(df) = debug_function(script, f) {
         // Parameters and locals share one numbering, from -101 down.
@@ -265,7 +260,9 @@ fn called_with_extra_args(script: &Script) -> Vec<bool> {
 }
 
 /// `prototype` line for a function the script defines or a DLL function.
-fn prototype(f: &Function, name: &str, variadic: bool) -> String {
+/// `export` only exists in InstallShield 6 and later; `.ins` prototypes are
+/// marked exported just so their functions keep their names.
+fn prototype(f: &Function, name: &str, variadic: bool, format: Format) -> String {
     let mut args: Vec<String> = f
         .proto
         .args
@@ -293,7 +290,11 @@ fn prototype(f: &Function, name: &str, variadic: bool) -> String {
     }
     format!(
         "{}prototype {}{} {name}({});",
-        if f.proto.is_exported() { "export " } else { "" },
+        if f.proto.is_exported() && format == Format::New {
+            "export "
+        } else {
+            ""
+        },
         if f.proto.flags & proto_flags::IS_CDECL != 0 {
             "cdecl "
         } else {
@@ -307,8 +308,8 @@ fn prototype(f: &Function, name: &str, variadic: bool) -> String {
 /// Globals every InstallScript 6+ script has without declaring them.
 const BUILTIN_GLOBALS: [&str; 3] = ["LAST_RESULT", "NOTHING", "Err"];
 
-fn is_program(script: &Script, f: &Function) -> bool {
-    script.format == Format::New && f.proto.is_exported() && f.proto.name == "program"
+fn is_program(f: &Function) -> bool {
+    f.proto.is_exported() && f.proto.name == "program"
 }
 
 fn debug_function<'a>(script: &'a Script, f: &Function) -> Option<&'a debug::DebugFunction> {
@@ -390,18 +391,18 @@ pub fn decompile(script: &Script) -> Result<Decompiled> {
             name
         }
     };
-    if script.format == Format::New {
+    {
         let extra = called_with_extra_args(script);
         let mut any = false;
         for (i, f) in script.fns.iter().enumerate() {
             let dll = f.proto.flags & proto_flags::IS_DLL_FUNCTION != 0;
-            if (dll || defined(&f)) && !is_program(script, f) {
+            if (dll || defined(&f)) && !is_program(f) {
                 let name = if dll {
                     f.proto.name.clone()
                 } else {
                     display_name(f)
                 };
-                let _ = writeln!(source, "{}", prototype(f, &name, extra[i]));
+                let _ = writeln!(source, "{}", prototype(f, &name, extra[i], script.format));
                 any = true;
             }
         }
@@ -426,24 +427,17 @@ pub fn decompile(script: &Script) -> Result<Decompiled> {
                 {
                     let _ = writeln!(source, "// {file}, lines {first}-{last}");
                 }
-                let program = is_program(script, f);
+                let program = is_program(f);
                 if program {
                     source.push_str("program\n");
                 } else {
-                    // Types are in the prototype; `.ins` scripts keep the
-                    // typed form the original decompiler printed.
+                    // Types are in the prototype.
                     let params: Vec<String> = syms
                         .table_vars(out.args)
                         .iter()
-                        .map(|&v| match script.format {
-                            Format::New => syms.vars[v].name.clone(),
-                            Format::Old => syms.vars[v].to_string(),
-                        })
+                        .map(|&v| syms.vars[v].name.clone())
                         .collect();
-                    let return_type = match script.format {
-                        Format::New => proto_type(f.proto.return_type),
-                        Format::Old => f.proto.return_type.to_string(),
-                    };
+                    let return_type = proto_type(f.proto.return_type);
                     let _ = writeln!(
                         source,
                         "function {return_type} {display}({})",

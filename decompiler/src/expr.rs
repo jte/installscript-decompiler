@@ -191,6 +191,20 @@ impl Expr {
 
     fn write(&self, out: &mut String, syms: &Symbols) {
         match self {
+            // InstallShield 5 compiles `a < b` on strings to this.
+            Expr::Binary(op, call, zero)
+                if matches!(
+                    op,
+                    BinOp::Lt | BinOp::Gt | BinOp::Lte | BinOp::Gte | BinOp::Eq | BinOp::Neq
+                ) && matches!(**zero, Expr::Number(0))
+                    && matches!(&**call, Expr::Call(name, args) if name == "StrCompare" && args.len() == 2) =>
+            {
+                let Expr::Call(_, args) = &**call else {
+                    unreachable!()
+                };
+                Expr::Binary(*op, Box::new(args[0].clone()), Box::new(args[1].clone()))
+                    .write(out, syms);
+            }
             // How the compiler spells `!(c)`.
             Expr::Binary(BinOp::Eq, c, zero)
                 if c.is_condition() && matches!(**zero, Expr::Number(0)) =>
