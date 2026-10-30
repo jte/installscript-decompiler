@@ -157,6 +157,12 @@ pub enum Stmt {
     Goto {
         target: Option<usize>,
     },
+    /// An `if` whose false branch jumps backwards, as at the end of a
+    /// `repeat … until` loop: `if !cond then goto target; endif;`.
+    GotoUnless {
+        cond: Expr,
+        target: usize,
+    },
     Return(Option<Expr>),
     Abort,
     Exit,

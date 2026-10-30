@@ -185,6 +185,12 @@ impl Cfg {
                     self.write_block(out, cont_bb, visited, indent, nodes, syms);
                 }
                 IrStmt::Plain(_) => {
+                    if let Stmt::GotoUnless { cond, .. } = &node.stmt {
+                        let _ = writeln!(out, "{tabs}if !{} then", cond.render(syms));
+                        let _ = writeln!(out, "{tabs}\tgoto {};", node.target_label);
+                        let _ = writeln!(out, "{tabs}endif;");
+                        continue;
+                    }
                     let text = match &node.stmt {
                         Stmt::Assign(l, r) => format!("{} = {}", l.render(syms), r.render(syms)),
                         Stmt::Goto { .. } => format!("goto {}", node.target_label),
@@ -192,7 +198,7 @@ impl Cfg {
                         Stmt::Return(None) => "return".into(),
                         Stmt::Exit => "exit".into(),
                         Stmt::Abort => "abort".into(),
-                        Stmt::Nop | Stmt::If { .. } => continue,
+                        Stmt::Nop | Stmt::If { .. } | Stmt::GotoUnless { .. } => continue,
                     };
                     let _ = writeln!(out, "{tabs}{text};");
                 }

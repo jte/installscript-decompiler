@@ -1,0 +1,21 @@
+// Compiled with InstallShield 2026 (Compile.exe 32.0.0.68):
+//   Compile.exe /Q repeat.rul /Orepeat.inx
+
+NUMBER gResult;
+
+prototype NUMBER CountDown(NUMBER);
+
+function NUMBER CountDown(n)
+    NUMBER steps;
+begin
+    steps = 0;
+    repeat
+        n = n - 1;
+        steps = steps + 1;
+    until (n <= 0 || steps = 10);
+    return steps;
+end;
+
+program
+    gResult = CountDown(5);
+endprogram

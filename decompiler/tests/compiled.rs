@@ -65,6 +65,29 @@ fn check_control_flow(out: &str, pt: &str) {
 }
 
 #[test]
+fn repeat_until_loop() {
+    let out = decompile(include_bytes!("fixtures/repeat.inx"));
+    assert!(out.contains(
+        "\
+begin
+\tLclVarNum2 = 0;
+\tlabel_1:
+\tLclVarNum1 = LclVarNum1 - 1;
+\tLclVarNum2 = LclVarNum2 + 1;
+\tLclVarNum3 = LclVarNum1 <= 0;
+\tLclVarNum4 = LclVarNum2 == 10;
+\tLclVarNum3 = LclVarNum3 || LclVarNum4;
+\tif !LclVarNum3 then
+\t\tgoto label_1;
+\tendif;
+\tLAST_RESULT = LAST_RESULT;
+\treturn LclVarNum2;
+end;
+"
+    ));
+}
+
+#[test]
 fn linked_setup_script() {
     let out = decompile(include_bytes!("fixtures/control_flow.inx"));
     assert!(out.starts_with("typedef STRUCT_1\n"));

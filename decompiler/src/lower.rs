@@ -123,6 +123,13 @@ fn const_operand(a: &Action) -> Result<i32> {
     }
 }
 
+fn label(nodes: &mut [Node], target: usize, counter: &mut usize) {
+    if nodes[target].label.is_empty() {
+        nodes[target].label = format!("label_{counter}");
+        *counter += 1;
+    }
+}
+
 pub fn lower_function(ctx: &Ctx, bbs: &[BasicBlock]) -> Result<Vec<Node>> {
     let mut nodes = Vec::new();
     let mut index: Vec<Vec<Option<usize>>> = Vec::with_capacity(bbs.len());
@@ -160,12 +167,25 @@ pub fn lower_function(ctx: &Ctx, bbs: &[BasicBlock]) -> Result<Vec<Node>> {
         for (j, a) in bb.actions.iter().enumerate() {
             let Some(node) = index[i][j] else { continue };
             let else_block = match a.op {
-                Op::If => Some(i as i64 + const_operand(a)? as u32 as i64),
+                // Negative for the backward jump that closes a `repeat` loop.
+                Op::If => Some(i as i64 + const_operand(a)? as i64),
                 Op::OldIf { target, .. } => Some(block_by_id(target, "continue branch in if")?),
                 _ => None,
             };
             if let Some(else_block) = else_block {
                 let else_node = block_start(else_block, "else")?;
+                if else_node <= node {
+                    label(&mut nodes, else_node, &mut label_counter);
+                    nodes[node].target_label = nodes[else_node].label.clone();
+                    let stmt = std::mem::replace(&mut nodes[node].stmt, Stmt::Nop);
+                    if let Stmt::If { cond, .. } = stmt {
+                        nodes[node].stmt = Stmt::GotoUnless {
+                            cond,
+                            target: else_node,
+                        };
+                    }
+                    continue;
+                }
                 let then_node = match bb.actions.get(j + 1) {
                     Some(_) => Some(index[i][j + 1].ok_or("Invalid then expression found")?),
                     None => None,
@@ -182,10 +202,7 @@ pub fn lower_function(ctx: &Ctx, bbs: &[BasicBlock]) -> Result<Vec<Node>> {
                 _ => continue,
             };
             let target = block_start(goto_block, "goto target")?;
-            if nodes[target].label.is_empty() {
-                nodes[target].label = format!("label_{label_counter}");
-                label_counter += 1;
-            }
+            label(&mut nodes, target, &mut label_counter);
             nodes[node].target_label = nodes[target].label.clone();
             nodes[node].stmt = Stmt::Goto {
                 target: Some(target),
